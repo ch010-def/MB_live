@@ -72,6 +72,9 @@ def parse_list(text):
         name = ""
         if not re.search(r"https?://|youtube\.com|^@", lines[0]):
             name = lines.pop(0)
+        elif " " in lines[0]:  # "이름 유튜브링크" 한 줄로 쓴 경우
+            first = lines[0].split()
+            name, lines[0] = " ".join(first[:-1]), first[-1]
         member = {"name": name, "path": None, "subs": [], "links": []}
         for line in lines:
             parts = line.split()
@@ -100,6 +103,7 @@ def channel_info(path):
             "avatar": re.sub(r"=s\d+[^/]*$", "=s240-c-k-c0x00ffffff-no-rj", meta(page, "og:image"))}
 
 
+DIAG = []
 STATS = {"info_ok": 0, "info_all": 0, "live_ok": 0, "live_all": 0, "watch": 0, "on": 0, "bot": 0}
 
 
@@ -118,6 +122,9 @@ def live_video(path):
     if not m:
         return ""
     STATS["watch"] += 1
+    flags = [k for k in ("isLiveNow\":true", "isLive\":true", "isUpcoming\":true", "isLiveContent\":true", "endTimestamp")
+             if ('"' + k) in page]
+    DIAG.append((path, m.group(1), flags))
     live = ('"isLiveNow":true' in page or '"isLive":true' in page
             or '"isLiveContent":true' in page and '"isUpcoming":true' not in page and '"endTimestamp"' not in page)
     if live:
@@ -214,6 +221,15 @@ def main():
     print("완료: %d명 중 %d명 라이브" % (len(results), sum(r["on"] for r in results)))
     print("채널 페이지 읽기 %(info_ok)d/%(info_all)d, 라이브 페이지 읽기 %(live_ok)d/%(live_all)d, "
           "방송 화면으로 연결 %(watch)d, 방송 중 %(on)d, 로봇 확인 화면 %(bot)d" % STATS)
+    # 진단용: 이름 대신 목록 순서 번호만 출력 (로그가 공개라서)
+    order = {}
+    for gi, g in enumerate(groups):
+        for m in g["members"]:
+            order.setdefault(m["path"], len(order) + 1)
+            for sp in m["subs"]:
+                order.setdefault(sp, "%s-서브" % order[m["path"]])
+    for path, vid, flags in DIAG:
+        print("  %s번 → 방송화면 연결, 표시: %s" % (order.get(path, "?"), ", ".join(flags) or "없음"))
 
 
 if __name__ == "__main__":
