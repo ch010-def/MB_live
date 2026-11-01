@@ -74,6 +74,11 @@ main{max-width:720px;margin:0 auto;padding:0 14px 56px}
 .memo-list li.empty::before{display:none}
 .memo-list li::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin-right:10px;vertical-align:2px}
 .empty{color:var(--muted);padding:10px 0 14px;font-size:14px}
+.refresh{font:inherit;font-size:12px;font-weight:700;color:var(--ink);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:4px 10px;cursor:pointer}
+.refresh:hover{border-color:var(--accent)}
+.refresh:disabled{opacity:.6;cursor:default}
+.flash{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--panel-2);border:1px solid var(--line);color:var(--ink);padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
+.flash.show{opacity:1}
 h2{font-size:15px;font-weight:700;color:var(--muted);margin:28px 4px 12px}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .m{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;min-width:0;
@@ -168,6 +173,7 @@ a.chip.live:hover{filter:brightness(1.12)}
   </div>
 </div>
 
+<div class="flash" id="flash" role="status"></div>
 <script id="data" type="application/json">__DATA__</script>
 <script>
 var $ = function(id){ return document.getElementById(id); };
@@ -182,7 +188,13 @@ function render(d){
   var hm = t.getHours() + ':' + ('0'+t.getMinutes()).slice(-2);
   var meta = $('meta'); meta.innerHTML = '';
   meta.appendChild(el('span', 'chip ' + (n ? 'live' : 'off'), n ? 'LIVE ' + n + '명' : '방송 중인 멤버 없음'));
-  meta.appendChild(el('span', null, '멤버 ' + all.length + '명 · ' + hm + ' 업데이트 (10분마다 업데이트)'));
+  var ago = Math.max(0, Math.round((Date.now() - t) / 60000));
+  meta.appendChild(el('span', null, '멤버 ' + all.length + '명 · ' + hm + ' 업데이트' + (ago >= 1 ? ' (' + ago + '분 전)' : ' (방금)')));
+  var rb = el('button', 'refresh', '↻ 새로고침'); rb.type = 'button'; rb.id = 'refreshBtn';
+  rb.title = '가장 최근 확인 결과를 바로 불러와요';
+  rb.addEventListener('click', function(){ rb.disabled = true; rb.textContent = '불러오는 중…'; load(true); });
+  meta.appendChild(rb);
+  lastData = d;
 
   var box = $('groups'); box.innerHTML = '';
   d.groups.forEach(function(g){
@@ -215,7 +227,7 @@ function render(d){
     });
     box.appendChild(grid);
   });
-  $('foot').textContent = '라이브 상태는 약 10분마다 자동으로 갱신돼요';
+  $('foot').textContent = '라이브 상태는 약 4~5분마다 자동으로 확인돼요';
   renderSchedule(d.schedule || [], d.memo || []);
 }
 
@@ -280,17 +292,23 @@ $('close').addEventListener('click', closeSheet);
 $('dim').addEventListener('click', function(e){ if(e.target === this) closeSheet(); });
 document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeSheet(); });
 
-// 데이터는 이 페이지 안에 들어 있어요. 2분마다 페이지를 다시 받아 새 데이터로 바꿉니다.
+// 데이터는 이 페이지 안에 들어 있어요. 1분마다 페이지를 다시 받아 새 데이터로 바꿉니다.
+var lastData = null;
 function readData(doc){ return JSON.parse(doc.getElementById('data').textContent); }
-function load(){
+function load(manual){
   fetch(location.pathname + '?t=' + Date.now(), {cache:'no-store'})
     .then(function(r){ if(!r.ok) throw 0; return r.text(); })
-    .then(function(html){ render(readData(new DOMParser().parseFromString(html, 'text/html'))); })
-    .catch(function(){});
+    .then(function(html){ render(readData(new DOMParser().parseFromString(html, 'text/html'))); if(manual) flash('최신 결과를 불러왔어요'); })
+    .catch(function(){ if(lastData) render(lastData); if(manual) flash('불러오지 못했어요. 잠시 후 다시 눌러 주세요'); });
+}
+var ft;
+function flash(msg){
+  var f = $('flash'); f.textContent = msg; f.classList.add('show');
+  clearTimeout(ft); ft = setTimeout(function(){ f.classList.remove('show'); }, 1800);
 }
 try{ render(readData(document)); }
 catch(e){ $('meta').textContent = '아직 준비 중이에요. 잠시 후 다시 열어 주세요.'; }
-setInterval(load, 2 * 60 * 1000);
+setInterval(function(){ load(false); }, 60 * 1000); // 1분마다 새 결과 확인
 </script>
 </body>
 </html>
