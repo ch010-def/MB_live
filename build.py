@@ -45,71 +45,91 @@ def meta(page, prop):
 
 
 def parse_list(text):
+    """멤버마다 빈 줄로 구분. 첫 줄 = 이름, 첫 유튜브 링크 = 대표 채널,
+    나머지 유튜브 링크와 "이름 링크" 줄 = 더보기."""
     title, groups = "", [{"title": "", "members": []}]
-    cur = None
-    skipped = []
+    blocks, cur = [], []
     for raw in text.splitlines():
         line = raw.strip()
-        if not line:
-            cur = None
-            continue
         if line.startswith("#"):
             continue
+        if not line:
+            if cur:
+                blocks.append(cur)
+            cur = []
+            continue
         head, _, rest = line.partition(" ")
-        rest = rest.strip()
-        if head == "제목":
-            title = rest
-            cur = None
-        elif head == "묶음":
-            groups.append({"title": rest, "members": []})
-            cur = None
-        elif cur is None:
-            path = channel_path(line)
-            if not path:
-                skipped.append(1)
-                continue
-            cur = {"path": path, "name": "", "links": []}
-            groups[-1]["members"].append(cur)
-        elif head == "이름":
-            cur["name"] = rest
+        if not cur and head == "제목":
+            title = rest.strip()
+        elif not cur and head == "묶음":
+            groups.append({"title": rest.strip(), "members": []})
         else:
+            cur.append(line)
+    if cur:
+        blocks.append(cur)
+
+    for lines in blocks:
+        name = ""
+        if not re.search(r"https?://|youtube\.com|^@", lines[0]):
+            name = lines.pop(0)
+        member = {"name": name, "path": None, "subs": [], "links": []}
+        for line in lines:
             parts = line.split()
             value = parts[-1]
             label = " ".join(parts[:-1])
-            cur["links"].append({"label": label, "value": value})
-    groups = [g for g in groups if g["members"]]
-    if skipped:
-        print("유튜브 채널 링크로 알아보지 못한 줄: %d개" % len(skipped))
-    return title, groups
+            path = channel_path(value) if re.search(r"youtube\.com|^@", value) else None
+            if path:
+                if member["path"] is None:
+                    member["path"] = path
+                    continue
+                member["subs"].append(path)
+                label = label or ("유튜브 %d" % (len(member["subs"]) + 1))
+                value = "youtube.com/" + path
+            member["links"].append({"label": label, "value": re.sub(r"^https?://", "", value)})
+        groups[-1]["members"].append(member)
+    return title, [g for g in groups if g["members"]]
+
+
+def channel_info(path):
+    page = get(yt_url(path))
+    if not page:
+        return {}
+    return {"autoName": meta(page, "og:title"),
+            "avatar": re.sub(r"=s\d+[^/]*$", "=s240-c-k-c0x00ffffff-no-rj", meta(page, "og:image"))}
+
+
+def live_video(path):
+    """방송 중이면 영상 ID, 아니면 "", 확인 실패면 None"""
+    page = get(yt_url(path) + "/live")
+    if page is None:
+        return None
+    m = re.search(r'<link rel="canonical" href="https://www\.youtube\.com/watch\?v=([\w-]{11})"', page)
+    return m.group(1) if (m and '"isLiveNow":true' in page) else ""
 
 
 def check(member, prev):
-    path = member["path"]
-    url = yt_url(path)
-    info = {"name": "", "avatar": ""}
-    page = get(url)
-    if page:
-        info["name"] = meta(page, "og:title")
-        info["avatar"] = re.sub(r"=s\d+[^/]*$", "=s240-c-k-c0x00ffffff-no-rj", meta(page, "og:image"))
-    old = prev.get(path, {})
-    live_page = get(url + "/live")
-    on, video = False, ""
-    if live_page:
-        m = re.search(r'<link rel="canonical" href="https://www\.youtube\.com/watch\?v=([\w-]{11})"', live_page)
-        if m and '"isLiveNow":true' in live_page:
-            on, video = True, m.group(1)
-    elif old:
-        on, video = old.get("on", False), old.get("video", "")  # 확인 실패 시 이전 상태 유지
-    return {
-        "path": path,
-        "channel": url,
-        "name": member["name"] or info["name"] or old.get("autoName") or path.lstrip("@"),
-        "autoName": info["name"] or old.get("autoName", ""),
-        "avatar": info["avatar"] or old.get("avatar", ""),
-        "on": on,
-        "video": video,
-        "links": member["links"],
-    }
+    old = prev.get(member["name"] or member["path"] or "", {})
+    out = {"name": member["name"], "channel": "", "avatar": "", "on": False, "video": "",
+           "links": member["links"], "autoName": ""}
+    if not member["path"]:
+        out["name"] = out["name"] or "(이름 없음)"
+        return out
+    info = channel_info(member["path"])
+    out["channel"] = yt_url(member["path"])
+    out["autoName"] = info.get("autoName") or old.get("autoName", "")
+    out["avatar"] = info.get("avatar") or old.get("avatar", "")
+    out["name"] = member["name"] or out["autoName"] or member["path"].lstrip("@")
+    failed = False
+    for path in [member["path"]] + member["subs"]:  # 대표 채널과 서브 채널 모두 확인
+        v = live_video(path)
+        if v:
+            out["on"], out["video"] = True, v
+            break
+        if v is None:
+            failed = True
+    if not out["on"] and failed and old.get("on"):
+        out["on"], out["video"] = True, old.get("video", "")  # 확인 실패 시 이전 상태 유지
+    return out
 
 
 def read_gist(url):
@@ -135,7 +155,7 @@ def load_prev():
             page = r.read().decode("utf-8")
         m = re.search(r'<script id="data" type="application/json">(.*?)</script>', page, re.S)
         data = json.loads(m.group(1))
-        return {m["path"]: m for g in data.get("groups", []) for m in g["members"]}
+        return {m["name"]: m for g in data.get("groups", []) for m in g["members"]}
     except Exception:
         return {}
 

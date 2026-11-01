@@ -96,8 +96,11 @@ function render(d){
     var grid = el('div','grid');
     g.members.forEach(function(m){
       var c = el('div','m' + (m.on ? ' on' : ''));
-      var pic = el('a','pic'); pic.href = m.channel; pic.target = '_blank'; pic.rel = 'noopener';
-      pic.setAttribute('aria-label', m.name + ' 채널로 이동');
+      var pic;
+      if(m.channel){
+        pic = el('a','pic'); pic.href = m.channel; pic.target = '_blank'; pic.rel = 'noopener';
+        pic.setAttribute('aria-label', m.name + ' 채널로 이동');
+      } else pic = el('div','pic');
       if(m.avatar){ var img = el('img'); img.src = m.avatar; img.alt = ''; img.referrerPolicy = 'no-referrer'; img.loading = 'lazy'; pic.appendChild(img); }
       c.appendChild(pic);
       c.appendChild(el('div','name', m.name));
@@ -105,7 +108,7 @@ function render(d){
         var on = el('a','st','[ON]'); on.href = 'https://www.youtube.com/watch?v=' + m.video;
         on.target = '_blank'; on.rel = 'noopener'; on.title = '라이브 보러 가기';
         c.appendChild(on);
-      } else {
+      } else if(m.channel){
         c.appendChild(el('span','st','[OFF]'));
       }
       var more = el('button','more','더보기'); more.type = 'button';
