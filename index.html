@@ -50,6 +50,7 @@ main{max-width:720px;margin:0 auto;padding:0 14px 56px}
 .guide em{font-style:normal}
 .guide b{color:var(--ink);font-weight:700}
 .guide .dot{flex:none;width:16px;height:16px;border-radius:50%;border:2px solid var(--accent);background:var(--panel-2)}
+.guide .clock{font-style:normal;font-size:14px;line-height:1}
 .guide .mini{font-style:normal;font-size:10px;padding:2px 7px;border-radius:5px}
 .titlerow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .sched-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:10px;background:rgba(255,255,255,.06);
@@ -148,6 +149,7 @@ a.chip.live:hover{filter:brightness(1.12)}
   <div class="guide">
     <span><i class="dot"></i><em>프로필 사진을 누르면 <b>채널</b>로 이동</em></span>
     <span><i class="chip live mini">ON</i><em>버튼을 누르면 <b>라이브 방송</b>으로 이동</em></span>
+    <span><i class="clock">⏱</i><em>라이브 상태는 <b>약 5분마다</b> 자동 확인</em></span>
   </div>
   <div id="groups"></div>
   </div>
@@ -227,7 +229,6 @@ function render(d){
     });
     box.appendChild(grid);
   });
-  $('foot').textContent = '라이브 상태는 약 4~5분마다 자동으로 확인돼요';
   renderSchedule(d.schedule || [], d.memo || []);
 }
 
