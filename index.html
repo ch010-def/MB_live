@@ -113,7 +113,9 @@ a.chip.live:hover{filter:brightness(1.12)}
 .row .v{color:var(--accent);overflow-wrap:anywhere}
 .row:hover .v{text-decoration:underline;text-underline-offset:3px}
 .hint{font-size:12px;color:var(--muted);text-align:center;margin:6px 0 4px}
-.foot{margin-top:28px;text-align:center;color:#4d5163;font-size:12px}
+.foot{margin-top:32px;padding:18px 14px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;color:var(--muted);font-size:13px;border-top:1px solid var(--line)}
+.report{display:inline-flex;align-items:center;padding:7px 14px;border-radius:9px;background:transparent;border:1px solid var(--line);color:var(--muted);font-weight:600;font-size:12px;text-decoration:none}
+.report:hover{color:var(--ink);border-color:#3a3d4e}
 
 @keyframes blink{50%{opacity:.25}}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -164,7 +166,9 @@ a.chip.live:hover{filter:brightness(1.12)}
       <ul class="memo-list" id="memoList"></ul>
     </section>
   </div>
-  <div class="foot" id="foot"></div>
+  <div class="foot" id="foot">
+    <a class="report" href="https://open.kakao.com/o/scKACbVi" target="_blank" rel="noopener">버그 및 일정 알려주세요</a>
+  </div>
 </main>
 
 <div class="dim" id="dim">
