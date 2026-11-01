@@ -182,7 +182,7 @@ function render(d){
   var hm = t.getHours() + ':' + ('0'+t.getMinutes()).slice(-2);
   var meta = $('meta'); meta.innerHTML = '';
   meta.appendChild(el('span', 'chip ' + (n ? 'live' : 'off'), n ? 'LIVE ' + n + '명' : '방송 중인 멤버 없음'));
-  meta.appendChild(el('span', null, '멤버 ' + all.length + '명 · ' + hm + ' 업데이트'));
+  meta.appendChild(el('span', null, '멤버 ' + all.length + '명 · ' + hm + ' 업데이트 (10분마다 업데이트)'));
 
   var box = $('groups'); box.innerHTML = '';
   d.groups.forEach(function(g){
