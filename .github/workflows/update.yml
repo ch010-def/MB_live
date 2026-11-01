@@ -1,10 +1,12 @@
 name: live-update
 
+# 라이브 확인을 약 4분마다 반복해요. 한 번 실행되면 약 1시간 동안 확인을 이어가고,
+# 15분마다 새 실행이 시작되면서 이전 실행을 이어받아요. (GitHub 예약 실행이 늦어져도 끊기지 않게)
 on:
   push:
     branches: [main]
   schedule:
-    - cron: "*/10 * * * *"
+    - cron: "*/15 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -19,9 +21,13 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 75
     environment:
       name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+      url: ${{ steps.deploy1.outputs.page_url }}
+    env:
+      MEMBER_LIST: ${{ secrets.MEMBER_LIST }}
+      PREV_DATA_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
     steps:
       - uses: actions/checkout@v4
 
@@ -29,20 +35,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: check live
-        env:
-          MEMBER_LIST: ${{ secrets.MEMBER_LIST }}
-          PREV_DATA_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
-        run: python build.py
-
       - uses: actions/configure-pages@v5
-
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: site
-
-      - id: deploy
-        uses: actions/deploy-pages@v4
 
       - name: keep alive
         run: |
@@ -54,3 +47,287 @@ jobs:
             git commit --allow-empty -m "keep alive"
             git push
           fi
+
+      - name: check live 1
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: rm -rf site && python build.py
+
+      - uses: actions/upload-pages-artifact@v3
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          path: site
+          name: pages-1
+          retention-days: 1
+
+      - id: deploy1
+        uses: actions/deploy-pages@v4
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          artifact_name: pages-1
+
+      - name: wait 2
+        if: ${{ !cancelled() }}
+        run: sleep 240
+
+      - name: check live 2
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: rm -rf site && python build.py
+
+      - uses: actions/upload-pages-artifact@v3
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          path: site
+          name: pages-2
+          retention-days: 1
+
+      - id: deploy2
+        uses: actions/deploy-pages@v4
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          artifact_name: pages-2
+
+      - name: wait 3
+        if: ${{ !cancelled() }}
+        run: sleep 240
+
+      - name: check live 3
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: rm -rf site && python build.py
+
+      - uses: actions/upload-pages-artifact@v3
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          path: site
+          name: pages-3
+          retention-days: 1
+
+      - id: deploy3
+        uses: actions/deploy-pages@v4
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          artifact_name: pages-3
+
+      - name: wait 4
+        if: ${{ !cancelled() }}
+        run: sleep 240
+
+      - name: check live 4
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: rm -rf site && python build.py
+
+      - uses: actions/upload-pages-artifact@v3
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          path: site
+          name: pages-4
+          retention-days: 1
+
+      - id: deploy4
+        uses: actions/deploy-pages@v4
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          artifact_name: pages-4
+
+      - name: wait 5
+        if: ${{ !cancelled() }}
+        run: sleep 240
+
+      - name: check live 5
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: rm -rf site && python build.py
+
+      - uses: actions/upload-pages-artifact@v3
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          path: site
+          name: pages-5
+          retention-days: 1
+
+      - id: deploy5
+        uses: actions/deploy-pages@v4
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          artifact_name: pages-5
+
+      - name: wait 6
+        if: ${{ !cancelled() }}
+        run: sleep 240
+
+      - name: check live 6
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: rm -rf site && python build.py
+
+      - uses: actions/upload-pages-artifact@v3
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          path: site
+          name: pages-6
+          retention-days: 1
+
+      - id: deploy6
+        uses: actions/deploy-pages@v4
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          artifact_name: pages-6
+
+      - name: wait 7
+        if: ${{ !cancelled() }}
+        run: sleep 240
+
+      - name: check live 7
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: rm -rf site && python build.py
+
+      - uses: actions/upload-pages-artifact@v3
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          path: site
+          name: pages-7
+          retention-days: 1
+
+      - id: deploy7
+        uses: actions/deploy-pages@v4
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          artifact_name: pages-7
+
+      - name: wait 8
+        if: ${{ !cancelled() }}
+        run: sleep 240
+
+      - name: check live 8
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: rm -rf site && python build.py
+
+      - uses: actions/upload-pages-artifact@v3
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          path: site
+          name: pages-8
+          retention-days: 1
+
+      - id: deploy8
+        uses: actions/deploy-pages@v4
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          artifact_name: pages-8
+
+      - name: wait 9
+        if: ${{ !cancelled() }}
+        run: sleep 240
+
+      - name: check live 9
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: rm -rf site && python build.py
+
+      - uses: actions/upload-pages-artifact@v3
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          path: site
+          name: pages-9
+          retention-days: 1
+
+      - id: deploy9
+        uses: actions/deploy-pages@v4
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          artifact_name: pages-9
+
+      - name: wait 10
+        if: ${{ !cancelled() }}
+        run: sleep 240
+
+      - name: check live 10
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: rm -rf site && python build.py
+
+      - uses: actions/upload-pages-artifact@v3
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          path: site
+          name: pages-10
+          retention-days: 1
+
+      - id: deploy10
+        uses: actions/deploy-pages@v4
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          artifact_name: pages-10
+
+      - name: wait 11
+        if: ${{ !cancelled() }}
+        run: sleep 240
+
+      - name: check live 11
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: rm -rf site && python build.py
+
+      - uses: actions/upload-pages-artifact@v3
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          path: site
+          name: pages-11
+          retention-days: 1
+
+      - id: deploy11
+        uses: actions/deploy-pages@v4
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          artifact_name: pages-11
+
+      - name: wait 12
+        if: ${{ !cancelled() }}
+        run: sleep 240
+
+      - name: check live 12
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: rm -rf site && python build.py
+
+      - uses: actions/upload-pages-artifact@v3
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          path: site
+          name: pages-12
+          retention-days: 1
+
+      - id: deploy12
+        uses: actions/deploy-pages@v4
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          artifact_name: pages-12
