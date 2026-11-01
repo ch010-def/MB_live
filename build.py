@@ -104,33 +104,44 @@ def channel_info(path):
 
 
 DIAG = []
-STATS = {"info_ok": 0, "info_all": 0, "live_ok": 0, "live_all": 0, "watch": 0, "on": 0, "bot": 0}
+STATS = {"info_ok": 0, "info_all": 0, "live_ok": 0, "live_all": 0, "on": 0, "bot": 0}
+LIVE_MARKS = ('"style":"LIVE"', "BADGE_STYLE_TYPE_LIVE_NOW", "THUMBNAIL_OVERLAY_BADGE_STYLE_LIVE", '"iconType":"LIVE"')
+
+
+def live_from_list(page):
+    """채널의 '라이브' 탭에서 지금 방송 중(LIVE 표시)인 영상 ID 찾기. 예정(UPCOMING)·다시보기는 제외."""
+    marks = [m.start() for m in re.finditer(r'"(?:videoId|contentId)":"([\w-]{11})"', page)]
+    for i, pos in enumerate(marks):
+        end = marks[i + 1] if i + 1 < len(marks) else min(len(page), pos + 8000)
+        chunk = page[pos:end]
+        if any(k in chunk for k in LIVE_MARKS) and "UPCOMING" not in chunk:
+            return re.match(r'"(?:videoId|contentId)":"([\w-]{11})"', chunk).group(1)
+    return ""
 
 
 def live_video(path):
     """방송 중이면 영상 ID, 아니면 "", 확인 실패면 None"""
     STATS["live_all"] += 1
-    page = get(yt_url(path) + "/live")
+    base = yt_url(path)
+    page = get(base + "/streams")
     if page is None:
         return None
     STATS["live_ok"] += 1
     if "confirm you" in page and "not a bot" in page:
         STATS["bot"] += 1
         return None
-    m = (re.search(r'<link rel="canonical" href="https://www\.youtube\.com/watch\?v=([\w-]{11})"', page)
-         or re.search(r'<meta property="og:url" content="https://www\.youtube\.com/watch\?v=([\w-]{11})"', page))
-    if not m:
-        return ""
-    STATS["watch"] += 1
-    flags = [k for k in ("isLiveNow\":true", "isLive\":true", "isUpcoming\":true", "isLiveContent\":true", "endTimestamp")
-             if ('"' + k) in page]
-    DIAG.append((path, m.group(1), flags))
-    live = ('"isLiveNow":true' in page or '"isLive":true' in page
-            or '"isLiveContent":true' in page and '"isUpcoming":true' not in page and '"endTimestamp"' not in page)
-    if live:
+    vid = live_from_list(page)
+    how = "라이브 탭"
+    if not vid:  # 보조: /live 주소가 '지금 방송 중'인 화면으로 바로 연결되는지
+        lp = get(base + "/live") or ""
+        m = re.search(r'<link rel="canonical" href="https://www\.youtube\.com/watch\?v=([\w-]{11})"', lp)
+        if m and '"isLiveNow":true' in lp and '"isUpcoming":true' not in lp:
+            vid, how = m.group(1), "/live"
+    found = [k for k in LIVE_MARKS if k in page]
+    DIAG.append((path, how if vid else "", found, page.count("UPCOMING")))
+    if vid:
         STATS["on"] += 1
-        return m.group(1)
-    return ""
+    return vid
 
 
 def check(member, prev):
@@ -220,7 +231,7 @@ def main():
         f.write(page.replace("__DATA__", blob))
     print("완료: %d명 중 %d명 라이브" % (len(results), sum(r["on"] for r in results)))
     print("채널 페이지 읽기 %(info_ok)d/%(info_all)d, 라이브 페이지 읽기 %(live_ok)d/%(live_all)d, "
-          "방송 화면으로 연결 %(watch)d, 방송 중 %(on)d, 로봇 확인 화면 %(bot)d" % STATS)
+          "방송 중 %(on)d, 로봇 확인 화면 %(bot)d" % STATS)
     # 진단용: 이름 대신 목록 순서 번호만 출력 (로그가 공개라서)
     order = {}
     for gi, g in enumerate(groups):
@@ -228,8 +239,10 @@ def main():
             order.setdefault(m["path"], len(order) + 1)
             for sp in m["subs"]:
                 order.setdefault(sp, "%s-서브" % order[m["path"]])
-    for path, vid, flags in DIAG:
-        print("  %s번 → 방송화면 연결, 표시: %s" % (order.get(path, "?"), ", ".join(flags) or "없음"))
+    for path, how, found, upc in DIAG:
+        if how or found or upc:
+            print("  %s번 → %s / LIVE표시: %s / 예정: %d" % (order.get(path, "?"), ("방송 중(" + how + ")") if how else "꺼짐",
+                                                      ", ".join(f.replace('"', "") for f in found) or "없음", upc))
 
 
 if __name__ == "__main__":
