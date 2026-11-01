@@ -109,13 +109,17 @@ LIVE_MARKS = ('"style":"LIVE"', "BADGE_STYLE_TYPE_LIVE_NOW", "THUMBNAIL_OVERLAY_
 
 
 def live_from_list(page):
-    """채널의 '라이브' 탭에서 지금 방송 중(LIVE 표시)인 영상 ID 찾기. 예정(UPCOMING)·다시보기는 제외."""
-    marks = [m.start() for m in re.finditer(r'"(?:videoId|contentId)":"([\w-]{11})"', page)]
-    for i, pos in enumerate(marks):
-        end = marks[i + 1] if i + 1 < len(marks) else min(len(page), pos + 8000)
-        chunk = page[pos:end]
-        if any(k in chunk for k in LIVE_MARKS) and "UPCOMING" not in chunk:
-            return re.match(r'"(?:videoId|contentId)":"([\w-]{11})"', chunk).group(1)
+    """채널의 '라이브' 탭에서 지금 방송 중(LIVE 배지)인 영상 ID 찾기. 예정·다시보기에는 이 배지가 없음."""
+    # 새 화면 형식: 배지가 먼저 나오고, 그 뒤에 "contentId"(영상 ID)가 나옴
+    for mk in re.finditer("THUMBNAIL_OVERLAY_BADGE_STYLE_LIVE", page):
+        m = re.compile(r'"contentId":"([\w-]{11})"').search(page, mk.end())
+        if m:
+            return m.group(1)
+    # 예전 화면 형식: "videoId"가 먼저 나오고, 그 뒤에 LIVE 표시가 나옴
+    for mk in re.finditer(r'"style":"LIVE"|BADGE_STYLE_TYPE_LIVE_NOW', page):
+        ids = re.findall(r'"videoId":"([\w-]{11})"', page[max(0, mk.start() - 20000):mk.start()])
+        if ids:
+            return ids[-1]
     return ""
 
 
@@ -233,15 +237,16 @@ def main():
     print("채널 페이지 읽기 %(info_ok)d/%(info_all)d, 라이브 페이지 읽기 %(live_ok)d/%(live_all)d, "
           "방송 중 %(on)d, 로봇 확인 화면 %(bot)d" % STATS)
     # 진단용: 이름 대신 목록 순서 번호만 출력 (로그가 공개라서)
-    order = {}
-    for gi, g in enumerate(groups):
+    order, n = {}, 0
+    for g in groups:
         for m in g["members"]:
-            order.setdefault(m["path"], len(order) + 1)
+            n += 1
+            order.setdefault(m["path"], n)
             for sp in m["subs"]:
-                order.setdefault(sp, "%s-서브" % order[m["path"]])
+                order.setdefault(sp, "%d-서브" % n)
     for path, how, found, upc in DIAG:
         if how or found or upc:
-            print("  %s번 → %s / LIVE표시: %s / 예정: %d" % (order.get(path, "?"), ("방송 중(" + how + ")") if how else "꺼짐",
+            print("  %s번 멤버 → %s / LIVE표시: %s / 예정: %d" % (order.get(path, "?"), ("방송 중(" + how + ")") if how else "꺼짐",
                                                       ", ".join(f.replace('"', "") for f in found) or "없음", upc))
 
 
