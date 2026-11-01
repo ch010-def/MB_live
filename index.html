@@ -50,7 +50,7 @@ span.st{color:var(--muted)}
 .sheet header img{width:40px;height:40px;border-radius:50%;object-fit:cover;background:var(--soft)}
 .sheet header b{flex:1;font-size:16px}
 .x{font:inherit;font-size:20px;background:none;border:0;color:var(--muted);cursor:pointer;padding:4px 8px}
-.row{display:flex;align-items:baseline;gap:8px;width:100%;text-align:left;font:inherit;font-size:14px;background:none;border:0;border-top:1px solid var(--line);padding:12px 2px;color:var(--ink);cursor:pointer}
+.row{display:flex;text-decoration:none;box-sizing:border-box;align-items:baseline;gap:8px;width:100%;text-align:left;font:inherit;font-size:14px;background:none;border:0;border-top:1px solid var(--line);padding:12px 2px;color:var(--ink);cursor:pointer}
 .row .lb{flex:none;color:var(--muted);min-width:5.5em}
 .row .v{color:var(--link);text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
 .row:hover{background:var(--soft)}
@@ -71,7 +71,7 @@ span.st{color:var(--muted)}
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetName">
     <header><img id="sheetPic" alt=""><b id="sheetName"></b><button class="x" id="close" type="button" aria-label="닫기">×</button></header>
     <div id="rows"></div>
-    <p class="hint">링크를 누르면 복사돼요</p>
+    <p class="hint">링크를 누르면 새 탭에서 열려요</p>
   </div>
 </div>
 <div class="toast" id="toast" role="status"></div>
@@ -126,10 +126,11 @@ function openSheet(m){
   $('sheetPic').src = m.avatar || '';
   var rows = $('rows'); rows.innerHTML = '';
   m.links.forEach(function(l){
-    var r = el('button','row'); r.type = 'button';
+    var r = el('a','row');
+    r.href = /^https?:\/\//i.test(l.value) ? l.value : 'https://' + l.value;
+    r.target = '_blank'; r.rel = 'noopener';
     if(l.label) r.appendChild(el('span','lb', l.label));
     r.appendChild(el('span','v', l.value));
-    r.addEventListener('click', function(){ copy(l.value, l.label); });
     rows.appendChild(r);
   });
   $('dim').classList.add('show');

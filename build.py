@@ -91,20 +91,39 @@ def parse_list(text):
 
 
 def channel_info(path):
+    STATS["info_all"] += 1
     page = get(yt_url(path))
     if not page:
         return {}
+    STATS["info_ok"] += 1
     return {"autoName": meta(page, "og:title"),
             "avatar": re.sub(r"=s\d+[^/]*$", "=s240-c-k-c0x00ffffff-no-rj", meta(page, "og:image"))}
 
 
+STATS = {"info_ok": 0, "info_all": 0, "live_ok": 0, "live_all": 0, "watch": 0, "on": 0, "bot": 0}
+
+
 def live_video(path):
     """방송 중이면 영상 ID, 아니면 "", 확인 실패면 None"""
+    STATS["live_all"] += 1
     page = get(yt_url(path) + "/live")
     if page is None:
         return None
-    m = re.search(r'<link rel="canonical" href="https://www\.youtube\.com/watch\?v=([\w-]{11})"', page)
-    return m.group(1) if (m and '"isLiveNow":true' in page) else ""
+    STATS["live_ok"] += 1
+    if "confirm you" in page and "not a bot" in page:
+        STATS["bot"] += 1
+        return None
+    m = (re.search(r'<link rel="canonical" href="https://www\.youtube\.com/watch\?v=([\w-]{11})"', page)
+         or re.search(r'<meta property="og:url" content="https://www\.youtube\.com/watch\?v=([\w-]{11})"', page))
+    if not m:
+        return ""
+    STATS["watch"] += 1
+    live = ('"isLiveNow":true' in page or '"isLive":true' in page
+            or '"isLiveContent":true' in page and '"isUpcoming":true' not in page and '"endTimestamp"' not in page)
+    if live:
+        STATS["on"] += 1
+        return m.group(1)
+    return ""
 
 
 def check(member, prev):
@@ -193,6 +212,8 @@ def main():
     with open(os.path.join(site, "index.html"), "w", encoding="utf-8") as f:
         f.write(page.replace("__DATA__", blob))
     print("완료: %d명 중 %d명 라이브" % (len(results), sum(r["on"] for r in results)))
+    print("채널 페이지 읽기 %(info_ok)d/%(info_all)d, 라이브 페이지 읽기 %(live_ok)d/%(live_all)d, "
+          "방송 화면으로 연결 %(watch)d, 방송 중 %(on)d, 로봇 확인 화면 %(bot)d" % STATS)
 
 
 if __name__ == "__main__":
