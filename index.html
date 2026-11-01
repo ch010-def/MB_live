@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>라이브 보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+/* 레이아웃: 제목 → 4열 그리드(프사 / 이름 / ON·OFF / 더보기) → 더보기 누르면 링크 시트 */
+:root{
+  --bg:#ffffff; --ink:#141414; --muted:#8a8a8a; --line:#e4e4e4; --soft:#f5f5f5;
+  --live:#e3161d; --link:#1b5fd6;
+  --font:"Gothic A1","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#121212; --ink:#f1f1f1; --muted:#8d8d8d; --line:#2c2c2c; --soft:#1d1d1d; --live:#ff3b41; --link:#7fb0ff; color-scheme:dark; }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-tap-highlight-color:transparent}
+main{max-width:640px;margin:0 auto;padding:22px 16px 48px}
+h1{margin:0 0 4px;font-size:24px;font-weight:800;text-align:center;text-wrap:balance}
+.meta{text-align:center;color:var(--muted);font-size:12px;margin-bottom:22px;font-variant-numeric:tabular-nums}
+.meta b{color:var(--live)}
+h2{font-size:15px;font-weight:800;margin:26px 0 12px;padding-left:4px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px 8px}
+.m{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;min-width:0}
+.pic{display:block;width:min(84px,19vw);aspect-ratio:1;border-radius:50%;border:2.5px solid var(--ink);overflow:hidden;background:var(--soft)}
+.pic img{width:100%;height:100%;object-fit:cover;display:block}
+.m.on .pic{border-color:var(--live);box-shadow:0 0 0 3px color-mix(in srgb,var(--live) 25%,transparent)}
+.name{font-weight:800;font-size:14px;line-height:1.25;max-width:100%;word-break:keep-all;overflow-wrap:anywhere}
+.st{font-weight:800;font-size:14px;letter-spacing:.02em;padding:2px 4px;border-radius:4px;text-decoration:none}
+a.st{color:var(--live)}
+a.st:hover{background:color-mix(in srgb,var(--live) 12%,transparent)}
+span.st{color:var(--muted)}
+.more{font:inherit;font-weight:600;font-size:13px;color:var(--ink);background:none;border:1px solid var(--line);border-radius:999px;padding:3px 10px;cursor:pointer}
+.more:hover{background:var(--soft)}
+.more[hidden]{display:none}
+:focus-visible{outline:2px solid var(--link);outline-offset:2px}
+
+/* 더보기 시트 */
+.dim{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+.dim.show{display:flex}
+.sheet{background:var(--bg);border-radius:14px;width:100%;max-width:400px;padding:18px 18px 12px;box-shadow:0 10px 40px rgba(0,0,0,.25)}
+.sheet header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sheet header img{width:40px;height:40px;border-radius:50%;object-fit:cover;background:var(--soft)}
+.sheet header b{flex:1;font-size:16px}
+.x{font:inherit;font-size:20px;background:none;border:0;color:var(--muted);cursor:pointer;padding:4px 8px}
+.row{display:flex;align-items:baseline;gap:8px;width:100%;text-align:left;font:inherit;font-size:14px;background:none;border:0;border-top:1px solid var(--line);padding:12px 2px;color:var(--ink);cursor:pointer}
+.row .lb{flex:none;color:var(--muted);min-width:5.5em}
+.row .v{color:var(--link);text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+.row:hover{background:var(--soft)}
+.hint{font-size:12px;color:var(--muted);text-align:center;margin:8px 0 0}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title">라이브 보드</h1>
+  <div class="meta" id="meta">불러오는 중…</div>
+  <div id="groups"></div>
+</main>
+
+<div class="dim" id="dim">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetName">
+    <header><img id="sheetPic" alt=""><b id="sheetName"></b><button class="x" id="close" type="button" aria-label="닫기">×</button></header>
+    <div id="rows"></div>
+    <p class="hint">링크를 누르면 복사돼요</p>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script id="data" type="application/json">__DATA__</script>
+<script>
+var $ = function(id){ return document.getElementById(id); };
+function el(tag, cls, text){ var e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
+
+function render(d){
+  $('title').textContent = d.title;
+  document.title = d.title;
+  var all = [].concat.apply([], d.groups.map(function(g){ return g.members; }));
+  var n = all.filter(function(m){ return m.on; }).length;
+  var t = new Date(d.updated);
+  var hm = t.getHours() + ':' + ('0'+t.getMinutes()).slice(-2);
+  $('meta').innerHTML = '지금 라이브 <b>' + n + '</b>명 · ' + hm + ' 기준';
+
+  var box = $('groups'); box.innerHTML = '';
+  d.groups.forEach(function(g){
+    if(g.title) box.appendChild(el('h2', null, g.title));
+    var grid = el('div','grid');
+    g.members.forEach(function(m){
+      var c = el('div','m' + (m.on ? ' on' : ''));
+      var pic = el('a','pic'); pic.href = m.channel; pic.target = '_blank'; pic.rel = 'noopener';
+      pic.setAttribute('aria-label', m.name + ' 채널로 이동');
+      if(m.avatar){ var img = el('img'); img.src = m.avatar; img.alt = ''; img.referrerPolicy = 'no-referrer'; img.loading = 'lazy'; pic.appendChild(img); }
+      c.appendChild(pic);
+      c.appendChild(el('div','name', m.name));
+      if(m.on){
+        var on = el('a','st','[ON]'); on.href = 'https://www.youtube.com/watch?v=' + m.video;
+        on.target = '_blank'; on.rel = 'noopener'; on.title = '라이브 보러 가기';
+        c.appendChild(on);
+      } else {
+        c.appendChild(el('span','st','[OFF]'));
+      }
+      var more = el('button','more','더보기'); more.type = 'button';
+      more.hidden = !(m.links && m.links.length);
+      more.addEventListener('click', function(){ openSheet(m); });
+      c.appendChild(more);
+      grid.appendChild(c);
+    });
+    box.appendChild(grid);
+  });
+}
+
+function openSheet(m){
+  $('sheetName').textContent = m.name;
+  $('sheetPic').src = m.avatar || '';
+  var rows = $('rows'); rows.innerHTML = '';
+  m.links.forEach(function(l){
+    var r = el('button','row'); r.type = 'button';
+    if(l.label) r.appendChild(el('span','lb', l.label));
+    r.appendChild(el('span','v', l.value));
+    r.addEventListener('click', function(){ copy(l.value, l.label); });
+    rows.appendChild(r);
+  });
+  $('dim').classList.add('show');
+  $('close').focus();
+}
+function closeSheet(){ $('dim').classList.remove('show'); }
+$('close').addEventListener('click', closeSheet);
+$('dim').addEventListener('click', function(e){ if(e.target === this) closeSheet(); });
+document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeSheet(); });
+
+function copy(text, label){
+  function done(){ toast((label ? label + ' ' : '') + '링크를 복사했어요'); }
+  function fallback(){
+    var ta = el('textarea'); ta.value = text; ta.setAttribute('readonly','');
+    ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta);
+    ta.select(); ta.setSelectionRange(0, text.length);
+    var ok = false; try{ ok = document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(ta);
+    ok ? done() : toast('복사가 안 됐어요. 길게 눌러 직접 복사해 주세요');
+  }
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+}
+var tt;
+function toast(msg){
+  var t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(tt); tt = setTimeout(function(){ t.classList.remove('show'); }, 1600);
+}
+
+// 데이터는 이 페이지 안에 들어 있어요. 2분마다 페이지를 다시 받아 새 데이터로 바꿉니다.
+function readData(doc){ return JSON.parse(doc.getElementById('data').textContent); }
+function load(){
+  fetch(location.pathname + '?t=' + Date.now(), {cache:'no-store'})
+    .then(function(r){ if(!r.ok) throw 0; return r.text(); })
+    .then(function(html){ render(readData(new DOMParser().parseFromString(html, 'text/html'))); })
+    .catch(function(){});
+}
+try{ render(readData(document)); }
+catch(e){ $('meta').textContent = '아직 준비 중이에요. 잠시 후 다시 열어 주세요.'; }
+setInterval(load, 2 * 60 * 1000);
+</script>
+</body>
+</html>
