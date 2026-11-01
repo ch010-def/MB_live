@@ -68,7 +68,11 @@ def parse_list(text):
     if cur:
         blocks.append(cur)
 
+    extras = {"schedule": [], "memo": []}
     for lines in blocks:
+        if lines[0] in ("일정", "메모"):  # 멤버가 아니라 일정·메모 칸
+            extras["schedule" if lines[0] == "일정" else "memo"] += lines[1:]
+            continue
         name = ""
         if not re.search(r"https?://|youtube\.com|^@", lines[0]):
             name = lines.pop(0)
@@ -90,7 +94,7 @@ def parse_list(text):
                 value = "youtube.com/" + path
             member["links"].append({"label": label, "value": re.sub(r"^https?://", "", value)})
         groups[-1]["members"].append(member)
-    return title, [g for g in groups if g["members"]]
+    return title, [g for g in groups if g["members"]], extras
 
 
 def channel_info(path):
@@ -210,7 +214,7 @@ def main():
             text = f.read()
     if not text.strip():
         print("MEMBER_LIST 설정이 비어 있어요. Settings → Secrets and variables → Actions → Secrets에 넣어 주세요.")
-    title, groups = parse_list(text)
+    title, groups, extras = parse_list(text)
     prev = load_prev()
     members = [m for g in groups for m in g["members"]]
     with ThreadPoolExecutor(8) as ex:
@@ -225,6 +229,8 @@ def main():
         "title": title or "라이브 보드",
         "updated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "groups": out_groups,
+        "schedule": extras["schedule"],
+        "memo": extras["memo"],
     }
     site = os.path.join(ROOT, "site")
     os.makedirs(site, exist_ok=True)
