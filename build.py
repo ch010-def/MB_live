@@ -108,7 +108,7 @@ def channel_info(path):
 
 
 DIAG = []
-STATS = {"info_ok": 0, "info_all": 0, "live_ok": 0, "live_all": 0, "on": 0, "bot": 0, "other": 0}
+STATS = {"info_ok": 0, "info_all": 0, "live_ok": 0, "live_all": 0, "on": 0, "bot": 0, "other": 0, "notab": 0}
 LIVE_MARKS = ('"style":"LIVE"', "BADGE_STYLE_TYPE_LIVE_NOW", "THUMBNAIL_OVERLAY_BADGE_STYLE_LIVE", '"iconType":"LIVE"')
 
 
@@ -159,18 +159,24 @@ def live_video(path):
         STATS["bot"] += 1
         return None
     own = own_channel_id(page)
-    cands = live_candidates(page)
+    # 라이브 탭이 없는 채널은 이 주소에서 홈 화면을 보여 줘요. 홈의 게시글에 붙은 남의 방송을 잡지 않도록 확인.
+    has_tab = bool(re.search(r'"url":"/[^"]*/streams"', page))
+    cands = live_candidates(page) if has_tab else []
+    if not has_tab:
+        STATS["notab"] += 1
     how = "라이브 탭"
     if not cands:  # 보조: /live 주소가 '지금 방송 중'인 화면으로 바로 연결되는지
         lp = get(base + "/live") or ""
         m = re.search(r'<link rel="canonical" href="https://www\.youtube\.com/watch\?v=([\w-]{11})"', lp)
         if m and '"isLiveNow":true' in lp and '"isUpcoming":true' not in lp:
             cands, how = [m.group(1)], "/live"
-    vid, unsure, other = "", False, 0
+    vid, other = "", 0
     for c in cands:
         owner = video_owner(c)
-        if owner is None:
-            unsure = True
+        if owner is None:  # 방송 채널을 못 알아냈을 때: 확실한 경우만 인정
+            if has_tab or how == "/live":
+                vid = c
+                break
             continue
         if own and owner != own:
             other += 1
@@ -182,7 +188,7 @@ def live_video(path):
     if vid:
         STATS["on"] += 1
         return vid
-    return None if unsure else ""
+    return ""
 
 
 SOOP_RE = re.compile(r"(?:sooplive\.(?:co\.kr|com)/station/|ch\.sooplive\.(?:co\.kr|com)/|play\.sooplive\.(?:co\.kr|com)/"
@@ -329,7 +335,7 @@ def main():
     print("완료: %d명 중 %d명 라이브 (유튜브 %d, 숲 %d)" % (len(results), sum(bool(r["on"] or r["soop"]) for r in results),
                                                      sum(bool(r["on"]) for r in results), sum(bool(r["soop"]) for r in results)))
     print("채널 페이지 읽기 %(info_ok)d/%(info_all)d, 라이브 페이지 읽기 %(live_ok)d/%(live_all)d, "
-          "방송 중 %(on)d, 다른 채널 방송 제외 %(other)d, 로봇 확인 화면 %(bot)d" % STATS)
+          "방송 중 %(on)d, 다른 채널 방송 제외 %(other)d, 라이브 탭 없는 채널 %(notab)d, 로봇 확인 화면 %(bot)d" % STATS)
     print("숲 확인 %(ok)d/%(all)d, 숲 방송 중 %(on)d" % SOOP_STATS)
     # 진단용: 이름 대신 목록 순서 번호만 출력 (로그가 공개라서)
     order, n = {}, 0
