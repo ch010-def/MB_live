@@ -14,7 +14,7 @@
 :root{
   --bg:#08080c; --panel:#13141b; --panel-2:#1c1e28; --line:#262836;
   --ink:#f3f4f8; --muted:#8a8fa3; --accent:#4c8dff; --accent-2:#7a5cff;
-  --live:#ff3b4f; --gold:#e9c27a;
+  --live:#ff3b4f; --soop:#2f7bff; --gold:#e9c27a;
   --font:"Pretendard","Pretendard Variable",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
   color-scheme:dark;
 }
@@ -41,6 +41,8 @@ main{max-width:720px;margin:0 auto;padding:0 14px 56px}
 .count{margin-top:8px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
 .chip{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:12px;letter-spacing:.04em;padding:4px 10px;border-radius:7px}
 .chip.live{background:var(--live);color:#fff}
+.chip.live.soop{background:var(--soop)}
+.chips{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
 .chip.off{background:var(--panel-2);color:var(--muted)}
 .chip.live::before{content:"";width:6px;height:6px;border-radius:50%;background:#fff;animation:blink 1.4s infinite}
 
@@ -90,6 +92,8 @@ h2{font-size:15px;font-weight:700;color:var(--muted);margin:28px 4px 12px}
 .pic img{width:100%;height:100%;object-fit:cover;display:block}
 .m.on .pic{background:conic-gradient(from 0deg,var(--live),#ff8a3d,var(--live),#c13cff,var(--live));animation:spin 4s linear infinite}
 .m.on .pic .in{animation:spin 4s linear infinite reverse}
+.m.on.soop{border-color:rgba(47,123,255,.6);background:linear-gradient(180deg,rgba(47,123,255,.14),var(--panel) 60%)}
+.m.on.soop .pic{background:conic-gradient(from 0deg,var(--soop),#4fd1ff,var(--soop),#7a5cff,var(--soop))}
 a.pic:hover{background:var(--accent)}
 .m:not(.on) .pic img{filter:saturate(.75) brightness(.85)}
 .name{font-weight:700;font-size:14px;line-height:1.3;max-width:100%;word-break:keep-all;overflow-wrap:anywhere}
@@ -150,7 +154,7 @@ a.chip.live:hover{filter:brightness(1.12)}
   <div id="home">
   <div class="guide">
     <span><i class="dot"></i><em>프로필 사진을 누르면 <b>채널</b>로 이동</em></span>
-    <span><i class="chip live mini">ON</i><em>버튼을 누르면 <b>라이브 방송</b>으로 이동</em></span>
+    <span><i class="chip live mini">ON</i><em>유튜브</em><i class="chip live soop mini">ON</i><em>숲 · 누르면 <b>라이브 방송</b>으로 이동</em></span>
     <span><i class="clock">⏱</i><em>라이브 상태는 <b>약 5분마다</b> 자동 확인</em></span>
   </div>
   <div id="groups"></div>
@@ -189,7 +193,7 @@ function render(d){
   $('title').textContent = d.title;
   document.title = d.title;
   var all = [].concat.apply([], d.groups.map(function(g){ return g.members; }));
-  var n = all.filter(function(m){ return m.on; }).length;
+  var n = all.filter(function(m){ return m.on || m.soop; }).length;
   var t = new Date(d.updated);
   var hm = t.getHours() + ':' + ('0'+t.getMinutes()).slice(-2);
   var meta = $('meta'); meta.innerHTML = '';
@@ -207,7 +211,7 @@ function render(d){
     if(g.title) box.appendChild(el('h2', null, g.title));
     var grid = el('div','grid');
     g.members.forEach(function(m){
-      var c = el('div','m' + (m.on ? ' on' : ''));
+      var c = el('div','m' + (m.on ? ' on' : (m.soop ? ' on soop' : '')));
       var pic;
       if(m.channel){
         pic = el('a','pic'); pic.href = m.channel; pic.target = '_blank'; pic.rel = 'noopener';
@@ -218,11 +222,20 @@ function render(d){
       pic.appendChild(inner);
       c.appendChild(pic);
       c.appendChild(el('div','name', m.name));
-      if(m.on){
-        var on = el('a','chip live','ON'); on.href = 'https://www.youtube.com/watch?v=' + m.video;
-        on.target = '_blank'; on.rel = 'noopener'; on.title = '라이브 보러 가기';
-        c.appendChild(on);
-      } else if(m.channel){
+      if(m.on || m.soop){
+        var chips = el('div','chips');
+        if(m.on){
+          var on = el('a','chip live','ON'); on.href = 'https://www.youtube.com/watch?v=' + m.video;
+          on.target = '_blank'; on.rel = 'noopener'; on.title = '유튜브 라이브 보러 가기';
+          chips.appendChild(on);
+        }
+        if(m.soop){
+          var so = el('a','chip live soop','ON'); so.href = m.soop;
+          so.target = '_blank'; so.rel = 'noopener'; so.title = '숲 방송 보러 가기';
+          chips.appendChild(so);
+        }
+        c.appendChild(chips);
+      } else if(m.channel || (m.links || []).some(function(l){ return /sooplive|afreecatv/i.test(l.value); })){
         c.appendChild(el('span','chip off','OFF'));
       }
       var more = el('button','more','더보기'); more.type = 'button';

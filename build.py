@@ -152,10 +152,64 @@ def live_video(path):
     return vid
 
 
+SOOP_RE = re.compile(r"(?:sooplive\.(?:co\.kr|com)/station/|ch\.sooplive\.(?:co\.kr|com)/|play\.sooplive\.(?:co\.kr|com)/"
+                     r"|bj\.afreecatv\.com/|play\.afreecatv\.com/|afreecatv\.com/station/)([A-Za-z0-9_]+)", re.I)
+SOOP_STATS = {"all": 0, "ok": 0, "on": 0}
+
+
+def post_json(url, form):
+    try:
+        data = urllib.parse.urlencode(form).encode()
+        req = urllib.request.Request(url, data=data, headers={"User-Agent": HEADERS["User-Agent"],
+                                                              "Content-Type": "application/x-www-form-urlencoded"})
+        with urllib.request.urlopen(req, timeout=15) as r:
+            return json.loads(r.read().decode("utf-8", "replace"))
+    except Exception:
+        return None
+
+
+def soop_live(bid):
+    """숲(SOOP) 방송 중이면 방송 주소, 아니면 "", 확인 실패면 None"""
+    SOOP_STATS["all"] += 1
+    for host in ("live.sooplive.com", "live.sooplive.co.kr"):
+        j = post_json("https://%s/afreeca/player_live_api.php?bjid=%s" % (host, bid),
+                      {"bid": bid, "type": "live", "player_type": "html5"})
+        ch = (j or {}).get("CHANNEL") if isinstance(j, dict) else None
+        if isinstance(ch, dict) and "RESULT" in ch:
+            SOOP_STATS["ok"] += 1
+            if str(ch.get("RESULT")) == "1":
+                SOOP_STATS["on"] += 1
+                return "https://play.sooplive.co.kr/%s/%s" % (bid, ch.get("BNO", "")) if ch.get("BNO") else "https://play.sooplive.co.kr/" + bid
+            return ""
+    page = get("https://chapi.sooplive.co.kr/api/%s/station" % bid)  # 보조 확인
+    if page:
+        try:
+            j = json.loads(page)
+            SOOP_STATS["ok"] += 1
+            if j.get("broad"):
+                SOOP_STATS["on"] += 1
+                no = j["broad"].get("broad_no", "")
+                return "https://play.sooplive.co.kr/%s/%s" % (bid, no) if no else "https://play.sooplive.co.kr/" + bid
+            return ""
+        except Exception:
+            pass
+    return None
+
+
 def check(member, prev):
     old = prev.get(member["name"] or member["path"] or "", {})
     out = {"name": member["name"], "channel": "", "avatar": "", "on": False, "video": "",
-           "links": member["links"], "autoName": ""}
+           "soop": "", "links": member["links"], "autoName": ""}
+    # 숲 링크가 있으면 숲 방송도 확인
+    for l in member["links"]:
+        m = SOOP_RE.search(l["value"])
+        if m:
+            v = soop_live(m.group(1))
+            if v is None and old.get("soop"):
+                v = old["soop"]  # 확인 실패 시 이전 상태 유지
+            if v:
+                out["soop"] = v
+                break
     if not member["path"]:
         out["name"] = out["name"] or "(이름 없음)"
         return out
@@ -239,9 +293,11 @@ def main():
     blob = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")  # 페이지 안에 넣기 위한 처리
     with open(os.path.join(site, "index.html"), "w", encoding="utf-8") as f:
         f.write(page.replace("__DATA__", blob))
-    print("완료: %d명 중 %d명 라이브" % (len(results), sum(r["on"] for r in results)))
+    print("완료: %d명 중 %d명 라이브 (유튜브 %d, 숲 %d)" % (len(results), sum(bool(r["on"] or r["soop"]) for r in results),
+                                                     sum(bool(r["on"]) for r in results), sum(bool(r["soop"]) for r in results)))
     print("채널 페이지 읽기 %(info_ok)d/%(info_all)d, 라이브 페이지 읽기 %(live_ok)d/%(live_all)d, "
           "방송 중 %(on)d, 로봇 확인 화면 %(bot)d" % STATS)
+    print("숲 확인 %(ok)d/%(all)d, 숲 방송 중 %(on)d" % SOOP_STATS)
     # 진단용: 이름 대신 목록 순서 번호만 출력 (로그가 공개라서)
     order, n = {}, 0
     for g in groups:
