@@ -128,6 +128,28 @@ def live_candidates(page):
     return found[:3]
 
 
+def selected_tab_url(page):
+    """지금 화면에 선택된 탭의 주소 (예: /@이름/streams). 라이브 탭이 없으면 홈 탭이 선택돼 있어요."""
+    for mk in re.finditer(r'"tabRenderer":\{', page):
+        seg = page[mk.end():mk.end() + 2500]
+        nxt = seg.find('"tabRenderer"')
+        if nxt != -1:
+            seg = seg[:nxt]
+        if '"selected":true' in seg:
+            m = re.search(r'"url":"([^"]+)"', seg)
+            return m.group(1) if m else ""
+    return ""
+
+
+def in_post(page, vid):
+    """영상이 게시글(커뮤니티 글) 안에 붙어 있는 것인지"""
+    for m in re.finditer(re.escape('"' + vid + '"'), page):
+        before = page[max(0, m.start() - 6000):m.start()]
+        if re.search(r'backstagePost|"postRenderer"|sharedPostRenderer|"backstageAttachment"', before):
+            return True
+    return False
+
+
 def own_channel_id(page):
     m = (re.search(r'<link rel="canonical" href="https://www\.youtube\.com/channel/(UC[\w-]{22})', page)
          or re.search(r'"externalId":"(UC[\w-]{22})"', page)
@@ -169,8 +191,12 @@ def live_video(path):
         return None
     own = own_channel_id(page)
     # 라이브 탭이 없는 채널은 이 주소에서 홈 화면을 보여 줘요. 홈의 게시글에 붙은 남의 방송을 잡지 않도록 확인.
-    has_tab = bool(re.search(r'"url":"/[^"]*/streams"', page))
-    cands = live_candidates(page) if has_tab else []
+    tab = selected_tab_url(page)
+    if tab:
+        has_tab = tab.endswith("/streams")
+    else:  # 선택된 탭을 못 읽으면 예전 방식으로 (게시글 속 영상은 아래에서 따로 걸러요)
+        has_tab = bool(re.search(r'"url":"/[^"]*/streams"', page))
+    cands = [c for c in live_candidates(page) if not in_post(page, c)] if has_tab else []
     if not has_tab:
         STATS["notab"] += 1
     how = "라이브 탭"
@@ -201,7 +227,7 @@ def live_video(path):
             continue  # 끝내 모르면 본인 라이브 탭에서 찾은 경우만 인정
         vid = c
         break
-    notes.insert(0, "라이브탭:" + ("있음" if has_tab else "없음") + " 찾은경로:" + (how if cands else "-") + " 채널ID:" + ("있음" if own else "없음"))
+    notes.insert(0, "선택된탭:" + (tab.rsplit("/", 1)[-1] or "모름") + " 라이브탭:" + ("있음" if has_tab else "없음") + " 찾은경로:" + (how if cands else "-") + " 채널ID:" + ("있음" if own else "없음"))
     DIAG.append((path, how if vid else "", notes if cands else [], other))
     if vid:
         STATS["on"] += 1
