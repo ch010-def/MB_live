@@ -108,27 +108,47 @@ def channel_info(path):
 
 
 DIAG = []
-STATS = {"info_ok": 0, "info_all": 0, "live_ok": 0, "live_all": 0, "on": 0, "bot": 0}
+STATS = {"info_ok": 0, "info_all": 0, "live_ok": 0, "live_all": 0, "on": 0, "bot": 0, "other": 0}
 LIVE_MARKS = ('"style":"LIVE"', "BADGE_STYLE_TYPE_LIVE_NOW", "THUMBNAIL_OVERLAY_BADGE_STYLE_LIVE", '"iconType":"LIVE"')
 
 
-def live_from_list(page):
-    """채널의 '라이브' 탭에서 지금 방송 중(LIVE 배지)인 영상 ID 찾기. 예정·다시보기에는 이 배지가 없음."""
+def live_candidates(page):
+    """채널의 '라이브' 탭에서 LIVE 배지가 붙은 영상 ID들 (예정·다시보기에는 이 배지가 없음)"""
+    found = []
     # 새 화면 형식: 배지가 먼저 나오고, 그 뒤에 "contentId"(영상 ID)가 나옴
     for mk in re.finditer("THUMBNAIL_OVERLAY_BADGE_STYLE_LIVE", page):
         m = re.compile(r'"contentId":"([\w-]{11})"').search(page, mk.end())
-        if m:
-            return m.group(1)
+        if m and m.group(1) not in found:
+            found.append(m.group(1))
     # 예전 화면 형식: "videoId"가 먼저 나오고, 그 뒤에 LIVE 표시가 나옴
     for mk in re.finditer(r'"style":"LIVE"|BADGE_STYLE_TYPE_LIVE_NOW', page):
         ids = re.findall(r'"videoId":"([\w-]{11})"', page[max(0, mk.start() - 20000):mk.start()])
-        if ids:
-            return ids[-1]
-    return ""
+        if ids and ids[-1] not in found:
+            found.append(ids[-1])
+    return found[:3]
+
+
+def own_channel_id(page):
+    m = (re.search(r'<link rel="canonical" href="https://www\.youtube\.com/channel/(UC[\w-]{22})', page)
+         or re.search(r'"externalId":"(UC[\w-]{22})"', page)
+         or re.search(r'<meta itemprop="identifier" content="(UC[\w-]{22})"', page))
+    return m.group(1) if m else ""
+
+
+def video_owner(vid):
+    """영상을 올린(방송하는) 채널 ID. 실패하면 None"""
+    page = get("https://www.youtube.com/watch?v=" + vid)
+    if not page:
+        return None
+    m = (re.search(r'<meta itemprop="channelId" content="(UC[\w-]{22})"', page)
+         or re.search(r'"videoDetails":\{"videoId":"%s".{0,3000}?"channelId":"(UC[\w-]{22})"' % re.escape(vid), page, re.S)
+         or re.search(r'"externalChannelId":"(UC[\w-]{22})"', page))
+    return m.group(1) if m else None
 
 
 def live_video(path):
-    """방송 중이면 영상 ID, 아니면 "", 확인 실패면 None"""
+    """방송 중이면 영상 ID, 아니면 "", 확인 실패면 None.
+    다른 채널의 방송(합방·협업으로 라이브 탭에 같이 뜨는 것)은 제외해요."""
     STATS["live_all"] += 1
     base = yt_url(path)
     page = get(base + "/streams")
@@ -138,18 +158,31 @@ def live_video(path):
     if "confirm you" in page and "not a bot" in page:
         STATS["bot"] += 1
         return None
-    vid = live_from_list(page)
+    own = own_channel_id(page)
+    cands = live_candidates(page)
     how = "라이브 탭"
-    if not vid:  # 보조: /live 주소가 '지금 방송 중'인 화면으로 바로 연결되는지
+    if not cands:  # 보조: /live 주소가 '지금 방송 중'인 화면으로 바로 연결되는지
         lp = get(base + "/live") or ""
         m = re.search(r'<link rel="canonical" href="https://www\.youtube\.com/watch\?v=([\w-]{11})"', lp)
         if m and '"isLiveNow":true' in lp and '"isUpcoming":true' not in lp:
-            vid, how = m.group(1), "/live"
-    found = [k for k in LIVE_MARKS if k in page]
-    DIAG.append((path, how if vid else "", found, page.count("UPCOMING")))
+            cands, how = [m.group(1)], "/live"
+    vid, unsure, other = "", False, 0
+    for c in cands:
+        owner = video_owner(c)
+        if owner is None:
+            unsure = True
+            continue
+        if own and owner != own:
+            other += 1
+            STATS["other"] += 1
+            continue
+        vid = c
+        break
+    DIAG.append((path, how if vid else "", [k for k in LIVE_MARKS if k in page], other))
     if vid:
         STATS["on"] += 1
-    return vid
+        return vid
+    return None if unsure else ""
 
 
 SOOP_RE = re.compile(r"(?:sooplive\.(?:co\.kr|com)/station/|ch\.sooplive\.(?:co\.kr|com)/|play\.sooplive\.(?:co\.kr|com)/"
@@ -296,7 +329,7 @@ def main():
     print("완료: %d명 중 %d명 라이브 (유튜브 %d, 숲 %d)" % (len(results), sum(bool(r["on"] or r["soop"]) for r in results),
                                                      sum(bool(r["on"]) for r in results), sum(bool(r["soop"]) for r in results)))
     print("채널 페이지 읽기 %(info_ok)d/%(info_all)d, 라이브 페이지 읽기 %(live_ok)d/%(live_all)d, "
-          "방송 중 %(on)d, 로봇 확인 화면 %(bot)d" % STATS)
+          "방송 중 %(on)d, 다른 채널 방송 제외 %(other)d, 로봇 확인 화면 %(bot)d" % STATS)
     print("숲 확인 %(ok)d/%(all)d, 숲 방송 중 %(on)d" % SOOP_STATS)
     # 진단용: 이름 대신 목록 순서 번호만 출력 (로그가 공개라서)
     order, n = {}, 0
@@ -306,10 +339,10 @@ def main():
             order.setdefault(m["path"], n)
             for sp in m["subs"]:
                 order.setdefault(sp, "%d-서브" % n)
-    for path, how, found, upc in DIAG:
-        if how or found or upc:
-            print("  %s번 멤버 → %s / LIVE표시: %s / 예정: %d" % (order.get(path, "?"), ("방송 중(" + how + ")") if how else "꺼짐",
-                                                      ", ".join(f.replace('"', "") for f in found) or "없음", upc))
+    for path, how, found, other in DIAG:
+        if how or found or other:
+            print("  %s번 멤버 → %s / LIVE표시: %s / 다른 채널 방송 제외: %d" % (order.get(path, "?"), ("방송 중(" + how + ")") if how else "꺼짐",
+                                                      ", ".join(f.replace('"', "") for f in found) or "없음", other))
 
 
 if __name__ == "__main__":
