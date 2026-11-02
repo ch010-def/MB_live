@@ -65,8 +65,17 @@ jobs:
             git push
           fi
 
+      # 페이지 올리기가 실패했으면 4분을 기다리지 않고 20초 뒤 바로 다음 실행으로 다시 시도해요
       - name: wait
-        run: sleep 210
+        env:
+          DEPLOY_RESULT: ${{ steps.deploy.outcome }}
+        run: |
+          if [ "$DEPLOY_RESULT" = "success" ]; then
+            sleep 210
+          else
+            echo "페이지 올리기 결과: $DEPLOY_RESULT → 바로 다시 시도해요"
+            sleep 20
+          fi
 
       - name: next run
         if: ${{ !cancelled() }}
