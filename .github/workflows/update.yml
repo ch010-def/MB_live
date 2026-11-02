@@ -72,4 +72,11 @@ jobs:
         if: ${{ !cancelled() }}
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run update.yml --ref main -R ${{ github.repository }}
+        run: |
+          # GitHub 쪽 일시적인 오류에 대비해 최대 5번까지 다시 시도해요
+          for i in 1 2 3 4 5; do
+            if gh workflow run update.yml --ref main -R ${{ github.repository }}; then exit 0; fi
+            echo "다음 실행 예약 실패, 15초 뒤 다시 시도 ($i/5)"
+            sleep 15
+          done
+          exit 1
