@@ -135,6 +135,15 @@ def own_channel_id(page):
     return m.group(1) if m else ""
 
 
+def video_author(vid):
+    """oEmbed로 영상 올린 채널 이름 (실패하면 "")"""
+    page = get("https://www.youtube.com/oembed?format=json&url=" + urllib.parse.quote("https://www.youtube.com/watch?v=" + vid, safe=""))
+    try:
+        return json.loads(page).get("author_name", "") if page else ""
+    except Exception:
+        return ""
+
+
 def video_owner(vid):
     """영상을 올린(방송하는) 채널 ID. 실패하면 None"""
     page = get("https://www.youtube.com/watch?v=" + vid)
@@ -170,21 +179,30 @@ def live_video(path):
         m = re.search(r'<link rel="canonical" href="https://www\.youtube\.com/watch\?v=([\w-]{11})"', lp)
         if m and '"isLiveNow":true' in lp and '"isUpcoming":true' not in lp:
             cands, how = [m.group(1)], "/live"
-    vid, other = "", 0
+    vid, other, notes = "", 0, []
+    own_name = meta(page, "og:title")
     for c in cands:
+        same = None
         owner = video_owner(c)
-        if owner is None:  # 방송 채널을 못 알아냈을 때: 확실한 경우만 인정
-            if has_tab or how == "/live":
-                vid = c
-                break
-            continue
-        if own and owner != own:
+        if owner and own:  # 1순위: 채널 ID로 비교
+            same, by = owner == own, "ID"
+        else:              # 2순위: 채널 이름으로 비교 (유튜브 공식 oEmbed)
+            author = video_author(c)
+            if author and own_name:
+                same, by = author == own_name, "이름"
+            else:
+                by = "-"
+        notes.append("소유확인(%s):%s" % (by, {True: "같음", False: "다름", None: "모름"}[same]))
+        if same is False:
             other += 1
             STATS["other"] += 1
             continue
+        if same is None and not (has_tab and how == "라이브 탭"):
+            continue  # 끝내 모르면 본인 라이브 탭에서 찾은 경우만 인정
         vid = c
         break
-    DIAG.append((path, how if vid else "", [k for k in LIVE_MARKS if k in page], other))
+    notes.insert(0, "라이브탭:" + ("있음" if has_tab else "없음") + " 찾은경로:" + (how if cands else "-") + " 채널ID:" + ("있음" if own else "없음"))
+    DIAG.append((path, how if vid else "", notes if cands else [], other))
     if vid:
         STATS["on"] += 1
         return vid
@@ -345,10 +363,9 @@ def main():
             order.setdefault(m["path"], n)
             for sp in m["subs"]:
                 order.setdefault(sp, "%d-서브" % n)
-    for path, how, found, other in DIAG:
-        if how or found or other:
-            print("  %s번 멤버 → %s / LIVE표시: %s / 다른 채널 방송 제외: %d" % (order.get(path, "?"), ("방송 중(" + how + ")") if how else "꺼짐",
-                                                      ", ".join(f.replace('"', "") for f in found) or "없음", other))
+    for path, how, notes, other in DIAG:
+        if how or notes or other:
+            print("  %s번 멤버 → %s / %s" % (order.get(path, "?"), ("방송 중(" + how + ")") if how else "꺼짐", " ".join(notes)))
 
 
 if __name__ == "__main__":
