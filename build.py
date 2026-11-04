@@ -472,6 +472,8 @@ def soop_posts(bid):
     cut = datetime.now(timezone.utc) - timedelta(days=POST_DAYS)
     out, seen, read_any = [], set(), False
     for bbs in boards:
+        if time.time() >= POST_DEADLINE[0]:  # 시간 다 쓰면 남은 게시판은 건너뜀
+            break
         j = soop_json(SOOP_API + "%s/board/%s?page=1&per_page=10&field=title&orderby=reg_date" % (bid, bbs))
         if not isinstance(j, dict) or not isinstance(j.get("data"), list):
             continue
@@ -640,7 +642,7 @@ def main():
         except Exception:
             due = True
         if due or os.environ.get("POSTS_FORCE"):
-            POST_DEADLINE[0] = time.time() + 120  # 소식은 최대 약 2분까지만
+            POST_DEADLINE[0] = time.time() + 60  # 소식은 최대 약 1분까지만 (라이브 반영이 늦어지지 않게)
             with ThreadPoolExecutor(4) as ex:  # 라이브 확인보다 천천히 (유튜브 로봇 확인 위험 줄이기)
                 lists = list(ex.map(lambda mr: member_posts(mr[0], mr[1]["name"], prev_posts), zip(members, results)))
             posts = [p for l in lists for p in l]
