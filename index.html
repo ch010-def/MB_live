@@ -54,7 +54,8 @@ main{max-width:720px;margin:0 auto;padding:0 14px 56px}
 .guide .dot{flex:none;width:16px;height:16px;border-radius:50%;border:2px solid var(--accent);background:var(--panel-2)}
 .guide .clock{font-style:normal;font-size:14px;line-height:1}
 .guide .mini{font-style:normal;font-size:10px;padding:2px 7px;border-radius:5px}
-.titlerow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.titlerow{display:flex;align-items:center;gap:10px 12px;flex-wrap:wrap}
+.btns{display:flex;gap:8px;flex:none} /* 일정·소식은 한 묶음: 자리가 없으면 둘이 같이 아랫줄로 */
 .sched-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:10px;background:rgba(255,255,255,.06);
   border:1px solid rgba(255,255,255,.14);color:var(--ink);text-decoration:none;font-weight:700;font-size:14px;backdrop-filter:blur(4px)}
 .sched-btn:hover{border-color:var(--accent);background:rgba(76,141,255,.14)}
@@ -210,6 +211,7 @@ a.chip.live:hover{filter:brightness(1.12)}
     <div>
       <div class="titlerow">
         <h1 id="title">엠비크루</h1>
+        <div class="btns">
         <a class="sched-btn" href="#schedule" id="schedBtn">
           <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
           일정<span id="schedCount"></span>
@@ -218,6 +220,7 @@ a.chip.live:hover{filter:brightness(1.12)}
           <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M5 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H10l-5 4v-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 9h8M8 12.5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
           소식<span class="new" id="postsCount"></span>
         </a>
+        </div>
       </div>
       <div class="count" id="meta">불러오는 중…</div>
     </div>
