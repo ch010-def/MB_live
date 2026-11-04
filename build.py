@@ -1,9 +1,9 @@
 """저장소 비밀 설정(MEMBER_LIST)에 넣은 비밀 Gist 주소에서 목록을 읽어 각 유튜브 채널의 이름·프로필 사진·라이브 여부를 확인하고
 site/index.html 하나에 담아 만듭니다. GitHub Actions가 10분마다 실행합니다.
 저장소가 공개라서 실행 기록(로그)도 공개되므로, 목록 내용은 절대 로그에 출력하지 않습니다."""
-import json, os, re, html, urllib.request, urllib.parse
+import json, os, re, html, time, urllib.request, urllib.parse
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 HEADERS = {
@@ -13,10 +13,10 @@ HEADERS = {
 }
 
 
-def get(url):
+def get(url, timeout=20):
     try:
         req = urllib.request.Request(url, headers=HEADERS)
-        with urllib.request.urlopen(req, timeout=20) as r:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
             return r.read().decode("utf-8", "replace")
     except Exception:
         return None  # 로그가 공개라서 주소를 출력하지 않음
@@ -48,31 +48,53 @@ def parse_list(text):
     """멤버마다 빈 줄로 구분. 첫 줄 = 이름, 첫 유튜브 링크 = 대표 채널,
     나머지 유튜브 링크와 "이름 링크" 줄 = 더보기."""
     title, groups = "", [{"title": "", "members": []}]
-    blocks, cur = [], []
+    # 1단계: 빈 줄로 칸 나누기 (줄은 원래 모양 그대로 둠)
+    raw_blocks, cur = [], []
     for raw in text.splitlines():
-        line = raw.strip()
-        if line.startswith("#"):
-            continue
-        if not line:
+        if not raw.strip():
             if cur:
-                blocks.append(cur)
+                raw_blocks.append(cur)
             cur = []
             continue
-        head, _, rest = line.partition(" ")
-        if not cur and head == "제목":
-            title = rest.strip()
-        elif not cur and head == "묶음":
-            groups.append({"title": rest.strip(), "members": []})
-        else:
-            cur.append(line)
+        cur.append(raw.rstrip())
     if cur:
-        blocks.append(cur)
+        raw_blocks.append(cur)
 
+    # 2단계: 칸마다 멤버 / 일정 / 메모 구분
+    # 일정·메모 칸 뒤에 링크 없는 칸이 이어지면 같은 일정·메모로 봄 (메모 안에 빈 줄을 넣어도 되게)
+    LINK = re.compile(r"https?://|youtube\.com|sooplive|afreecatv|^@")
+    HEADS = ("제목", "묶음", "일정", "메모")
     extras = {"schedule": [], "memo": []}
-    for lines in blocks:
-        if lines[0] in ("일정", "메모"):  # 멤버가 아니라 일정·메모 칸
-            extras["schedule" if lines[0] == "일정" else "memo"] += lines[1:]
+    blocks, extra = [], None
+    for blk in raw_blocks:
+        real = [l.strip() for l in blk if not l.strip().startswith("#")]
+        if extra and (not real or (real[0].partition(" ")[0] not in HEADS and not any(LINK.search(l) for l in real))):
+            if extra == "memo":
+                extras["memo"] += [""] + blk  # 빈 줄 = 주제 사이 간격, '#' 줄도 메모로 남김
+            else:
+                extras["schedule"] += real
             continue
+        extra = None
+        lines = real
+        while lines and lines[0].partition(" ")[0] in ("제목", "묶음"):
+            head, _, rest = lines.pop(0).partition(" ")
+            if head == "제목":
+                title = rest.strip()
+            else:
+                groups.append({"title": rest.strip(), "members": []})
+        if not lines:
+            continue
+        if lines[0] in ("일정", "메모"):  # 멤버가 아니라 일정·메모 칸
+            extra = "schedule" if lines[0] == "일정" else "memo"
+            if extra == "memo":  # 메모는 '#' 줄과 들여쓰기까지 원래대로
+                start = next(i for i, l in enumerate(blk) if l.strip() == "메모")
+                extras["memo"] += blk[start + 1:]
+            else:
+                extras["schedule"] += lines[1:]
+            continue
+        blocks.append(lines)
+
+    for lines in blocks:
         name = ""
         if not re.search(r"https?://|youtube\.com|^@", lines[0]):
             name = lines.pop(0)
@@ -279,6 +301,243 @@ def soop_live(bid):
     return None
 
 
+# ───────────── 소식(유튜브 커뮤니티 글 · 숲 방송국 글) ─────────────
+POST_DAYS = 3                 # 최근 며칠 글까지 보여줄지
+POST_EVERY = 9 * 60           # 소식은 약 10분마다 (실행 간격이 4~5분이라 9분이 지났으면 새로 가져옴)
+POST_STATS = {"yt_all": 0, "yt_ok": 0, "yt_posts": 0, "soop_all": 0, "soop_ok": 0, "soop_posts": 0}
+POST_DIAG = []                # 숲 응답 모양 진단용 (항목 이름만, 내용은 출력하지 않음)
+KST = timezone(timedelta(hours=9))
+
+
+def runs_text(d):
+    if not isinstance(d, dict):
+        return ""
+    if "simpleText" in d:
+        return d["simpleText"]
+    return "".join(r.get("text", "") for r in d.get("runs", []) if isinstance(r, dict))
+
+
+def find_all(o, key, skip=()):
+    """o 안에서 key 항목을 문서 순서대로 모두 찾기 (skip 안쪽은 들어가지 않음)"""
+    if isinstance(o, dict):
+        for k, v in o.items():
+            if k in skip:
+                continue
+            if k == key:
+                yield v
+            else:
+                yield from find_all(v, key, skip)
+    elif isinstance(o, list):
+        for v in o:
+            yield from find_all(v, key, skip)
+
+
+def first(o, key):
+    return next(find_all(o, key), None)
+
+
+def initial_data(page):
+    m = re.search(r'(?:var ytInitialData|window\["ytInitialData"\])\s*=\s*', page)
+    if not m:
+        return None
+    try:
+        return json.JSONDecoder().raw_decode(page, m.end())[0]
+    except Exception:
+        return None
+
+
+AGE_UNITS = {"초": 1, "분": 60, "시간": 3600, "일": 86400, "주": 604800, "개월": 2592000, "년": 31536000,
+             "second": 1, "minute": 60, "hour": 3600, "day": 86400, "week": 604800, "month": 2592000, "year": 31536000}
+
+
+def age_seconds(text):
+    """'3일 전', '1시간 전(수정됨)', '2 days ago' → 초. 못 읽으면 None"""
+    m = re.search(r"(\d+)\s*(초|분|시간|일|주|개월|년|second|minute|hour|day|week|month|year)", text or "")
+    return int(m.group(1)) * AGE_UNITS[m.group(2)] if m else None
+
+
+def img_url(thumbs):
+    if not thumbs:
+        return ""
+    u = thumbs[-1].get("url", "")
+    return "https:" + u if u.startswith("//") else u
+
+
+def yt_posts(path):
+    """채널 '게시물' 탭의 최근 글. 확인 실패면 None"""
+    POST_STATS["yt_all"] += 1
+    page = get(yt_url(path) + "/posts", timeout=10)
+    if not page or ("confirm you" in page and "not a bot" in page):
+        return None
+    data = initial_data(page)
+    if data is None:
+        return None
+    POST_STATS["yt_ok"] += 1
+    now = datetime.now(timezone.utc)
+    out = []
+    # 다른 채널 글을 공유한 것(sharedPostRenderer)은 원래 글이 남의 것이라 건너뜀
+    for p in find_all(data, "backstagePostRenderer", skip=("sharedPostRenderer",)):
+        pid = p.get("postId")
+        age = age_seconds(runs_text(p.get("publishedTimeText")))
+        if not pid or age is None or age > POST_DAYS * 86400:
+            continue
+        post = {"id": "yt:" + pid, "src": "yt", "url": "https://www.youtube.com/post/" + pid,
+                "ts": (now - timedelta(seconds=age)).isoformat(timespec="seconds"), "est": age >= 3600,
+                "title": "", "text": runs_text(p.get("contentText")), "imgs": [], "poll": [], "video": None,
+                "like": runs_text(p.get("voteCount")), "cmt": ""}
+        reply = first(p.get("actionButtons", {}), "replyButton")
+        if reply:
+            post["cmt"] = runs_text(first(reply, "text") or {})
+        att = p.get("backstageAttachment") or {}
+        for im in find_all(att, "backstageImageRenderer"):
+            u = img_url((im.get("image") or {}).get("thumbnails"))
+            if u:
+                post["imgs"].append(u)
+        poll = att.get("pollRenderer")
+        if poll:
+            for c in poll.get("choices", []):
+                post["poll"].append([runs_text(c.get("text")), runs_text(c.get("votePercentage"))])
+        vr = att.get("videoRenderer")
+        if vr and vr.get("videoId"):
+            post["video"] = {"id": vr["videoId"], "title": runs_text(vr.get("title")),
+                             "thumb": img_url((vr.get("thumbnail") or {}).get("thumbnails"))}
+        out.append(post)
+    POST_STATS["yt_posts"] += len(out)
+    return out
+
+
+def strip_html(s):
+    s = re.sub(r"(?i)<br\s*/?>|</p>|</div>", "\n", s or "")
+    s = html.unescape(re.sub(r"<[^>]+>", "", s))
+    return re.sub(r"\n{3,}", "\n\n", s).strip()
+
+
+def pick(d, *keys):
+    """d에서 여러 후보 이름 중 처음 있는 값 (숲 응답 모양이 바뀌어도 버티도록)"""
+    for k in keys:
+        v = d.get(k) if isinstance(d, dict) else None
+        if v not in (None, "", []):
+            return v
+    return None
+
+
+def soop_text(item):
+    c = item.get("content")
+    if isinstance(c, dict):
+        t = pick(c, "content", "contents", "summary", "text")
+    else:
+        t = c or pick(item, "contents", "summary", "text")
+    return strip_html(t) if isinstance(t, str) else ""
+
+
+def soop_imgs(item):
+    out = []
+    c = item.get("content") if isinstance(item.get("content"), dict) else {}
+    for ph in (pick(item, "photos", "photo_list", "images") or pick(c, "photos", "photo_list", "images") or []):
+        u = ph if isinstance(ph, str) else pick(ph, "url", "photo_url", "path", "src") if isinstance(ph, dict) else None
+        if isinstance(u, str) and u:
+            out.append("https:" + u if u.startswith("//") else u)
+    return out
+
+
+def soop_posts(bid):
+    """숲 방송국 게시판의 최근 글. 확인 실패면 None"""
+    POST_STATS["soop_all"] += 1
+    j = None
+    for url in ("https://chapi.sooplive.co.kr/api/%s/board?page=1&per_page=20" % bid,
+                "https://bjapi.afreecatv.com/api/%s/board?page=1&per_page=20" % bid):
+        page = get(url, timeout=10)
+        try:
+            j = json.loads(page) if page else None
+        except Exception:
+            j = None
+        if isinstance(j, dict) and isinstance(j.get("data"), list):
+            break
+        j = None
+    if j is None:
+        return None
+    POST_STATS["soop_ok"] += 1
+    items = [i for i in j["data"] if isinstance(i, dict)]
+    if items and len(POST_DIAG) < 1:
+        POST_DIAG.append(sorted(items[0].keys()))
+    cut = datetime.now(timezone.utc) - timedelta(days=POST_DAYS)
+    out = []
+    for it in items:
+        no, reg = pick(it, "title_no", "post_no", "id"), pick(it, "reg_date", "write_date", "created_at")
+        uid = pick(it, "user_id", "bj_id")
+        if not no or not isinstance(reg, str) or (uid and str(uid).lower() != bid.lower()):
+            continue
+        try:
+            ts = datetime.strptime(reg[:19], "%Y-%m-%d %H:%M:%S").replace(tzinfo=KST)
+        except ValueError:
+            continue
+        if ts < cut:
+            continue
+        cnt = it.get("count") if isinstance(it.get("count"), dict) else it
+        text = soop_text(it)
+        # 목록에는 글이 잘려 있을 수 있어서, 최근 글은 본문을 한 번 더 가져와 봄
+        dj = None
+        page = get("https://chapi.sooplive.co.kr/api/%s/title/%s" % (bid, no), timeout=10)
+        try:
+            dj = json.loads(page) if page else None
+        except Exception:
+            pass
+        if isinstance(dj, dict):
+            full = soop_text(dj.get("data") if isinstance(dj.get("data"), dict) else dj)
+            if len(full) > len(text):
+                text = full
+        out.append({"id": "soop:%s" % no, "src": "soop", "url": "https://ch.sooplive.co.kr/%s/post/%s" % (bid, no),
+                    "ts": ts.astimezone(timezone.utc).isoformat(timespec="seconds"), "est": False,
+                    "title": strip_html(str(pick(it, "title_name", "title") or "")), "text": text,
+                    "imgs": soop_imgs(it), "poll": [], "video": None,
+                    "like": str(pick(cnt, "like_cnt", "like") or ""), "cmt": str(pick(cnt, "comment_cnt", "comment") or "")})
+    POST_STATS["soop_posts"] += len(out)
+    return out
+
+
+def member_posts(member, name, prev_posts):
+    """한 멤버의 모든 채널(유튜브 대표·서브, 숲) 글. 확인 실패한 채널은 이전 글을 그대로 씀"""
+    sources = [("yt:" + p, lambda p=p: yt_posts(p)) for p in ([member["path"]] if member["path"] else []) + member["subs"]]
+    for l in member["links"]:
+        m = SOOP_RE.search(l["value"])
+        if m:
+            sources.append(("soop:" + m.group(1).lower(), lambda b=m.group(1): soop_posts(b)))
+            break
+    out = []
+    for key, fetch in sources:
+        got = None
+        if time.time() < POST_DEADLINE[0]:  # 시간을 너무 오래 쓰면 남은 채널은 이전 글로
+            try:
+                got = fetch()
+            except Exception:
+                got = None
+        if got is None:
+            got = [p for p in prev_posts if p.get("k") == key]
+        for p in got:
+            p["k"], p["member"] = key, name
+            old = PREV_POST_TS.get(p["id"])
+            if old and old[0] and p.get("est"):
+                p["ts"], p["est"] = old  # 처음 봤을 때 계산한 시각을 그대로 유지 (매번 바뀌지 않게)
+            out.append(p)
+    return out
+
+
+PREV_POST_TS = {}
+POST_DEADLINE = [0]
+
+
+def fresh_posts(posts):
+    cut = datetime.now(timezone.utc) - timedelta(days=POST_DAYS, hours=12)
+    keep = []
+    for p in posts:
+        try:
+            if datetime.fromisoformat(p["ts"]) >= cut:
+                keep.append(p)
+        except Exception:
+            pass
+    return keep
+
+
 def check(member, prev):
     old = prev.get(member["name"] or member["path"] or "", {})
     out = {"name": member["name"], "channel": "", "avatar": "", "on": False, "video": "",
@@ -329,15 +588,16 @@ def read_gist(url):
 
 
 def load_prev():
+    """지금 올라가 있는 페이지의 데이터 전체 (실패하면 {})"""
     url = os.environ.get("PREV_DATA_URL")
     if not url:
         return {}
     try:
-        with urllib.request.urlopen(url, timeout=15) as r:
+        with urllib.request.urlopen(url + "?t=%d" % datetime.now().timestamp(), timeout=15) as r:
             page = r.read().decode("utf-8")
         m = re.search(r'<script id="data" type="application/json">(.*?)</script>', page, re.S)
         data = json.loads(m.group(1))
-        return {m["name"]: m for g in data.get("groups", []) for m in g["members"]}
+        return data if isinstance(data, dict) else {}
     except Exception:
         return {}
 
@@ -352,10 +612,40 @@ def main():
     if not text.strip():
         print("MEMBER_LIST 설정이 비어 있어요. Settings → Secrets and variables → Actions → Secrets에 넣어 주세요.")
     title, groups, extras = parse_list(text)
-    prev = load_prev()
+    prev_data = load_prev()
+    prev = {m["name"]: m for g in prev_data.get("groups", []) for m in g.get("members", [])}
     members = [m for g in groups for m in g["members"]]
     with ThreadPoolExecutor(8) as ex:
         results = list(ex.map(lambda m: check(m, prev), members))
+
+    # 소식에서 무슨 오류가 나도 라이브 결과는 그대로 페이지에 올라가도록 통째로 감쌈
+    try:
+        # 소식: 마지막으로 가져온 지 9분이 지났을 때만 새로 가져오고, 아니면 이전 결과를 그대로 씀
+        prev_posts = [p for p in prev_data.get("posts", []) if isinstance(p, dict) and p.get("id")]
+        PREV_POST_TS.update({p["id"]: (p.get("ts"), p.get("est", False)) for p in prev_posts})
+        posts_updated = prev_data.get("postsUpdated", "")
+        try:
+            due = (datetime.now(timezone.utc) - datetime.fromisoformat(posts_updated)).total_seconds() >= POST_EVERY
+        except Exception:
+            due = True
+        if due or os.environ.get("POSTS_FORCE"):
+            POST_DEADLINE[0] = time.time() + 120  # 소식은 최대 약 2분까지만
+            with ThreadPoolExecutor(4) as ex:  # 라이브 확인보다 천천히 (유튜브 로봇 확인 위험 줄이기)
+                lists = list(ex.map(lambda mr: member_posts(mr[0], mr[1]["name"], prev_posts), zip(members, results)))
+            posts = [p for l in lists for p in l]
+            posts_updated = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        else:
+            posts = prev_posts
+        seen, uniq = set(), []
+        for p in sorted(fresh_posts(posts), key=lambda p: p["ts"], reverse=True):
+            if p["id"] not in seen:
+                seen.add(p["id"])
+                uniq.append(p)
+        posts = uniq
+    except Exception as e:
+        print("소식 처리 중 오류(라이브 확인에는 영향 없음):", type(e).__name__)
+        posts = [p for p in prev_data.get("posts", []) if isinstance(p, dict)] if isinstance(prev_data.get("posts"), list) else []
+        posts_updated = prev_data.get("postsUpdated", "")
     i = 0
     out_groups = []
     for g in groups:
@@ -368,12 +658,14 @@ def main():
         "groups": out_groups,
         "schedule": extras["schedule"],
         "memo": extras["memo"],
+        "posts": posts,
+        "postsUpdated": posts_updated,
     }
     site = os.path.join(ROOT, "site")
     os.makedirs(site, exist_ok=True)
     with open(os.path.join(ROOT, "index.html"), encoding="utf-8") as f:
         page = f.read()
-    blob = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")  # 페이지 안에 넣기 위한 처리
+    blob = json.dumps(data, ensure_ascii=False).replace("<", "\\u003c")  # 글 내용 속 '<' 때문에 페이지가 깨지지 않도록
     with open(os.path.join(site, "index.html"), "w", encoding="utf-8") as f:
         f.write(page.replace("__DATA__", blob))
     print("완료: %d명 중 %d명 라이브 (유튜브 %d, 숲 %d)" % (len(results), sum(bool(r["on"] or r["soop"]) for r in results),
@@ -381,6 +673,14 @@ def main():
     print("채널 페이지 읽기 %(info_ok)d/%(info_all)d, 라이브 페이지 읽기 %(live_ok)d/%(live_all)d, "
           "방송 중 %(on)d, 다른 채널 방송 제외 %(other)d, 라이브 탭 없는 채널 %(notab)d, 로봇 확인 화면 %(bot)d" % STATS)
     print("숲 확인 %(ok)d/%(all)d, 숲 방송 중 %(on)d" % SOOP_STATS)
+    if POST_STATS["yt_all"] or POST_STATS["soop_all"]:
+        print("소식 새로 가져옴: 유튜브 읽기 %(yt_ok)d/%(yt_all)d 글 %(yt_posts)d개, "
+              "숲 읽기 %(soop_ok)d/%(soop_all)d 글 %(soop_posts)d개" % POST_STATS)
+        if POST_DIAG:
+            print("  숲 게시판 응답 항목 이름:", ", ".join(POST_DIAG[0]))
+    else:
+        print("소식은 이전 결과 사용 (10분마다 새로 가져와요)")
+    print("소식 %d개 (최근 %d일)" % (len(posts), POST_DAYS))
     # 진단용: 이름 대신 목록 순서 번호만 출력 (로그가 공개라서)
     order, n = {}, 0
     for g in groups:
