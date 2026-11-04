@@ -421,76 +421,87 @@ def pick(d, *keys):
     return None
 
 
-def soop_text(item):
-    c = item.get("content")
-    if isinstance(c, dict):
-        t = pick(c, "content", "contents", "summary", "text")
-    else:
-        t = c or pick(item, "contents", "summary", "text")
-    return strip_html(t) if isinstance(t, str) else ""
+SOOP_API = "https://chapi.sooplive.co.kr/api/"
+SOOP_HEADERS = {"User-Agent": HEADERS["User-Agent"], "Accept": "application/json, text/plain, */*",
+                "Accept-Language": "ko-KR,ko;q=0.9", "Referer": "https://www.sooplive.com/", "Origin": "https://www.sooplive.com"}
+
+
+def soop_json(url):
+    try:
+        req = urllib.request.Request(url, headers=SOOP_HEADERS)
+        with urllib.request.urlopen(req, timeout=10) as r:
+            return json.loads(r.read().decode("utf-8", "replace"))
+    except Exception:
+        return None
+
+
+def abs_url(u):
+    if not isinstance(u, str) or not u:
+        return ""
+    return "https:" + u if u.startswith("//") else (u if u.startswith("http") else "")
 
 
 def soop_imgs(item):
     out = []
-    c = item.get("content") if isinstance(item.get("content"), dict) else {}
-    for ph in (pick(item, "photos", "photo_list", "images") or pick(c, "photos", "photo_list", "images") or []):
-        u = ph if isinstance(ph, str) else pick(ph, "url", "photo_url", "path", "src") if isinstance(ph, dict) else None
-        if isinstance(u, str) and u:
-            out.append("https:" + u if u.startswith("//") else u)
+    for ph in item.get("photos") or []:
+        u = abs_url(pick(ph, "url", "image", "thumbnail", "file_url")) if isinstance(ph, dict) else abs_url(ph)
+        if u:
+            out.append(u)
+    if not out:  # 사진 칸이 비어 있으면 본문 속 그림에서 (이모티콘은 제외)
+        body = (item.get("content") or {}).get("content", "") if isinstance(item.get("content"), dict) else ""
+        for tag in re.findall(r"<img\b[^>]*>", body or "", re.I):
+            if re.search(r"emtn|ogq_item|data-emoji", tag):
+                continue
+            m = re.search(r"""\bsrc\s*=\s*["']([^"']+)["']""", tag)
+            if m and abs_url(m.group(1)):
+                out.append(abs_url(m.group(1)))
     return out
 
 
 def soop_posts(bid):
-    """숲 방송국 게시판의 최근 글. 확인 실패면 None"""
+    """숲 방송국 글. 방송국 정보에서 게시판 목록을 받고, 공개 게시판마다 최근 글을 가져옴. 확인 실패면 None"""
     POST_STATS["soop_all"] += 1
-    j = None
-    for url in ("https://chapi.sooplive.co.kr/api/%s/board?page=1&per_page=20" % bid,
-                "https://bjapi.afreecatv.com/api/%s/board?page=1&per_page=20" % bid):
-        page = get(url, timeout=10)
-        try:
-            j = json.loads(page) if page else None
-        except Exception:
-            j = None
-        if isinstance(j, dict) and isinstance(j.get("data"), list):
-            break
-        j = None
-    if j is None:
+    st = soop_json(SOOP_API + bid + "/station")
+    if not isinstance(st, dict) or not isinstance(st.get("station"), dict):
+        return None
+    # display_type 104 = 일반 게시판, auth_no 101 = 누구나 읽기 가능 (애청자 전용 게시판은 로그인 없이 못 읽음)
+    boards = [m.get("bbs_no") for m in st["station"].get("menus") or []
+              if isinstance(m, dict) and m.get("display_type") == 104 and m.get("auth_no") == 101 and m.get("bbs_no")][:10]
+    if not boards and len(POST_DIAG) < 1:
+        POST_DIAG.append(["게시판 목록 없음"] + sorted(st["station"].keys()))
+    cut = datetime.now(timezone.utc) - timedelta(days=POST_DAYS)
+    out, seen, read_any = [], set(), False
+    for bbs in boards:
+        j = soop_json(SOOP_API + "%s/board/%s?page=1&per_page=10&field=title&orderby=reg_date" % (bid, bbs))
+        if not isinstance(j, dict) or not isinstance(j.get("data"), list):
+            continue
+        read_any = True
+        for it in j["data"]:
+            if not isinstance(it, dict):
+                continue
+            no, reg = it.get("title_no"), it.get("reg_date")
+            if not no or no in seen or not isinstance(reg, str):
+                continue
+            if str(it.get("user_id", bid)).lower() != bid.lower():  # 시청자가 쓴 글은 제외
+                continue
+            try:
+                ts = datetime.strptime(reg[:19], "%Y-%m-%d %H:%M:%S").replace(tzinfo=KST)
+            except ValueError:
+                continue
+            if ts < cut:
+                continue
+            seen.add(no)
+            cnt = it.get("count") if isinstance(it.get("count"), dict) else {}
+            c = it.get("content") if isinstance(it.get("content"), dict) else {}
+            text = strip_html(c.get("content") or "") or strip_html(c.get("summary") or c.get("text_content") or "")
+            out.append({"id": "soop:%s" % no, "src": "soop", "url": "https://www.sooplive.com/station/%s/post/%s" % (bid, no),
+                        "ts": ts.astimezone(timezone.utc).isoformat(timespec="seconds"), "est": False,
+                        "title": strip_html(str(it.get("title_name") or "")), "text": text,
+                        "imgs": soop_imgs(it), "poll": [], "video": None,
+                        "like": str(cnt.get("like_cnt") or ""), "cmt": str(cnt.get("comment_cnt") or "")})
+    if boards and not read_any:
         return None
     POST_STATS["soop_ok"] += 1
-    items = [i for i in j["data"] if isinstance(i, dict)]
-    if items and len(POST_DIAG) < 1:
-        POST_DIAG.append(sorted(items[0].keys()))
-    cut = datetime.now(timezone.utc) - timedelta(days=POST_DAYS)
-    out = []
-    for it in items:
-        no, reg = pick(it, "title_no", "post_no", "id"), pick(it, "reg_date", "write_date", "created_at")
-        uid = pick(it, "user_id", "bj_id")
-        if not no or not isinstance(reg, str) or (uid and str(uid).lower() != bid.lower()):
-            continue
-        try:
-            ts = datetime.strptime(reg[:19], "%Y-%m-%d %H:%M:%S").replace(tzinfo=KST)
-        except ValueError:
-            continue
-        if ts < cut:
-            continue
-        cnt = it.get("count") if isinstance(it.get("count"), dict) else it
-        text = soop_text(it)
-        # 목록에는 글이 잘려 있을 수 있어서, 최근 글은 본문을 한 번 더 가져와 봄
-        dj = None
-        page = get("https://chapi.sooplive.co.kr/api/%s/title/%s" % (bid, no), timeout=10)
-        try:
-            dj = json.loads(page) if page else None
-        except Exception:
-            pass
-        if isinstance(dj, dict):
-            full = soop_text(dj.get("data") if isinstance(dj.get("data"), dict) else dj)
-            if len(full) > len(text):
-                text = full
-        out.append({"id": "soop:%s" % no, "src": "soop", "url": "https://ch.sooplive.co.kr/%s/post/%s" % (bid, no),
-                    "ts": ts.astimezone(timezone.utc).isoformat(timespec="seconds"), "est": False,
-                    "title": strip_html(str(pick(it, "title_name", "title") or "")), "text": text,
-                    "imgs": soop_imgs(it), "poll": [], "video": None,
-                    "like": str(pick(cnt, "like_cnt", "like") or ""), "cmt": str(pick(cnt, "comment_cnt", "comment") or "")})
     POST_STATS["soop_posts"] += len(out)
     return out
 
@@ -677,7 +688,7 @@ def main():
         print("소식 새로 가져옴: 유튜브 읽기 %(yt_ok)d/%(yt_all)d 글 %(yt_posts)d개, "
               "숲 읽기 %(soop_ok)d/%(soop_all)d 글 %(soop_posts)d개" % POST_STATS)
         if POST_DIAG:
-            print("  숲 게시판 응답 항목 이름:", ", ".join(POST_DIAG[0]))
+            print("  숲 진단:", ", ".join(map(str, POST_DIAG[0])))
     else:
         print("소식은 이전 결과 사용 (10분마다 새로 가져와요)")
     print("소식 %d개 (최근 %d일)" % (len(posts), POST_DAYS))
