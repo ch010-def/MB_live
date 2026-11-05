@@ -601,18 +601,27 @@ def read_gist(url):
 
 
 def load_prev():
-    """지금 올라가 있는 페이지의 데이터 전체 (실패하면 {})"""
+    """이전 실행 결과 전체. 올라가 있는 페이지와 저장소 live-data 칸 중 더 최근 것 (실패하면 {})"""
+    found = []
     url = os.environ.get("PREV_DATA_URL")
-    if not url:
-        return {}
-    try:
-        with urllib.request.urlopen(url + "?t=%d" % datetime.now().timestamp(), timeout=15) as r:
-            page = r.read().decode("utf-8")
-        m = re.search(r'<script id="data" type="application/json">(.*?)</script>', page, re.S)
-        data = json.loads(m.group(1))
-        return data if isinstance(data, dict) else {}
-    except Exception:
-        return {}
+    if url:
+        try:
+            with urllib.request.urlopen(url + "?t=%d" % datetime.now().timestamp(), timeout=15) as r:
+                page = r.read().decode("utf-8")
+            m = re.search(r'<script id="data" type="application/json">(.*?)</script>', page, re.S)
+            found.append(json.loads(m.group(1)))
+        except Exception:
+            pass
+    repo = os.environ.get("GITHUB_REPOSITORY")
+    if repo:
+        try:
+            raw = "https://raw.githubusercontent.com/%s/live-data/data.json?t=%d" % (repo, datetime.now().timestamp())
+            with urllib.request.urlopen(raw, timeout=15) as r:
+                found.append(json.loads(r.read().decode("utf-8")))
+        except Exception:
+            pass
+    found = [d for d in found if isinstance(d, dict)]
+    return max(found, key=lambda d: str(d.get("updated", ""))) if found else {}
 
 
 def main():
@@ -673,6 +682,7 @@ def main():
         "memo": extras["memo"],
         "posts": posts,
         "postsUpdated": posts_updated,
+        "repo": os.environ.get("GITHUB_REPOSITORY", ""),  # 페이지가 저장소의 최신 결과(live-data)를 찾을 때 씀
     }
     site = os.path.join(ROOT, "site")
     os.makedirs(site, exist_ok=True)
@@ -681,6 +691,8 @@ def main():
     blob = json.dumps(data, ensure_ascii=False).replace("<", "\\u003c")  # 글 내용 속 '<' 때문에 페이지가 깨지지 않도록
     with open(os.path.join(site, "index.html"), "w", encoding="utf-8") as f:
         f.write(page.replace("__DATA__", blob))
+    with open(os.path.join(site, "data.json"), "w", encoding="utf-8") as f:  # 저장소 live-data 칸에 따로 저장할 결과
+        json.dump(data, f, ensure_ascii=False)
     print("완료: %d명 중 %d명 라이브 (유튜브 %d, 숲 %d)" % (len(results), sum(bool(r["on"] or r["soop"]) for r in results),
                                                      sum(bool(r["on"]) for r in results), sum(bool(r["soop"]) for r in results)))
     print("채널 페이지 읽기 %(info_ok)d/%(info_all)d, 라이브 페이지 읽기 %(live_ok)d/%(live_all)d, "
