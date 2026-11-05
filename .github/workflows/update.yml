@@ -40,6 +40,25 @@ jobs:
           PREV_DATA_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
         run: python build.py
 
+      # 라이브 결과를 저장소의 live-data 칸에 바로 저장해요. 페이지가 이걸 직접 읽어서,
+      # GitHub Pages 반영이 멈춰도 라이브 표시는 계속 갱신돼요. (기록이 쌓이지 않게 매번 덮어써요)
+      - name: save live data
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          [ -f site/data.json ] || { echo "data.json 없음 → 건너뜀"; exit 0; }
+          tmp=$(mktemp -d)
+          cp site/data.json "$tmp/"
+          cd "$tmp"
+          git init -q -b live-data
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          git commit -q -m "live data $(date -u +%H:%M)"
+          git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" HEAD:live-data
+          echo "live-data 저장 완료"
+
       - uses: actions/configure-pages@v5
         continue-on-error: true
 
@@ -49,9 +68,12 @@ jobs:
           path: site
           retention-days: 1
 
+      # GitHub Pages가 느릴 때 10분씩 붙잡혀 있지 않도록 3분만 기다려요 (보통 1분 안에 끝나요)
       - id: deploy
         uses: actions/deploy-pages@v4
         continue-on-error: true
+        with:
+          timeout: 180000
 
       # GitHub Pages는 같은 커밋 번호로 다시 올리면 새 내용으로 바꾸지 않아요.
       # 그래서 매번 빈 기록(커밋)을 하나 남겨서, 다음 실행이 새 번호로 올리게 해요. (60일 자동정지 방지도 겸함)
