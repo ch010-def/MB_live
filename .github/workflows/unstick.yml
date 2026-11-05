@@ -2,7 +2,7 @@ name: unstick-pages
 
 # 페이지 업데이트가 "in progress deployment" 오류로 계속 멈춰 있을 때 손으로 한 번 실행하는 작업이에요.
 # Actions 탭 → 왼쪽 unstick-pages → Run workflow 버튼.
-# 칸을 비워 두면 최근 기록 100개의 배포를 모두 취소해 보고, 오류에 나온 번호를 넣으면 그것만 취소해요.
+# 오류에 나온 번호를 넣으면 그것만 취소해요 (추천). 칸을 비워 두면 최근 5개를 뺀 기록 100개의 배포를 취소해 봐요.
 on:
   workflow_dispatch:
     inputs:
@@ -30,7 +30,8 @@ jobs:
           if [ -n "$ONE_SHA" ]; then
             list="$ONE_SHA"
           else
-            list=$(gh api "repos/$REPO/commits?sha=main&per_page=100" --jq '.[].sha')
+            # 가장 최근 5개는 건너뜀: 지금 올라가고 있는 정상 배포를 취소하지 않도록
+            list=$(gh api "repos/$REPO/commits?sha=main&per_page=100" --jq '.[5:][].sha')
           fi
           n=0
           for sha in $list; do
