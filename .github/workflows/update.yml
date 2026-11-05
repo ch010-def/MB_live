@@ -50,11 +50,12 @@ jobs:
           [ -f site/data.json ] || { echo "data.json 없음 → 건너뜀"; exit 0; }
           tmp=$(mktemp -d)
           cp site/data.json "$tmp/"
+          cp site/index.html "$tmp/" 2>/dev/null || true   # 비상 주소용 페이지 (raw.githack.com/저장소/live-data/index.html)
           cd "$tmp"
           git init -q -b live-data
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data.json
+          git add -A
           git commit -q -m "live data $(date -u +%H:%M)"
           git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" HEAD:live-data
           echo "live-data 저장 완료"
