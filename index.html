@@ -120,6 +120,15 @@ a.chip.live:hover{filter:brightness(1.12)}
 .row .v{color:var(--accent);overflow-wrap:anywhere}
 .row:hover .v{text-decoration:underline;text-underline-offset:3px}
 .hint{font-size:12px;color:var(--muted);text-align:center;margin:6px 0 4px}
+/* 비상 주소 안내 */
+.stale{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 16px;padding:14px 16px;border-radius:14px;
+  background:rgba(233,194,122,.12);border:1px solid rgba(233,194,122,.55);color:var(--ink);font-size:14px;line-height:1.5}
+.stale b{color:var(--gold)}
+.stale p{margin:0;flex:1;min-width:200px}
+.stale a{flex:none;padding:9px 14px;border-radius:10px;background:var(--gold);color:#1a1405;font-weight:800;text-decoration:none;white-space:nowrap}
+.stale[hidden],.foot .backup[hidden]{display:none}
+.foot .backup{color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:3px}
+.foot .backup:hover{color:var(--ink)}
 .foot{margin-top:32px;padding:18px 14px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;color:var(--muted);font-size:13px;border-top:1px solid var(--line)}
 .report{display:inline-flex;align-items:center;padding:7px 14px;border-radius:9px;background:transparent;border:1px solid var(--line);color:var(--muted);font-weight:600;font-size:12px;text-decoration:none}
 .report:hover{color:var(--ink);border-color:#3a3d4e}
@@ -232,6 +241,10 @@ a.chip.live:hover{filter:brightness(1.12)}
       <div class="count" id="meta">불러오는 중…</div>
     </div>
   </section>
+  <div class="stale" id="stale" hidden>
+    <p><b>화면 업데이트가 늦어지고 있어요.</b> <span id="staleMsg"></span> GitHub 쪽 문제일 때는 비상 주소에서 최신 라이브를 볼 수 있어요.</p>
+    <a id="staleLink" href="#" target="_blank" rel="noopener">비상 주소로 보기 ↗</a>
+  </div>
   <div id="home">
   <div class="guide">
     <span><i class="dot"></i><em>프로필 사진을 누르면 <b>채널</b>로 이동</em></span>
@@ -266,6 +279,7 @@ a.chip.live:hover{filter:brightness(1.12)}
   </div>
   <div class="foot" id="foot">
     <a class="report" href="https://open.kakao.com/o/scKACbVi" target="_blank" rel="noopener">버그 및 일정 알려주세요</a>
+    <a class="backup" id="backupLink" href="#" target="_blank" rel="noopener" hidden>화면이 멈춰 있으면 → 비상 주소로 보기</a>
   </div>
 </main>
 
@@ -283,6 +297,25 @@ a.chip.live:hover{filter:brightness(1.12)}
 var $ = function(id){ return document.getElementById(id); };
 function el(tag, cls, text){ var e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
 
+// 비상 주소: GitHub Pages를 거치지 않고 저장소 live-data 칸의 페이지를 바로 보여 주는 주소
+var ON_BACKUP = /(^|\.)githack\.com$/.test(location.hostname);
+function repoOf(d){
+  if(d && d.repo && /^[\w.-]+\/[\w.-]+$/.test(d.repo)) return d.repo;
+  var m = location.hostname.match(/^([\w-]+)\.github\.io$/), seg = location.pathname.split('/')[1];
+  return m && seg ? m[1] + '/' + seg : '';
+}
+function showBackup(d, ago){
+  var repo = repoOf(d);
+  var url = repo ? 'https://raw.githack.com/' + repo + '/live-data/index.html' : '';
+  var link = $('backupLink');
+  link.hidden = ON_BACKUP || !url;
+  if(url) link.href = url;
+  // 15분 넘게 결과가 안 바뀌면 위쪽에 눈에 띄는 안내 칸을 띄움 (비상 주소에서는 안 띄움)
+  var stale = !ON_BACKUP && url && ago >= 15;
+  $('stale').hidden = !stale;
+  if(stale){ $('staleLink').href = url; $('staleMsg').textContent = '마지막 결과가 ' + ago + '분 전이에요.'; }
+}
+
 function render(d){
   $('title').textContent = d.title;
   document.title = d.title;
@@ -299,6 +332,7 @@ function render(d){
   rb.addEventListener('click', function(){ rb.disabled = true; rb.textContent = '불러오는 중…'; load(true); });
   meta.appendChild(rb);
   lastData = d;
+  showBackup(d, ago);
 
   var box = $('groups'); box.innerHTML = '';
   d.groups.forEach(function(g){
