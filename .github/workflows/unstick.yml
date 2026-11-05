@@ -1,1 +1,48 @@
+name: unstick-pages
 
+# 페이지 업데이트가 "in progress deployment" 오류로 계속 멈춰 있을 때 손으로 한 번 실행하는 작업이에요.
+# Actions 탭 → 왼쪽 unstick-pages → Run workflow 버튼.
+# 칸을 비워 두면 최근 기록 100개의 배포를 모두 취소해 보고, 오류에 나온 번호를 넣으면 그것만 취소해요.
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: "오류에 나온 'Please cancel ○○○ first'의 ○○○ (비워 둬도 돼요)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  pages: write
+  actions: write
+
+jobs:
+  cancel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: cancel stuck deployments
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ONE_SHA: ${{ inputs.sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          if [ -n "$ONE_SHA" ]; then
+            list="$ONE_SHA"
+          else
+            list=$(gh api "repos/$REPO/commits?sha=main&per_page=100" --jq '.[].sha')
+          fi
+          n=0
+          for sha in $list; do
+            if gh api -X POST "repos/$REPO/pages/deployments/$sha/cancel" >/dev/null 2>&1; then
+              echo "멈춘 배포 취소함: $sha"; n=$((n+1))
+            fi
+          done
+          echo "취소한 배포 $n개"
+          if [ "$n" = "0" ]; then echo "취소할 배포가 없었어요. 이미 풀렸거나 더 오래된 배포일 수 있어요."; fi
+
+      # 이어달리기가 끊겼을 수도 있으니 라이브 확인을 바로 한 번 시작해요
+      - name: restart live-update
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run update.yml --ref main -R ${{ github.repository }} || echo "이미 실행 중이거나 시작 실패 (15분 예약이 다시 시작해요)"
