@@ -753,6 +753,27 @@ def read_gist(url):
         return ""
 
 
+PAGES_INFO = {}       # 지금 사이트에 올라가 있는 화면 정보 (못 읽으면 비어 있음)
+PAGES_EVERY = 55 * 60  # 화면이 그대로여도 이만큼 지나면 사이트에 다시 올림 (약 1시간에 한 번)
+
+
+def need_deploy(code):
+    """사이트(GitHub Pages)에 새로 올려야 하는지. 라이브 결과는 live-data로 따로 전달돼서 매번 올릴 필요가 없어요."""
+    if os.environ.get("FORCE_DEPLOY"):
+        return True, "직접 요청"
+    if not PAGES_INFO:
+        return True, "사이트 화면을 못 읽음"
+    if PAGES_INFO.get("code") != code:
+        return True, "화면 파일이 바뀜"
+    try:
+        age = (datetime.now(timezone.utc) - datetime.fromisoformat(PAGES_INFO.get("updated", ""))).total_seconds()
+    except Exception:
+        return True, "사이트 화면 시각을 모름"
+    if age >= PAGES_EVERY:
+        return True, "마지막으로 올린 지 %d분" % (age // 60)
+    return False, "화면 그대로, %d분 전에 올림" % (age // 60)
+
+
 def load_prev():
     """이전 실행 결과 전체. 올라가 있는 페이지와 저장소 live-data 칸 중 더 최근 것 (실패하면 {})"""
     found = []
@@ -762,7 +783,10 @@ def load_prev():
             with urllib.request.urlopen(url + "?t=%d" % datetime.now().timestamp(), timeout=15) as r:
                 page = r.read().decode("utf-8")
             m = re.search(r'<script id="data" type="application/json">(.*?)</script>', page, re.S)
-            found.append(json.loads(m.group(1)))
+            pd = json.loads(m.group(1))
+            found.append(pd)
+            if isinstance(pd, dict):  # 지금 사이트(GitHub Pages)에 올라가 있는 화면의 버전과 시각
+                PAGES_INFO.update({"code": pd.get("code", ""), "updated": pd.get("updated", "")})
         except Exception:
             pass
     repo = os.environ.get("GITHUB_REPOSITORY")
@@ -860,6 +884,11 @@ def main():
         f.write(page.replace("__DATA__", blob))
     with open(os.path.join(site, "data.json"), "w", encoding="utf-8") as f:  # 저장소 live-data 칸에 따로 저장할 결과
         json.dump(data, f, ensure_ascii=False)
+    deploy, why = need_deploy(data["code"])
+    print("사이트에 올리기: %s (%s)" % ("함" if deploy else "안 함 — 라이브 결과는 live-data로 전달", why))
+    if os.environ.get("GITHUB_OUTPUT"):
+        with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+            f.write("deploy=%s\n" % ("true" if deploy else "false"))
     print("완료: %d명 중 %d명 라이브 (유튜브 %d, 숲 %d)" % (len(results), sum(bool(r["on"] or r["soop"] or r.get("fun")) for r in results),
                                                      sum(bool(r["on"]) for r in results), sum(bool(r["soop"]) for r in results)))
     print("채널 페이지 읽기 %(info_ok)d/%(info_all)d, 라이브 페이지 읽기 %(live_ok)d/%(live_all)d, "
