@@ -62,7 +62,7 @@ def parse_list(text):
 
     # 2단계: 칸마다 멤버 / 일정 / 메모 구분
     # 일정·메모 칸 뒤에 링크 없는 칸이 이어지면 같은 일정·메모로 봄 (메모 안에 빈 줄을 넣어도 되게)
-    LINK = re.compile(r"https?://|youtube\.com|sooplive|afreecatv|^@")
+    LINK = re.compile(r"https?://|youtube\.com|sooplive|afreecatv|funnation|funn\.at|^@")
     HEADS = ("제목", "묶음", "일정", "메모")
     extras = {"schedule": [], "memo": []}
     blocks, extra = [], None
@@ -551,10 +551,35 @@ def fresh_posts(posts):
     return keep
 
 
+# 펀네이션 주소: funnation.co.kr/store/아이디, funn.at/아이디, 아이디.funn.at 모두 인식
+FUN_RE = re.compile(r"(?:funnation\.co\.kr|funn\.at)/store/([A-Za-z0-9_-]+)"
+                    r"|(?<![\w.])funn\.at/(?!store/|api/|donate/|login|signup|_next)([A-Za-z0-9_-]+)"
+                    r"|(?<![\w.-])(?!www\.)([A-Za-z0-9_-]+)\.funn\.at", re.I)
+FUN_STATS = {"all": 0, "ok": 0, "on": 0}
+
+
+def fun_live(slug):
+    """펀네이션 방송 중이면 (방송 주소, 대표 사진), 아니면 ("", 사진), 확인 실패면 None"""
+    FUN_STATS["all"] += 1
+    page = get("https://www.funnation.co.kr/api/stores/%s/live/status" % slug, timeout=10)
+    try:
+        j = json.loads(page) if page else None
+    except Exception:
+        j = None
+    if not isinstance(j, dict) or "isLive" not in j:
+        return None
+    FUN_STATS["ok"] += 1
+    pic = j.get("storeLogoUrl") or ((j.get("channel") or {}).get("thumbnailUrl") if isinstance(j.get("channel"), dict) else "") or ""
+    if j.get("isLive") is True:
+        FUN_STATS["on"] += 1
+        return "https://www.funnation.co.kr/store/%s/live/broadcast" % slug, pic
+    return "", pic
+
+
 def check(member, prev):
     old = prev.get(member["name"] or member["path"] or "", {})
     out = {"name": member["name"], "channel": "", "avatar": "", "on": False, "video": "",
-           "soop": "", "links": member["links"], "autoName": ""}
+           "soop": "", "fun": "", "links": member["links"], "autoName": ""}
     # 숲 링크가 있으면 숲 방송도 확인
     for l in member["links"]:
         m = SOOP_RE.search(l["value"])
@@ -565,8 +590,21 @@ def check(member, prev):
             if v:
                 out["soop"] = v
                 break
+    # 펀네이션 링크가 있으면 펀네이션 방송도 확인
+    fun_pic = ""
+    for l in member["links"]:
+        m = FUN_RE.search(l["value"])
+        if m:
+            r = fun_live(next(g for g in m.groups() if g))
+            if r is None:
+                if old.get("fun"):
+                    out["fun"] = old["fun"]  # 확인 실패 시 이전 상태 유지
+            else:
+                out["fun"], fun_pic = r
+            break
     if not member["path"]:
         out["name"] = out["name"] or "(이름 없음)"
+        out["avatar"] = fun_pic or old.get("avatar", "")  # 유튜브가 없으면 펀네이션 대표 사진
         return out
     info = channel_info(member["path"])
     out["channel"] = yt_url(member["path"])
@@ -693,11 +731,13 @@ def main():
         f.write(page.replace("__DATA__", blob))
     with open(os.path.join(site, "data.json"), "w", encoding="utf-8") as f:  # 저장소 live-data 칸에 따로 저장할 결과
         json.dump(data, f, ensure_ascii=False)
-    print("완료: %d명 중 %d명 라이브 (유튜브 %d, 숲 %d)" % (len(results), sum(bool(r["on"] or r["soop"]) for r in results),
+    print("완료: %d명 중 %d명 라이브 (유튜브 %d, 숲 %d)" % (len(results), sum(bool(r["on"] or r["soop"] or r.get("fun")) for r in results),
                                                      sum(bool(r["on"]) for r in results), sum(bool(r["soop"]) for r in results)))
     print("채널 페이지 읽기 %(info_ok)d/%(info_all)d, 라이브 페이지 읽기 %(live_ok)d/%(live_all)d, "
           "방송 중 %(on)d, 다른 채널 방송 제외 %(other)d, 라이브 탭 없는 채널 %(notab)d, 로봇 확인 화면 %(bot)d" % STATS)
     print("숲 확인 %(ok)d/%(all)d, 숲 방송 중 %(on)d" % SOOP_STATS)
+    if FUN_STATS["all"]:
+        print("펀네이션 확인 %(ok)d/%(all)d, 펀네이션 방송 중 %(on)d" % FUN_STATS)
     if POST_STATS["yt_all"] or POST_STATS["soop_all"]:
         print("소식 새로 가져옴: 유튜브 읽기 %(yt_ok)d/%(yt_all)d 글 %(yt_posts)d개, "
               "숲 읽기 %(soop_ok)d/%(soop_all)d 글 %(soop_posts)d개" % POST_STATS)
