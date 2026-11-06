@@ -133,6 +133,11 @@ a.chip.live:hover{filter:brightness(1.12)}
 .stale[hidden],.foot .backup[hidden]{display:none}
 .foot .backup{color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:3px}
 .foot .backup:hover{color:var(--ink)}
+.foot .backup-tip{margin:-4px 0 0;max-width:340px;font-size:12px;line-height:1.55;color:var(--muted)}
+.foot .backup-tip b{color:#ff8a8a;font-weight:700}
+.stale .tip{display:inline-block;margin-top:4px;font-size:12.5px;color:var(--muted)}
+.stale .tip b{color:#ff8a8a}
+.foot .backup-tip[hidden]{display:none}
 .foot{margin-top:32px;padding:18px 14px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;color:var(--muted);font-size:13px;border-top:1px solid var(--line)}
 .report{display:inline-flex;align-items:center;padding:7px 14px;border-radius:9px;background:transparent;border:1px solid var(--line);color:var(--muted);font-weight:600;font-size:12px;text-decoration:none}
 .report:hover{color:var(--ink);border-color:#3a3d4e}
@@ -246,7 +251,7 @@ a.chip.live:hover{filter:brightness(1.12)}
     </div>
   </section>
   <div class="stale" id="stale" hidden>
-    <p><b>화면 업데이트가 늦어지고 있어요.</b> <span id="staleMsg"></span> GitHub 쪽 문제일 때는 비상 주소에서 최신 라이브를 볼 수 있어요.</p>
+    <p><b>화면 업데이트가 늦어지고 있어요.</b> <span id="staleMsg"></span> GitHub 쪽 문제일 때는 비상 주소에서 최신 라이브를 볼 수 있어요.<br><small class="tip">처음 열면 영어 안내 화면이 나와요. <b>빨간 「Open the page」 버튼</b>을 누르면 돼요.</small></p>
     <a id="staleLink" href="#" target="_blank" rel="noopener">비상 주소로 보기 ↗</a>
   </div>
   <div id="home">
@@ -285,6 +290,7 @@ a.chip.live:hover{filter:brightness(1.12)}
   <div class="foot" id="foot">
     <a class="report" href="https://open.kakao.com/o/scKACbVi" target="_blank" rel="noopener">버그 및 일정 알려주세요</a>
     <a class="backup" id="backupLink" href="#" target="_blank" rel="noopener" hidden>화면이 멈춰 있으면 → 비상 주소로 보기</a>
+    <p class="backup-tip" id="backupTip" hidden>처음 열면 영어로 된 안내 화면(rawgit.hack)이 나와요. 놀라지 말고 <b>빨간 「Open the page」 버튼</b>을 누르면 라이브 화면이 열려요.</p>
   </div>
 </main>
 
@@ -303,6 +309,7 @@ var $ = function(id){ return document.getElementById(id); };
 function el(tag, cls, text){ var e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
 
 // 비상 주소: GitHub Pages를 거치지 않고 저장소 live-data 칸의 페이지를 바로 보여 주는 주소
+var CHECKED = false; // 저장소의 최신 결과를 한 번이라도 확인했는지
 var ON_BACKUP = /(^|\.)githack\.com$/.test(location.hostname);
 function repoOf(d){
   if(d && d.repo && /^[\w.-]+\/[\w.-]+$/.test(d.repo)) return d.repo;
@@ -314,9 +321,11 @@ function showBackup(d, ago){
   var url = repo ? 'https://raw.githack.com/' + repo + '/live-data/index.html' : '';
   var link = $('backupLink');
   link.hidden = ON_BACKUP || !url;
+  $('backupTip').hidden = link.hidden;
   if(url) link.href = url;
   // 15분 넘게 결과가 안 바뀌면 위쪽에 눈에 띄는 안내 칸을 띄움 (비상 주소에서는 안 띄움)
-  var stale = !ON_BACKUP && url && ago >= 15;
+  // 새로고침 직후에는 페이지 안의 (오래됐을 수 있는) 데이터로 먼저 그려서, 최신 결과를 한 번 확인한 뒤에만 판단해요
+  var stale = CHECKED && !ON_BACKUP && url && ago >= 15;
   $('stale').hidden = !stale;
   if(stale){ $('staleLink').href = url; $('staleMsg').textContent = '마지막 결과가 ' + ago + '분 전이에요.'; }
 }
@@ -625,6 +634,7 @@ function load(manual){
   Promise.all([settle(fromPage()), settle(fromRepo())]).then(function(res){
     var r = res[1];
     if(r && r.code && MY_CODE && r.code !== MY_CODE && !ON_BACKUP && repoOf(r)){ swapToRepoPage(repoOf(r)); }
+    CHECKED = true;
     var best = lastData;
     res.forEach(function(d){ if(d && stamp(d) >= stamp(best)) best = d; });
     if(best && (res[0] || res[1])){ render(best); if(manual) flash('최신 결과를 불러왔어요'); }
