@@ -726,6 +726,8 @@ def main():
     os.makedirs(site, exist_ok=True)
     with open(os.path.join(ROOT, "index.html"), encoding="utf-8") as f:
         page = f.read()
+    import hashlib
+    data["code"] = hashlib.md5(page.encode("utf-8")).hexdigest()[:10]  # 화면 파일 버전 (사이트 화면이 옛 버전인지 알아보는 데 씀)
     blob = json.dumps(data, ensure_ascii=False).replace("<", "\\u003c")  # 글 내용 속 '<' 때문에 페이지가 깨지지 않도록
     with open(os.path.join(site, "index.html"), "w", encoding="utf-8") as f:
         f.write(page.replace("__DATA__", blob))

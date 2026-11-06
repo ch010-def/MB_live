@@ -609,8 +609,22 @@ function fromRepo(){
     .then(function(d){ if(!d || !d.groups) throw 0; return d; });
 }
 function settle(p){ return p.then(function(d){ return d; }, function(){ return null; }); }
+// 사이트(GitHub Pages)에 뜬 화면 파일이 옛 버전이면, 저장소 live-data에 저장된 최신 화면으로 바꿔 보여 줌
+var MY_CODE = '', TIMER = null;
+function swapToRepoPage(repo){
+  try{ var last = +sessionStorage.getItem('swapAt') || 0; if(Date.now() - last < 10 * 60000) return; sessionStorage.setItem('swapAt', Date.now()); }catch(e){ return; }
+  fetch('https://raw.githubusercontent.com/' + repo + '/live-data/index.html?t=' + Date.now(), {cache:'no-store'})
+    .then(function(r){ if(!r.ok) throw 0; return r.text(); })
+    .then(function(html){
+      if(html.indexOf('id="data"') < 0) return;
+      clearInterval(TIMER);
+      document.open(); document.write(html); document.close();
+    }).catch(function(){});
+}
 function load(manual){
   Promise.all([settle(fromPage()), settle(fromRepo())]).then(function(res){
+    var r = res[1];
+    if(r && r.code && MY_CODE && r.code !== MY_CODE && !ON_BACKUP && repoOf(r)){ swapToRepoPage(repoOf(r)); }
     var best = lastData;
     res.forEach(function(d){ if(d && stamp(d) >= stamp(best)) best = d; });
     if(best && (res[0] || res[1])){ render(best); if(manual) flash('최신 결과를 불러왔어요'); }
@@ -622,9 +636,9 @@ function flash(msg){
   var f = $('flash'); f.textContent = msg; f.classList.add('show');
   clearTimeout(ft); ft = setTimeout(function(){ f.classList.remove('show'); }, 1800);
 }
-try{ render(readData(document)); load(false); } // 열자마자 저장소의 더 최신 결과가 있는지 한 번 확인
+try{ var first = readData(document); MY_CODE = first.code || ''; render(first); load(false); } // 열자마자 저장소의 더 최신 결과가 있는지 한 번 확인
 catch(e){ $('meta').textContent = '아직 준비 중이에요. 잠시 후 다시 열어 주세요.'; }
-setInterval(function(){ load(false); }, 60 * 1000); // 1분마다 새 결과 확인
+TIMER = setInterval(function(){ load(false); }, 60 * 1000); // 1분마다 새 결과 확인
 </script>
 </body>
 </html>
