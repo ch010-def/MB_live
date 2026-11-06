@@ -354,9 +354,9 @@ function showBackup(d, ago){
   link.hidden = ON_BACKUP || !url;
   $('backupTip').hidden = link.hidden;
   if(url) link.href = url;
-  // 15분 넘게 결과가 안 바뀌면 위쪽에 눈에 띄는 안내 칸을 띄움 (비상 주소에서는 안 띄움)
+  // 10분 넘게 결과가 안 바뀌면 위쪽에 눈에 띄는 안내 칸을 띄움 (비상 주소에서는 안 띄움)
   // 새로고침 직후에는 페이지 안의 (오래됐을 수 있는) 데이터로 먼저 그려서, 최신 결과를 한 번 확인한 뒤에만 판단해요
-  var stale = CHECKED && !ON_BACKUP && url && ago >= 15;
+  var stale = CHECKED && !ON_BACKUP && url && ago >= 10;
   $('stale').hidden = !stale;
   if(stale){ $('staleLink').href = url; $('staleMsg').textContent = '마지막 결과가 ' + ago + '분 전이에요.'; }
 }
