@@ -38,6 +38,7 @@ jobs:
           python-version: "3.12"
 
       - name: check live
+        id: build
         continue-on-error: true
         env:
           MEMBER_LIST: ${{ secrets.MEMBER_LIST }}
@@ -64,10 +65,15 @@ jobs:
           git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" HEAD:live-data
           echo "live-data 저장 완료"
 
+      # 사이트(GitHub Pages)에는 화면 파일이 바뀌었을 때와 약 1시간에 한 번만 올려요.
+      # 라이브 결과는 위 save live data 단계에서 live-data에 저장되고, 사이트가 그걸 1분마다 직접 읽어요.
+      # (Pages가 느리거나 막혀도 라이브 확인은 밀리지 않아요)
       - uses: actions/configure-pages@v5
+        if: ${{ steps.build.outputs.deploy != 'false' }}
         continue-on-error: true
 
       - uses: actions/upload-pages-artifact@v3
+        if: ${{ steps.build.outputs.deploy != 'false' }}
         continue-on-error: true
         with:
           path: site
@@ -76,6 +82,7 @@ jobs:
       # GitHub Pages 반영은 느릴 때 몇 분씩 걸려요. 중간에 끊으면 영영 반영이 안 되니 끝까지(최대 10분) 기다려요.
       # (라이브 결과는 위 save live data 단계에서 이미 저장돼서, 여기서 기다려도 라이브 표시는 늦어지지 않아요)
       - id: deploy
+        if: ${{ steps.build.outputs.deploy != 'false' }}
         uses: actions/deploy-pages@v4
         continue-on-error: true
 
@@ -107,13 +114,14 @@ jobs:
           done
           echo "취소한 배포 $n개"
 
+      # (사이트에 올리지 않은 실행은 skipped로 나오고, 성공과 똑같이 쉬어요)
       # 실행 시작부터 약 4분 30초가 될 때까지만 쉬어요. 다음 실행 준비 시간까지 더하면 약 5분마다 확인돼요.
       # (GitHub Pages가 느려서 올리기가 오래 걸린 날은 그만큼 덜 쉬어요. 올리기에 실패했으면 30초 뒤 바로 다시 시도)
       - name: wait
         env:
           DEPLOY_RESULT: ${{ steps.deploy.outcome }}
         run: |
-          if [ "$DEPLOY_RESULT" != "success" ]; then
+          if [ "$DEPLOY_RESULT" != "success" ] && [ "$DEPLOY_RESULT" != "skipped" ]; then
             echo "페이지 올리기 결과: $DEPLOY_RESULT → 잠시 뒤 다시 시도해요"
             sleep 30
             exit 0
