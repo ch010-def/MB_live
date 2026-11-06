@@ -95,9 +95,9 @@ h2{font-size:15px;font-weight:700;color:var(--muted);margin:28px 4px 12px}
 .m{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;min-width:0;
   background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 6px 12px;transition:border-color .2s,transform .2s}
 .m.on{border-color:rgba(255,59,79,.55);background:linear-gradient(180deg,rgba(255,59,79,.12),var(--panel) 60%)}
-.pic{position:relative;display:block;width:min(84px,18vw);aspect-ratio:1;border-radius:50%;padding:3px;background:var(--line)}
+.pic{position:relative;display:block;width:min(84px,18vw);height:min(84px,18vw);aspect-ratio:1;flex:none;box-sizing:border-box;border-radius:50%;padding:3px;background:var(--line)}
 .pic .in{display:block;width:100%;height:100%;border-radius:50%;overflow:hidden;background:var(--panel-2);border:2px solid var(--panel)}
-.pic img{width:100%;height:100%;object-fit:cover;display:block}
+.pic img{width:100%;height:100%;object-fit:cover;object-position:center 25%;display:block}
 .m.on .pic{background:conic-gradient(from 0deg,var(--live),#ff8a3d,var(--live),#c13cff,var(--live));animation:spin 4s linear infinite}
 .m.on .pic .in{animation:spin 4s linear infinite reverse}
 .m.on.soop{border-color:rgba(47,123,255,.6);background:linear-gradient(180deg,rgba(47,123,255,.14),var(--panel) 60%)}
