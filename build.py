@@ -44,6 +44,29 @@ def meta(page, prop):
     return html.unescape(m.group(1)) if m else ""
 
 
+def looks_member(lines):
+    """일정·메모 뒤에 오는 칸이 멤버인지: 첫 줄은 이름(주소·날짜 아님), 둘째 줄부터 채널 주소(유튜브 채널, 숲 방송국, 펀네이션)가 있음.
+    게시글 주소(/post/)나 날짜로 시작하는 칸은 메모로 봐요."""
+    if not lines:
+        return False
+    first = lines[0]
+    if re.search(r"https?://|youtube\.com|sooplive|afreecatv|funnation|funn\.at", first) and " " not in first.strip():
+        return True  # 주소만 한 줄로 시작하는 멤버
+    if re.match(r"^\d{1,2}\s*[/.월]", first):
+        return False
+    for l in lines[1:]:
+        v = l.split()[-1] if l.split() else ""
+        if "/post/" in v:
+            continue
+        if channel_path(v) and re.search(r"youtube\.com|^@", v):
+            return True
+        if re.search(r"(sooplive\.(co\.kr|com)/station/|afreecatv\.com/station/|bj\.afreecatv\.com/)[A-Za-z0-9_]+/?$", v, re.I):
+            return True
+        if re.search(r"(funnation\.co\.kr|funn\.at)/(store/)?[A-Za-z0-9_-]+/?$|[A-Za-z0-9_-]+\.funn\.at/?$", v, re.I):
+            return True
+    return False
+
+
 def parse_list(text):
     """멤버마다 빈 줄로 구분. 첫 줄 = 이름, 첫 유튜브 링크 = 대표 채널,
     나머지 유튜브 링크와 "이름 링크" 줄 = 더보기."""
@@ -68,7 +91,7 @@ def parse_list(text):
     blocks, extra = [], None
     for blk in raw_blocks:
         real = [l.strip() for l in blk if not l.strip().startswith("#")]
-        if extra and (not real or (real[0].partition(" ")[0] not in HEADS and not any(LINK.search(l) for l in real))):
+        if extra and (not real or (real[0].partition(" ")[0] not in HEADS and not looks_member(real))):
             if extra == "memo":
                 extras["memo"] += [""] + blk  # 빈 줄 = 주제 사이 간격, '#' 줄도 메모로 남김
             else:
@@ -117,6 +140,28 @@ def parse_list(text):
             member["links"].append({"label": label, "value": re.sub(r"^https?://", "", value)})
         groups[-1]["members"].append(member)
     return title, [g for g in groups if g["members"]], extras
+
+
+def split_pages(text):
+    """'페이지 이름' 줄로 목록을 나눔. 첫 부분 = 기본 페이지(엠비크루), 그 뒤 = 계열사 페이지(MBU 등)"""
+    secs = [["", []]]
+    for raw in text.splitlines():
+        m = re.match(r"^\s*페이지\s+(\S.*?)\s*$", raw)
+        if m:
+            secs.append([m.group(1), []])
+            continue
+        secs[-1][1].append(raw)
+    pages, used = [], set()
+    for i, (label, lines) in enumerate(secs):
+        if i and not any(l.strip() and not l.strip().startswith("#") for l in lines):
+            continue
+        title, groups, extras = parse_list("\n".join(lines))
+        key = "" if i == 0 else (re.sub(r"[^a-z0-9]", "", label.lower()) or "p%d" % i)
+        while key in used:
+            key += "2"
+        used.add(key)
+        pages.append({"key": key, "label": label, "title": title, "groups": groups, "extras": extras})
+    return pages
 
 
 def channel_info(path):
@@ -184,6 +229,15 @@ def video_author(vid):
     page = get("https://www.youtube.com/oembed?format=json&url=" + urllib.parse.quote("https://www.youtube.com/watch?v=" + vid, safe=""))
     try:
         return json.loads(page).get("author_name", "") if page else ""
+    except Exception:
+        return ""
+
+
+def video_title(vid):
+    """oEmbed로 영상(방송) 제목 (실패하면 "")"""
+    page = get("https://www.youtube.com/oembed?format=json&url=" + urllib.parse.quote("https://www.youtube.com/watch?v=" + vid, safe=""), timeout=10)
+    try:
+        return (json.loads(page).get("title", "") if page else "") or ""
     except Exception:
         return ""
 
@@ -260,6 +314,7 @@ def live_video(path):
 SOOP_RE = re.compile(r"(?:sooplive\.(?:co\.kr|com)/station/|ch\.sooplive\.(?:co\.kr|com)/|play\.sooplive\.(?:co\.kr|com)/"
                      r"|bj\.afreecatv\.com/|play\.afreecatv\.com/|afreecatv\.com/station/)([A-Za-z0-9_]+)", re.I)
 SOOP_STATS = {"all": 0, "ok": 0, "on": 0}
+SOOP_TITLES = {}  # 숲 방제 (방송 중일 때)
 
 
 def post_json(url, form):
@@ -284,6 +339,7 @@ def soop_live(bid):
             SOOP_STATS["ok"] += 1
             if str(ch.get("RESULT")) == "1":
                 SOOP_STATS["on"] += 1
+                SOOP_TITLES[bid] = str(ch.get("TITLE") or "")
                 return "https://play.sooplive.co.kr/%s/%s" % (bid, ch.get("BNO", "")) if ch.get("BNO") else "https://play.sooplive.co.kr/" + bid
             return ""
     page = get("https://chapi.sooplive.co.kr/api/%s/station" % bid)  # 보조 확인
@@ -293,6 +349,7 @@ def soop_live(bid):
             SOOP_STATS["ok"] += 1
             if j.get("broad"):
                 SOOP_STATS["on"] += 1
+                SOOP_TITLES[bid] = str((j["broad"] or {}).get("broad_title") or "")
                 no = j["broad"].get("broad_no", "")
                 return "https://play.sooplive.co.kr/%s/%s" % (bid, no) if no else "https://play.sooplive.co.kr/" + bid
             return ""
@@ -508,7 +565,7 @@ def soop_posts(bid):
     return out
 
 
-def member_posts(member, name, prev_posts):
+def member_posts(member, name, prev_posts, pg=""):
     """한 멤버의 모든 채널(유튜브 대표·서브, 숲) 글. 확인 실패한 채널은 이전 글을 그대로 씀"""
     sources = [("yt:" + p, lambda p=p: yt_posts(p)) for p in ([member["path"]] if member["path"] else []) + member["subs"]]
     for l in member["links"]:
@@ -527,7 +584,7 @@ def member_posts(member, name, prev_posts):
         if got is None:
             got = [p for p in prev_posts if p.get("k") == key]
         for p in got:
-            p["k"], p["member"] = key, name
+            p["k"], p["member"], p["pg"] = key, name, pg
             old = PREV_POST_TS.get(p["id"])
             if old and old[0] and p.get("est"):
                 p["ts"], p["est"] = old  # 처음 봤을 때 계산한 시각을 그대로 유지 (매번 바뀌지 않게)
@@ -556,6 +613,7 @@ FUN_RE = re.compile(r"(?:funnation\.co\.kr|funn\.at)/store/([A-Za-z0-9_-]+)"
                     r"|(?<![\w.])funn\.at/(?!store/|api/|donate/|login|signup|_next)([A-Za-z0-9_-]+)"
                     r"|(?<![\w.-])(?!www\.)([A-Za-z0-9_-]+)\.funn\.at", re.I)
 FUN_STATS = {"all": 0, "ok": 0, "on": 0}
+FUN_TITLES = {}
 
 
 def fun_live(slug):
@@ -572,6 +630,7 @@ def fun_live(slug):
     pic = j.get("storeLogoUrl") or ((j.get("channel") or {}).get("thumbnailUrl") if isinstance(j.get("channel"), dict) else "") or ""
     if j.get("isLive") is True:
         FUN_STATS["on"] += 1
+        FUN_TITLES[slug] = str(j.get("broadcastTitle") or j.get("title") or j.get("liveTitle") or "")
         return "https://www.funnation.co.kr/store/%s/live/broadcast" % slug, pic
     return "", pic
 
@@ -581,9 +640,11 @@ def check(member, prev):
     out = {"name": member["name"], "channel": "", "avatar": "", "on": False, "video": "",
            "soop": "", "fun": "", "links": member["links"], "autoName": ""}
     # 숲 링크가 있으면 숲 방송도 확인
+    soop_id = fun_id = ""
     for l in member["links"]:
         m = SOOP_RE.search(l["value"])
         if m:
+            soop_id = soop_id or m.group(1)
             v = soop_live(m.group(1))
             if v is None and old.get("soop"):
                 v = old["soop"]  # 확인 실패 시 이전 상태 유지
@@ -595,16 +656,31 @@ def check(member, prev):
     for l in member["links"]:
         m = FUN_RE.search(l["value"])
         if m:
-            r = fun_live(next(g for g in m.groups() if g))
+            fun_id = next(g for g in m.groups() if g)
+            r = fun_live(fun_id)
             if r is None:
                 if old.get("fun"):
                     out["fun"] = old["fun"]  # 확인 실패 시 이전 상태 유지
             else:
                 out["fun"], fun_pic = r
             break
+    def titles():
+        # 방제: 유튜브 → 숲 → 펀네이션 순으로 방송 중인 첫 번째 것
+        if out["on"] and out["video"]:
+            return video_title(out["video"]) or old.get("live_title", "")
+        if out["soop"]:
+            return SOOP_TITLES.get(soop_id, "") or old.get("live_title", "")
+        if out["fun"]:
+            return FUN_TITLES.get(fun_id, "") or old.get("live_title", "")
+        return ""
     if not member["path"]:
         out["name"] = out["name"] or "(이름 없음)"
-        out["avatar"] = fun_pic or old.get("avatar", "")  # 유튜브가 없으면 펀네이션 대표 사진
+        if soop_id:  # 유튜브 없이 숲만 있는 멤버: 프사 누르면 숲 방송국, 사진은 숲 프로필
+            out["channel"] = "https://www.sooplive.com/station/" + soop_id
+            out["avatar"] = "https://stimg.sooplive.co.kr/LOGO/%s/%s/%s.jpg" % (soop_id.lower()[:2], soop_id.lower(), soop_id.lower())
+        else:
+            out["avatar"] = fun_pic or old.get("avatar", "")  # 유튜브가 없으면 펀네이션 대표 사진
+        out["live_title"] = titles()
         return out
     info = channel_info(member["path"])
     out["channel"] = yt_url(member["path"])
@@ -621,6 +697,10 @@ def check(member, prev):
             failed = True
     if not out["on"] and failed and old.get("on"):
         out["on"], out["video"] = True, old.get("video", "")  # 확인 실패 시 이전 상태 유지
+    try:
+        out["live_title"] = titles()
+    except Exception:
+        out["live_title"] = ""
     return out
 
 
@@ -671,12 +751,16 @@ def main():
             text = f.read()
     if not text.strip():
         print("MEMBER_LIST 설정이 비어 있어요. Settings → Secrets and variables → Actions → Secrets에 넣어 주세요.")
-    title, groups, extras = parse_list(text)
+    pages = split_pages(text)
+    title, groups, extras = pages[0]["title"], pages[0]["groups"], pages[0]["extras"]
     prev_data = load_prev()
-    prev = {m["name"]: m for g in prev_data.get("groups", []) for m in g.get("members", [])}
-    members = [m for g in groups for m in g["members"]]
+    prev_by_pg = {"": {m["name"]: m for g in prev_data.get("groups", []) for m in g.get("members", [])}}
+    for sp in prev_data.get("sub", []) if isinstance(prev_data.get("sub"), list) else []:
+        prev_by_pg[sp.get("key", "")] = {m["name"]: m for g in sp.get("groups", []) for m in g.get("members", [])}
+    allm = [(pg["key"], m) for pg in pages for g in pg["groups"] for m in g["members"]]
+    members = [m for _, m in allm]
     with ThreadPoolExecutor(8) as ex:
-        results = list(ex.map(lambda m: check(m, prev), members))
+        results = list(ex.map(lambda pm: check(pm[1], prev_by_pg.get(pm[0], {})), allm))
 
     # 소식에서 무슨 오류가 나도 라이브 결과는 그대로 페이지에 올라가도록 통째로 감쌈
     try:
@@ -689,17 +773,18 @@ def main():
         except Exception:
             due = True
         if due or os.environ.get("POSTS_FORCE"):
-            POST_DEADLINE[0] = time.time() + 60  # 소식은 최대 약 1분까지만 (라이브 반영이 늦어지지 않게)
-            with ThreadPoolExecutor(4) as ex:  # 라이브 확인보다 천천히 (유튜브 로봇 확인 위험 줄이기)
-                lists = list(ex.map(lambda mr: member_posts(mr[0], mr[1]["name"], prev_posts), zip(members, results)))
+            POST_DEADLINE[0] = time.time() + 90  # 소식은 최대 약 1분 반까지만 (소식을 가져오는 실행에서만, 그만큼 페이지 반영이 늦어질 수 있어요)
+            with ThreadPoolExecutor(6) as ex:  # 라이브 확인(8개)보다 적게 (유튜브 로봇 확인 위험 줄이기)
+                lists = list(ex.map(lambda mr: member_posts(mr[0][1], mr[1]["name"], [p for p in prev_posts if p.get("pg", "") == mr[0][0]], mr[0][0]),
+                                    zip(allm, results)))
             posts = [p for l in lists for p in l]
             posts_updated = datetime.now(timezone.utc).isoformat(timespec="seconds")
         else:
             posts = prev_posts
         seen, uniq = set(), []
         for p in sorted(fresh_posts(posts), key=lambda p: p["ts"], reverse=True):
-            if p["id"] not in seen:
-                seen.add(p["id"])
+            if (p.get("pg", ""), p["id"]) not in seen:
+                seen.add((p.get("pg", ""), p["id"]))
                 uniq.append(p)
         posts = uniq
     except Exception as e:
@@ -707,11 +792,15 @@ def main():
         posts = [p for p in prev_data.get("posts", []) if isinstance(p, dict)] if isinstance(prev_data.get("posts"), list) else []
         posts_updated = prev_data.get("postsUpdated", "")
     i = 0
-    out_groups = []
-    for g in groups:
-        n = len(g["members"])
-        out_groups.append({"title": g["title"], "members": results[i:i + n]})
-        i += n
+    out_pages = []
+    for pg in pages:
+        gs = []
+        for g in pg["groups"]:
+            n = len(g["members"])
+            gs.append({"title": g["title"], "members": results[i:i + n]})
+            i += n
+        out_pages.append(gs)
+    out_groups = out_pages[0]
     data = {
         "title": title or "라이브 보드",
         "updated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -721,6 +810,9 @@ def main():
         "posts": posts,
         "postsUpdated": posts_updated,
         "repo": os.environ.get("GITHUB_REPOSITORY", ""),  # 페이지가 저장소의 최신 결과(live-data)를 찾을 때 씀
+        # 계열사 페이지 (Gist 목록의 '페이지 MBU' 아래). 멤버·일정·메모는 페이지마다 따로, 소식은 posts의 pg로 구분
+        "sub": [{"key": pg["key"], "label": pg["label"], "title": pg["title"] or pg["label"], "groups": out_pages[k],
+                 "schedule": pg["extras"]["schedule"], "memo": pg["extras"]["memo"]} for k, pg in enumerate(pages) if k],
     }
     site = os.path.join(ROOT, "site")
     os.makedirs(site, exist_ok=True)
@@ -750,7 +842,7 @@ def main():
     print("소식 %d개 (최근 %d일)" % (len(posts), POST_DAYS))
     # 진단용: 이름 대신 목록 순서 번호만 출력 (로그가 공개라서)
     order, n = {}, 0
-    for g in groups:
+    for g in [g for pg in pages for g in pg["groups"]]:
         for m in g["members"]:
             n += 1
             order.setdefault(m["path"], n)
