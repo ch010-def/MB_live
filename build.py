@@ -233,13 +233,40 @@ def video_author(vid):
         return ""
 
 
+WATCH_TITLES = {}  # 라이브 확인 때 읽은 영상 페이지의 제목 (방제)
+
+
+def watch_title(page):
+    t = _watch_title(page).strip()
+    # 동의·로봇 확인 화면 같은 엉뚱한 제목은 버림
+    if not t or t.lower() in ("youtube", "-") or re.match(r"(?i)before you continue|계속하기 전에", t):
+        return ""
+    return t
+
+
+def _watch_title(page):
+    m = (re.search(r'<meta name="title" content="([^"]*)"', page)
+         or re.search(r'<meta property="og:title" content="([^"]*)"', page))
+    if m:
+        return html.unescape(m.group(1))
+    m = re.search(r"<title>(.*?)</title>", page, re.S)
+    return html.unescape(re.sub(r"\s*-\s*YouTube\s*$", "", m.group(1))).strip() if m else ""
+
+
 def video_title(vid):
-    """oEmbed로 영상(방송) 제목 (실패하면 "")"""
+    """방송 제목. 라이브 확인 때 읽은 영상 페이지 → oEmbed → 영상 페이지 다시 읽기 순 (실패하면 "")
+    (방송에서 '외부 사이트 퍼가기'를 막아 두면 oEmbed가 401로 거절해서, 영상 페이지 제목을 먼저 써요)"""
+    if WATCH_TITLES.get(vid):
+        return WATCH_TITLES[vid]
     page = get("https://www.youtube.com/oembed?format=json&url=" + urllib.parse.quote("https://www.youtube.com/watch?v=" + vid, safe=""), timeout=10)
     try:
-        return (json.loads(page).get("title", "") if page else "") or ""
+        t = (json.loads(page).get("title", "") if page else "") or ""
     except Exception:
-        return ""
+        t = ""
+    if not t:
+        page = get("https://www.youtube.com/watch?v=" + vid, timeout=10)
+        t = watch_title(page) if page else ""
+    return t
 
 
 def video_owner(vid):
@@ -247,6 +274,10 @@ def video_owner(vid):
     page = get("https://www.youtube.com/watch?v=" + vid)
     if not page:
         return None
+    try:
+        WATCH_TITLES[vid] = watch_title(page)  # 방제도 같이 기억 (따로 요청하지 않게)
+    except Exception:
+        pass
     m = (re.search(r'<meta itemprop="channelId" content="(UC[\w-]{22})"', page)
          or re.search(r'"videoDetails":\{"videoId":"%s".{0,3000}?"channelId":"(UC[\w-]{22})"' % re.escape(vid), page, re.S)
          or re.search(r'"externalChannelId":"(UC[\w-]{22})"', page))
