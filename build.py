@@ -662,6 +662,10 @@ def fun_live(slug):
     if j.get("isLive") is True:
         FUN_STATS["on"] += 1
         FUN_TITLES[slug] = str(j.get("broadcastTitle") or j.get("title") or j.get("liveTitle") or "")
+        # 유튜브 방송을 펀네이션에서 같이 보여 주는 경우 주소가 /live/영상ID (방송마다 바뀜), 펀네이션 자체 방송은 /live/broadcast
+        vid = j.get("videoId") or j.get("liveVideoId")
+        if isinstance(vid, str) and re.fullmatch(r"[\w-]{6,20}", vid):
+            return "https://www.funnation.co.kr/store/%s/live/%s" % (slug, vid), pic
         return "https://www.funnation.co.kr/store/%s/live/broadcast" % slug, pic
     return "", pic
 
