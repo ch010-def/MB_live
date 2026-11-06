@@ -27,6 +27,10 @@ jobs:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
+      # 실행 시작 시각을 기억해요 (아래 wait 단계에서 전체가 약 5분이 되도록 쉬는 시간을 맞춰요)
+      - name: start
+        run: echo "START_TS=$(date +%s)" >> "$GITHUB_ENV"
+
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
@@ -103,17 +107,22 @@ jobs:
           done
           echo "취소한 배포 $n개"
 
-      # 페이지 올리기가 성공했으면 약 4분 쉬고, 실패했으면 30초 뒤 바로 다음 실행으로 다시 시도해요
+      # 실행 시작부터 약 4분 30초가 될 때까지만 쉬어요. 다음 실행 준비 시간까지 더하면 약 5분마다 확인돼요.
+      # (GitHub Pages가 느려서 올리기가 오래 걸린 날은 그만큼 덜 쉬어요. 올리기에 실패했으면 30초 뒤 바로 다시 시도)
       - name: wait
         env:
           DEPLOY_RESULT: ${{ steps.deploy.outcome }}
         run: |
-          if [ "$DEPLOY_RESULT" = "success" ]; then
-            sleep 210
-          else
+          if [ "$DEPLOY_RESULT" != "success" ]; then
             echo "페이지 올리기 결과: $DEPLOY_RESULT → 잠시 뒤 다시 시도해요"
             sleep 30
+            exit 0
           fi
+          elapsed=$(( $(date +%s) - ${START_TS:-$(date +%s)} ))
+          rest=$(( 270 - elapsed ))
+          [ "$rest" -lt 10 ] && rest=10
+          echo "여기까지 ${elapsed}초 걸림 → ${rest}초 쉬고 다음 실행"
+          sleep "$rest"
 
       - name: next run
         if: ${{ !cancelled() }}
