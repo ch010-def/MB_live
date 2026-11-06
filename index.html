@@ -81,6 +81,7 @@ main{max-width:720px;margin:0 auto;padding:0 14px 56px}
 .memo-list{padding-bottom:10px}
 .memo-list li{padding:2px 0;color:#c9ccd8;line-height:1.65;overflow-wrap:anywhere;white-space:pre-wrap}
 .memo-list li.gap{height:16px;padding:0}
+.memo-list li.mt{color:var(--accent);font-weight:800;font-size:1.08em;padding:2px 0 4px}
 .empty{color:var(--muted);padding:10px 0 14px;font-size:14px}
 .refresh{font:inherit;font-size:12px;font-weight:700;color:var(--ink);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:4px 10px;cursor:pointer}
 .refresh:hover{border-color:var(--accent)}
@@ -427,7 +428,13 @@ function renderSchedule(sched, memo){
   if(!sched.length) ul.appendChild(el('li','empty','등록된 일정이 없어요'));
   $('schedCount').textContent = upcoming ? upcoming : '';
   var ml = $('memoList'); ml.innerHTML = '';
-  memo.forEach(function(line){ ml.appendChild(line.trim() ? el('li', null, line) : el('li', 'gap')); }); // 빈 줄은 주제 사이 간격
+  // 빈 줄은 주제 사이 간격, 빈 줄 바로 다음 줄(과 맨 첫 줄)은 주제 제목
+  var afterGap = true;
+  memo.forEach(function(line){
+    if(!line.trim()){ ml.appendChild(el('li', 'gap')); afterGap = true; return; }
+    ml.appendChild(el('li', afterGap ? 'mt' : null, line));
+    afterGap = false;
+  });
   if(!memo.some(function(l){ return l.trim(); })) ml.appendChild(el('li','empty','메모가 없어요'));
 }
 // ── 소식 ──
