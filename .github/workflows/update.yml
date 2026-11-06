@@ -37,10 +37,17 @@ jobs:
         with:
           python-version: "3.12"
 
+      # 이전 결과를 저장소 live-data에서 바로 받아 둬요 (파일 서버는 최대 5분 늦은 걸 줄 수 있어서)
+      - name: previous data
+        continue-on-error: true
+        run: |
+          git fetch -q --depth=1 origin live-data && git show FETCH_HEAD:data.json > "$RUNNER_TEMP/prev.json" && echo "이전 결과 받음" || echo "이전 결과 없음"
+
       - name: check live
         id: build
         continue-on-error: true
         env:
+          PREV_FILE: ${{ runner.temp }}/prev.json
           MEMBER_LIST: ${{ secrets.MEMBER_LIST }}
           PREV_DATA_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
         run: python build.py
