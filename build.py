@@ -789,8 +789,15 @@ def load_prev():
                 PAGES_INFO.update({"code": pd.get("code", ""), "updated": pd.get("updated", "")})
         except Exception:
             pass
+    prev_file = os.environ.get("PREV_FILE")  # 워크플로가 저장소 live-data에서 바로 받아 둔 이전 결과 (파일 서버 지연 없음)
+    if prev_file and os.path.exists(prev_file):
+        try:
+            with open(prev_file, encoding="utf-8") as f:
+                found.append(json.load(f))
+        except Exception:
+            pass
     repo = os.environ.get("GITHUB_REPOSITORY")
-    if repo:
+    if repo and not (prev_file and os.path.exists(prev_file)):
         try:
             raw = "https://raw.githubusercontent.com/%s/live-data/data.json?t=%d" % (repo, datetime.now().timestamp())
             with urllib.request.urlopen(raw, timeout=15) as r:

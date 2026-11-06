@@ -714,12 +714,31 @@ function fromPage(){
     .then(function(r){ if(!r.ok) throw 0; return r.text(); })
     .then(function(html){ return readData(new DOMParser().parseFromString(html, 'text/html')); });
 }
-function fromRepo(){
-  var repo = lastData && lastData.repo;
-  if(!repo || !/^[\w.-]+\/[\w.-]+$/.test(repo)) return Promise.reject(0);
+// 저장소 live-data의 최신 결과 읽기.
+// 1순위 GitHub API (저장 기간 약 1분, 바뀌지 않았으면 304로 가볍게 확인) → 안 되면 파일 서버(최대 5분 늦을 수 있음)
+var API_ETAG = '', API_DATA = null, API_OFF_UNTIL = 0;
+function fromRepoApi(repo){
+  if(Date.now() < API_OFF_UNTIL) return Promise.reject(0);
+  var h = {'Accept': 'application/vnd.github.raw+json'};
+  if(API_ETAG && API_DATA) h['If-None-Match'] = API_ETAG;
+  return fetch('https://api.github.com/repos/' + repo + '/contents/data.json?ref=live-data', {headers: h, cache: 'no-store'})
+    .then(function(r){
+      if(r.status === 304 && API_DATA) return API_DATA;
+      if(r.status === 403 || r.status === 429){ API_OFF_UNTIL = Date.now() + 15 * 60000; throw 0; } // 요청 한도 → 15분 동안 파일 서버 사용
+      if(!r.ok) throw 0;
+      var et = r.headers.get('ETag');
+      return r.json().then(function(d){ if(!d || !d.groups) throw 0; API_ETAG = et || ''; API_DATA = d; return d; });
+    });
+}
+function fromRepoRaw(repo){
   return fetch('https://raw.githubusercontent.com/' + repo + '/live-data/data.json?t=' + Date.now(), {cache:'no-store'})
     .then(function(r){ if(!r.ok) throw 0; return r.json(); })
     .then(function(d){ if(!d || !d.groups) throw 0; return d; });
+}
+function fromRepo(){
+  var repo = lastData && lastData.repo;
+  if(!repo || !/^[\w.-]+\/[\w.-]+$/.test(repo)) return Promise.reject(0);
+  return fromRepoApi(repo).catch(function(){ return fromRepoRaw(repo); });
 }
 function settle(p){ return p.then(function(d){ return d; }, function(){ return null; }); }
 // 사이트(GitHub Pages)에 뜬 화면 파일이 옛 버전이면, 저장소 live-data에 저장된 최신 화면으로 바꿔 보여 줌
