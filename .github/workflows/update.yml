@@ -69,12 +69,11 @@ jobs:
           path: site
           retention-days: 1
 
-      # GitHub Pages가 느릴 때 10분씩 붙잡혀 있지 않도록 3분만 기다려요 (보통 1분 안에 끝나요)
+      # GitHub Pages 반영은 느릴 때 몇 분씩 걸려요. 중간에 끊으면 영영 반영이 안 되니 끝까지(최대 10분) 기다려요.
+      # (라이브 결과는 위 save live data 단계에서 이미 저장돼서, 여기서 기다려도 라이브 표시는 늦어지지 않아요)
       - id: deploy
         uses: actions/deploy-pages@v4
         continue-on-error: true
-        with:
-          timeout: 180000
 
       # GitHub Pages는 같은 커밋 번호로 다시 올리면 새 내용으로 바꾸지 않아요.
       # 그래서 매번 빈 기록(커밋)을 하나 남겨서, 다음 실행이 새 번호로 올리게 해요. (60일 자동정지 방지도 겸함)
