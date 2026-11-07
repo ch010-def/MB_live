@@ -154,6 +154,11 @@ body.pg-sub .count .chip.live{background:var(--soop)}
   background:rgba(233,194,122,.12);border:1px solid rgba(233,194,122,.55);color:var(--ink);font-size:14px;line-height:1.5}
 .stale b{color:var(--gold)}
 .stale p{margin:0;flex:1;min-width:200px}
+.stale{flex-direction:column;align-items:stretch}
+.stale .steps{margin:0;padding-left:20px;display:grid;gap:8px;font-size:13.5px;line-height:1.5}
+.stale .steps li::marker{color:var(--gold);font-weight:800}
+.stale .steps a,.stale .reload{display:inline-block;margin:2px 0 0;padding:6px 12px;border-radius:9px;font:inherit;font-size:13px;font-weight:800;cursor:pointer}
+.stale .reload{background:rgba(255,255,255,.1);color:var(--ink);border:1px solid rgba(255,255,255,.25)}
 .stale a{flex:none;padding:9px 14px;border-radius:10px;background:var(--gold);color:#1a1405;font-weight:800;text-decoration:none;white-space:nowrap}
 .stale[hidden],.foot .backup[hidden]{display:none}
 .foot .backup{color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:3px}
@@ -277,8 +282,12 @@ body.pg-sub .count .chip.live{background:var(--soop)}
     </div>
   </section>
   <div class="stale" id="stale" hidden>
-    <p><b>화면 업데이트가 늦어지고 있어요.</b> <span id="staleMsg"></span> GitHub 쪽 문제일 때는 비상 주소에서 최신 라이브를 볼 수 있어요.<br><small class="tip">처음 열면 영어 안내 화면이 나와요. <b>빨간 「Open the page」 버튼</b>을 누르면 돼요.</small></p>
-    <a id="staleLink" href="#" target="_blank" rel="noopener">비상 주소로 보기 ↗</a>
+    <p><b>화면 업데이트가 늦어지고 있어요.</b> <span id="staleMsg"></span></p>
+    <ol class="steps">
+      <li>위쪽 <b>↻ 새로고침</b>을 눌러 보세요.</li>
+      <li>그래도 이 칸이 그대로면 <button type="button" class="reload" id="reloadBtn">페이지 다시 열기</button></li>
+      <li>그래도 안 되면 GitHub 쪽 문제예요. <a id="staleLink" href="#" target="_blank" rel="noopener">비상 주소로 보기 ↗</a><br><small class="tip">처음 열면 영어 안내 화면이 나와요. <b>빨간 「Open the page」 버튼</b>을 누르면 돼요.</small></li>
+    </ol>
   </div>
   <div id="home">
   <div class="guide" id="guideSub" hidden>
@@ -301,7 +310,7 @@ body.pg-sub .count .chip.live{background:var(--soop)}
       <ul class="sched" id="schedList"></ul>
     </section>
     <section class="card memo">
-      <h3>메모 <small>일정 관련</small></h3>
+      <h3>메모 <small>보류 · 취소된 일정</small></h3>
       <ul class="memo-list" id="memoList"></ul>
     </section>
   </div>
@@ -391,6 +400,25 @@ function renderSwitch(full, pg){
     nav.appendChild(a);
   });
 }
+// 휴대폰(안드로이드)에서는 유튜브·숲 링크를 앱으로 바로 열기 (앱이 없으면 원래 주소를 브라우저로)
+var IS_ANDROID = /Android/i.test(navigator.userAgent);
+var APP_PKG = [
+  [/^https?:\/\/(www\.|m\.)?youtube\.com\/|^https?:\/\/youtu\.be\//i, 'com.google.android.youtube'],
+  [/^https?:\/\/([\w-]+\.)?(sooplive\.(co\.kr|com)|afreecatv\.com)\//i, 'kr.co.nowcom.mobile.afreeca']
+];
+function setLink(a, url){
+  a.href = url; a.target = '_blank'; a.rel = 'noopener';
+  if(!IS_ANDROID || !url) return a;
+  for(var i = 0; i < APP_PKG.length; i++){
+    if(APP_PKG[i][0].test(url)){
+      a.href = 'intent://' + url.replace(/^https?:\/\//i, '') + '#Intent;scheme=https;package=' + APP_PKG[i][1] +
+               ';S.browser_fallback_url=' + encodeURIComponent(url) + ';end';
+      a.target = '_self'; // 앱으로 넘길 때는 빈 새 탭이 남지 않게
+      break;
+    }
+  }
+  return a;
+}
 function render(full){
   var pg = parseHash().pg;
   if(!(full.sub || []).some(function(s){ return s.key === pg; })) pg = '';
@@ -429,7 +457,7 @@ function render(full){
       var c = el('div','m' + (m.on ? ' on' : (m.soop ? ' on soop' : (m.fun ? ' on fun' : ''))));
       var pic;
       if(m.channel){
-        pic = el('a','pic'); pic.href = m.channel; pic.target = '_blank'; pic.rel = 'noopener';
+        pic = setLink(el('a','pic'), m.channel);
         pic.setAttribute('aria-label', m.name + ' 채널로 이동');
       } else pic = el('div','pic');
       var inner = el('span','in');
@@ -440,25 +468,21 @@ function render(full){
       if(m.on || m.soop || m.fun){
         var chips = el('div','chips');
         if(m.on){
-          var on = el('a','chip live','ON'); on.href = 'https://www.youtube.com/watch?v=' + m.video;
-          on.target = '_blank'; on.rel = 'noopener'; on.title = '유튜브 라이브 보러 가기';
+          var on = setLink(el('a','chip live','ON'), 'https://www.youtube.com/watch?v=' + m.video); on.title = '유튜브 라이브 보러 가기';
           chips.appendChild(on);
         }
         if(m.soop){
-          var so = el('a','chip live soop','ON'); so.href = m.soop;
-          so.target = '_blank'; so.rel = 'noopener'; so.title = '숲 방송 보러 가기';
+          var so = setLink(el('a','chip live soop','ON'), m.soop); so.title = '숲 방송 보러 가기';
           chips.appendChild(so);
         }
         if(m.fun){
-          var fu = el('a','chip live fun','ON'); fu.href = m.fun;
-          fu.target = '_blank'; fu.rel = 'noopener'; fu.title = '펀네이션 방송 보러 가기';
+          var fu = setLink(el('a','chip live fun','ON'), m.fun); fu.title = '펀네이션 방송 보러 가기';
           chips.appendChild(fu);
         }
         c.appendChild(chips);
         if(m.live_title){ // 방제: 누르면 그 방송으로 이동 (유튜브 → 숲 → 펀네이션 순)
           var bt = el('a', 'btitle', m.live_title);
-          bt.href = m.on ? 'https://www.youtube.com/watch?v=' + m.video : (m.soop || m.fun);
-          bt.target = '_blank'; bt.rel = 'noopener'; bt.title = m.live_title;
+          setLink(bt, m.on ? 'https://www.youtube.com/watch?v=' + m.video : (m.soop || m.fun)); bt.title = m.live_title;
           c.appendChild(bt);
         }
       } else if(m.channel || (m.links || []).some(function(l){ return /sooplive|afreecatv|funnation|funn\.at/i.test(l.value); })){
@@ -772,6 +796,20 @@ function flash(msg){
 try{ var first = readData(document); MY_CODE = first.code || ''; render(first); load(false); } // 열자마자 저장소의 더 최신 결과가 있는지 한 번 확인
 catch(e){ $('meta').textContent = '아직 준비 중이에요. 잠시 후 다시 열어 주세요.'; }
 TIMER = setInterval(function(){ load(false); }, 60 * 1000); // 1분마다 새 결과 확인
+// 휴대폰은 화면이 꺼지거나 다른 앱을 쓰는 동안 위 1분 타이머를 멈춰요.
+// 사이트가 다시 화면에 보이면(화면 켜기·탭 복귀·인터넷 재연결) 바로 최신 결과를 불러오고, 그 전까지 노란 칸은 숨겨요.
+var LAST_WAKE = 0;
+function wake(){
+  if(document.visibilityState === 'hidden' || Date.now() - LAST_WAKE < 3000) return;
+  LAST_WAKE = Date.now();
+  CHECKED = false; $('stale').hidden = true;
+  load(false);
+}
+document.addEventListener('visibilitychange', wake);
+window.addEventListener('focus', wake);
+window.addEventListener('online', wake);
+window.addEventListener('pageshow', function(e){ if(e.persisted){ LAST_WAKE = 0; wake(); } });
+$('reloadBtn').addEventListener('click', function(){ location.reload(); });
 </script>
 </body>
 </html>
