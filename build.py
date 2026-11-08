@@ -161,6 +161,80 @@ def split_pages(text):
             key += "2"
         used.add(key)
         pages.append({"key": key, "label": label, "title": title, "groups": groups, "extras": extras})
+    return share_extras(pages)
+
+
+def share_extras(pages):
+    """일정·메모를 한 곳에 적고 줄 앞 표시로 보일 페이지를 정함.
+    표시 없음 = 기본 페이지(엠비크루), [공]/[공통] = 모든 페이지, [마]/[MBU]/[마범대] = 그 페이지, [엠]/[엠비크루] = 기본 페이지.
+    메모는 주제(빈 줄로 나뉜 덩어리)의 첫 줄 표시로 정해요. 일정은 페이지마다 날짜순 정렬."""
+    names = {}
+    for p in pages:
+        for n in (p["label"], p["title"]):
+            if n:
+                names[n.strip().lower()] = p["key"]
+    names.update({"엠비": "", "엠비크루": names.get("엠비크루", "")})
+    if pages:
+        names.setdefault((pages[0]["title"] or "").lower(), "")
+    # 한 글자 줄임 표시: 페이지 제목 첫 글자 (엠비크루 → [엠], 마범대 → [마]). 겹치면 쓰지 않음
+    firsts = {}
+    for p in pages:
+        t = (p["title"] or p["label"] or "").strip()
+        if t:
+            firsts.setdefault(t[0].lower(), []).append(p["key"])
+    for ch, ks in firsts.items():
+        if len(ks) == 1:
+            names.setdefault(ch, ks[0])
+    allkeys = [p["key"] for p in pages]
+    tag_re = re.compile(r"^\s*\[([^\]]{1,15})\]\s*")
+
+    def targets(line, own):
+        own = allkeys[0] if allkeys else own  # 표시 없음 = 기본 페이지(엠비크루). 일정·메모를 목록 맨 아래에 모아 적을 수 있게
+        m = tag_re.match(line)
+        if not m:
+            return [own], line
+        t = m.group(1).strip().lower()
+        if t in ("공", "공통", "전체", "모두", "all"):
+            return allkeys, line[m.end():]
+        if t in names:
+            return [names[t]], line[m.end():]
+        return [own], line  # 모르는 표시는 글자 그대로 둠
+
+    sched = {k: [] for k in allkeys}
+    memo = {k: [] for k in allkeys}
+    for p in pages:
+        for line in p["extras"]["schedule"]:
+            ks, text = targets(line, p["key"])
+            for k in ks:
+                if text not in sched[k]:
+                    sched[k].append(text)
+        topic = []
+        for line in p["extras"]["memo"] + [""]:
+            if line.strip():
+                topic.append(line)
+                continue
+            if topic:
+                ks, first = targets(topic[0], p["key"])
+                body = [first] + topic[1:]
+                for k in ks:
+                    if body not in memo[k]:
+                        memo[k].append(body)
+                topic = []
+    now = datetime.now(KST)
+
+    def date_key(line):
+        m = re.match(r"^\s*(\d{1,2})\s*[/.월]\s*(\d{1,2})", line)
+        if not m:
+            return (1, 0, 0)
+        mon, day = int(m.group(1)), int(m.group(2))
+        y = now.year - 1 if mon - now.month > 6 else (now.year + 1 if now.month - mon > 6 else now.year)
+        return (0, y * 10000 + mon * 100 + day, 0)
+    for p in pages:
+        p["extras"]["schedule"] = sorted(sched[p["key"]], key=date_key)
+        out = []
+        for i, body in enumerate(memo[p["key"]]):
+            out += ([""] if i else []) + body
+        p["extras"]["memo"] = out
     return pages
 
 
