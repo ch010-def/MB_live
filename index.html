@@ -566,8 +566,12 @@ function renderSchedule(sched, memo){
       var key = it.date.replace(/\(.*$/, '');
       if(!day || key !== dayKey){ newDay(it); dayKey = key; }
     } else if(!day){ newDay(it); dayKey = null; }
-    var text = it.date ? it.text : line;
+    var text = it.date ? it.text : line, tm = it.time || '';
     if(!text.trim()) return; // "11/9" 처럼 날짜만 적은 줄
+    if(!tm){ // 아래 줄 맨 앞의 시간도 시간 칸으로 ("21:00 이우연 야방")
+      var t2 = text.match(/^\s*(\d{1,2}:\d{2}|오전\s*\d{1,2}시|오후\s*\d{1,2}시)\s+(.*)$/);
+      if(t2){ tm = t2[1]; text = t2[2]; }
+    }
     var g = text.match(/^\s*갠방\s*[:：]\s*(.+)$/);
     if(g){
       var row = el('div', 'ssolo'); row.appendChild(el('span', 'slb', '갠방'));
@@ -577,7 +581,9 @@ function renderSchedule(sched, memo){
       return;
     }
     var r = el('div', 'srow');
-    r.appendChild(el('span', it.time ? 'st' : 'st no', it.time || '·'));
+    var ap = tm.match(/^(오전|오후)\s*(\d{1,2})시$/); // "오후 9시" → 21:00 (칸 맞춤)
+    if(ap){ var hh = +ap[2] % 12 + (ap[1] === '오후' ? 12 : 0); tm = (hh < 10 ? '0' : '') + hh + ':00'; }
+    r.appendChild(el('span', tm ? 'st' : 'st no', tm || '·'));
     r.appendChild(withLinks(el('span', 'tx'), text));
     day.appendChild(r);
     if(day._when === 'today') upcoming++; // 버튼 숫자는 오늘 일정 줄 수
