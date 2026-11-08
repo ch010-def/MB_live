@@ -469,12 +469,19 @@ def soop_live(bid):
                       {"bid": bid, "type": "live", "player_type": "html5"})
         ch = (j or {}).get("CHANNEL") if isinstance(j, dict) else None
         if isinstance(ch, dict) and "RESULT" in ch:
-            SOOP_STATS["ok"] += 1
-            if str(ch.get("RESULT")) == "1":
+            res = str(ch.get("RESULT"))
+            if res == "1":
+                SOOP_STATS["ok"] += 1
                 SOOP_STATS["on"] += 1
                 SOOP_TITLES[bid] = str(ch.get("TITLE") or "")
                 return "https://play.sooplive.co.kr/%s/%s" % (bid, ch.get("BNO", "")) if ch.get("BNO") else "https://play.sooplive.co.kr/" + bid
-            return ""
+            if res == "0":
+                SOOP_STATS["ok"] += 1
+                return ""
+            adult = (res == "-6")  # 19금 방송: 로그인해야 볼 수 있다는 뜻 = 방송 중
+            break  # 그 밖의 값(19금·비번방 등)은 아래 방송국 정보로 다시 확인
+    else:
+        adult = False
     page = get("https://chapi.sooplive.co.kr/api/%s/station" % bid)  # 보조 확인
     if page:
         try:
@@ -485,9 +492,16 @@ def soop_live(bid):
                 SOOP_TITLES[bid] = str((j["broad"] or {}).get("broad_title") or "")
                 no = j["broad"].get("broad_no", "")
                 return "https://play.sooplive.co.kr/%s/%s" % (bid, no) if no else "https://play.sooplive.co.kr/" + bid
-            return ""
+            if not adult:
+                return ""
         except Exception:
             pass
+    if adult:  # 방송국 정보에 방송이 안 보여도 19금 결과면 방송 중으로
+        if not page:
+            SOOP_STATS["ok"] += 1
+        SOOP_STATS["on"] += 1
+        SOOP_TITLES.setdefault(bid, "")
+        return "https://play.sooplive.co.kr/" + bid
     return None
 
 
