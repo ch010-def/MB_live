@@ -400,11 +400,11 @@ function renderSwitch(full, pg){
     nav.appendChild(a);
   });
 }
-// 휴대폰(안드로이드)에서는 유튜브·숲 링크를 앱으로 바로 열기 (앱이 없으면 원래 주소를 브라우저로)
+// 휴대폰(안드로이드)에서는 유튜브 링크를 유튜브 앱으로 바로 열기 (앱이 없으면 원래 주소를 브라우저로)
 var IS_ANDROID = /Android/i.test(navigator.userAgent);
 var APP_PKG = [
-  [/^https?:\/\/(www\.|m\.)?youtube\.com\/|^https?:\/\/youtu\.be\//i, 'com.google.android.youtube'],
-  [/^https?:\/\/([\w-]+\.)?(sooplive\.(co\.kr|com)|afreecatv\.com)\//i, 'kr.co.nowcom.mobile.afreeca']
+  [/^https?:\/\/(www\.|m\.)?youtube\.com\/|^https?:\/\/youtu\.be\//i, 'com.google.android.youtube']
+  // 숲은 앱이 방송 주소를 받아 주지 않아서 지금처럼 새 탭(브라우저)으로 열어요
 ];
 function setLink(a, url){
   a.href = url; a.target = '_blank'; a.rel = 'noopener';
@@ -540,14 +540,22 @@ function withLinks(node, text){
 function renderSchedule(sched, memo){
   var ul = $('schedList'); ul.innerHTML = '';
   var upcoming = 0;
+  var lastTx = null;
   sched.forEach(function(line){
-    var it = parseItem(line), li = el('li', it.when || '');
+    var it = parseItem(line);
+    if(!it.date && lastTx){ // 날짜 없는 줄은 바로 위 일정의 다음 줄로 (같은 칸 안에)
+      lastTx.appendChild(el('br'));
+      withLinks(lastTx, line);
+      return;
+    }
+    var li = el('li', it.when || '');
     if(it.date){
       var d = el('span','d', it.date);
       if(it.time) d.appendChild(el('span','tm', it.time));
       li.appendChild(d);
     }
-    li.appendChild(withLinks(el('span','tx'), it.text));
+    lastTx = withLinks(el('span','tx'), it.text);
+    li.appendChild(lastTx);
     if(it.when === 'today') upcoming++; // 버튼 숫자는 오늘 일정만
     ul.appendChild(li);
   });

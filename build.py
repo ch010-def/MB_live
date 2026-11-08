@@ -200,14 +200,26 @@ def share_extras(pages):
             return [names[t]], line[m.end():]
         return [own], line  # 모르는 표시는 글자 그대로 둠
 
-    sched = {k: [] for k in allkeys}
+    sched = {k: [] for k in allkeys}  # 페이지마다 [날짜 줄 + 그 아래 날짜 없는 줄들] 묶음 목록
     memo = {k: [] for k in allkeys}
+    date_re = re.compile(r"^\s*\d{1,2}\s*[/.월]\s*\d{1,2}")
     for p in pages:
+        cur = None  # 지금 만들고 있는 묶음과 그 묶음이 가는 페이지들
         for line in p["extras"]["schedule"]:
+            m = tag_re.match(line)
             ks, text = targets(line, p["key"])
-            for k in ks:
-                if text not in sched[k]:
-                    sched[k].append(text)
+            if date_re.match(text) or cur is None:
+                cur = (ks, [text])
+                for k in ks:
+                    sched[k].append(cur[1])
+            elif m:  # 날짜 없이 표시만 붙은 줄: 그 페이지들로 따로 (위 일정 바로 뒤에 붙여요)
+                for k in ks:
+                    if cur[1] in sched[k]:
+                        sched[k][sched[k].index(cur[1])] = cur[1] + [text]
+                    else:
+                        sched[k].append([text])
+            else:  # 날짜 없는 줄은 바로 위 날짜 일정에 붙어 다님 (정렬해도 같이, 표시도 위 줄을 따라감)
+                cur[1].append(text)
         topic = []
         for line in p["extras"]["memo"] + [""]:
             if line.strip():
@@ -230,7 +242,13 @@ def share_extras(pages):
         y = now.year - 1 if mon - now.month > 6 else (now.year + 1 if now.month - mon > 6 else now.year)
         return (0, y * 10000 + mon * 100 + day, 0)
     for p in pages:
-        p["extras"]["schedule"] = sorted(sched[p["key"]], key=date_key)
+        groups, seen = [], set()
+        for g in sched[p["key"]]:
+            if tuple(g) not in seen:  # 같은 일정을 두 번 적어도 한 번만
+                seen.add(tuple(g))
+                groups.append(g)
+        groups.sort(key=lambda g: date_key(g[0]))
+        p["extras"]["schedule"] = [l for g in groups for l in g]
         out = []
         for i, body in enumerate(memo[p["key"]]):
             out += ([""] if i else []) + body
