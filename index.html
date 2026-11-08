@@ -69,13 +69,21 @@ main{max-width:720px;margin:0 auto;padding:0 14px 56px}
 .card h3{margin:0 0 10px;font-size:17px;font-weight:800}
 .card h3 small{font-size:12px;font-weight:600;color:var(--muted);margin-left:6px}
 .sched,.memo-list{list-style:none;margin:0;padding:0}
-.sched li{display:flex;gap:14px;align-items:baseline;padding:12px 0;border-top:1px solid var(--line)}
+.sched li{padding:12px 0;border-top:1px solid var(--line)}
 .sched li:first-child{border-top:0}
-.sched .d{flex:none;min-width:6.2em;font-weight:800;font-variant-numeric:tabular-nums;color:var(--accent)}
-.sched .tm{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-top:2px}
+.sched .sdh{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.sched .sdh b{font-size:16px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+.sched .sbadge{font-size:11px;font-weight:800;background:var(--accent);color:#fff;padding:2px 7px;border-radius:6px}
+.sched .srow{display:flex;gap:12px;align-items:baseline;padding:4px 0}
+.sched .st{flex:none;width:3.3em;font-size:13.5px;font-weight:700;color:#cfd6ea;font-variant-numeric:tabular-nums}
+.sched .st.no{color:var(--muted);text-align:center;font-weight:900}
 .sched .tx{flex:1;line-height:1.5;overflow-wrap:anywhere}
-.sched li.today{background:linear-gradient(90deg,rgba(76,141,255,.14),transparent);margin:0 -10px;padding:12px 10px;border-radius:10px;border-top-color:transparent}
-.sched li.today .d::after{content:"오늘";margin-left:6px;font-size:10px;background:var(--accent);color:#fff;padding:2px 6px;border-radius:5px;vertical-align:2px}
+.sched .ssolo{display:flex;gap:12px;align-items:baseline;padding:8px 0 2px}
+.sched .ssolo .slb{flex:none;width:3.3em;box-sizing:border-box;text-align:center;font-size:12px;font-weight:800;color:#9cc2ff;background:rgba(76,141,255,.12);border:1px solid rgba(76,141,255,.35);border-radius:7px;padding:2px 0}
+.sched .snames{display:flex;flex-wrap:wrap;gap:6px}
+.sched .snames span{font-size:13px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+.sched li.today{background:linear-gradient(90deg,rgba(76,141,255,.14),transparent);margin:0 -10px;padding:12px 10px;border-radius:12px;border-top-color:transparent}
+.sched li.today + li{border-top-color:transparent}
 .sched li.past{opacity:.4}
 /* 메모: 줄 앞 표시·줄 사이 선 없이 이어서 (주제 표시는 직접 *, #, 🧡 등으로) */
 .memo-list{padding-bottom:10px}
@@ -540,25 +548,42 @@ function withLinks(node, text){
 function renderSchedule(sched, memo){
   var ul = $('schedList'); ul.innerHTML = '';
   var upcoming = 0;
-  var lastTx = null;
+  // 하루에 칸 하나: 날짜는 칸 맨 위에 한 번, 일정은 한 줄에 하나 (시간 있으면 왼쪽에 시간, 없으면 ·)
+  var day = null, dayKey = null;
+  function newDay(it){
+    day = el('li', 'sday' + (it.when ? ' ' + it.when : ''));
+    day._when = it.when || '';
+    if(it.date){
+      var h = el('div', 'sdh'); h.appendChild(el('b', null, it.date));
+      if(it.when === 'today') h.appendChild(el('span', 'sbadge', '오늘'));
+      day.appendChild(h);
+    }
+    ul.appendChild(day);
+  }
   sched.forEach(function(line){
     var it = parseItem(line);
-    if(!it.date && lastTx){ // 날짜 없는 줄은 바로 위 일정의 다음 줄로 (같은 칸 안에)
-      lastTx.appendChild(el('br'));
-      withLinks(lastTx, line);
+    if(it.date){
+      var key = it.date.replace(/\(.*$/, '');
+      if(!day || key !== dayKey){ newDay(it); dayKey = key; }
+    } else if(!day){ newDay(it); dayKey = null; }
+    var text = it.date ? it.text : line;
+    if(!text.trim()) return; // "11/9" 처럼 날짜만 적은 줄
+    var g = text.match(/^\s*갠방\s*[:：]\s*(.+)$/);
+    if(g){
+      var row = el('div', 'ssolo'); row.appendChild(el('span', 'slb', '갠방'));
+      var nm = el('div', 'snames');
+      g[1].split(/[\s,，、]+/).forEach(function(n){ if(n) nm.appendChild(el('span', null, n)); });
+      row.appendChild(nm); day.appendChild(row);
       return;
     }
-    var li = el('li', it.when || '');
-    if(it.date){
-      var d = el('span','d', it.date);
-      if(it.time) d.appendChild(el('span','tm', it.time));
-      li.appendChild(d);
-    }
-    lastTx = withLinks(el('span','tx'), it.text);
-    li.appendChild(lastTx);
-    if(it.when === 'today') upcoming++; // 버튼 숫자는 오늘 일정만
-    ul.appendChild(li);
+    var r = el('div', 'srow');
+    r.appendChild(el('span', it.time ? 'st' : 'st no', it.time || '·'));
+    r.appendChild(withLinks(el('span', 'tx'), text));
+    day.appendChild(r);
+    if(day._when === 'today') upcoming++; // 버튼 숫자는 오늘 일정 줄 수
   });
+  // 갠방 줄은 그날 칸 맨 아래로
+  [].forEach.call(ul.querySelectorAll('.ssolo'), function(r){ r.parentNode.appendChild(r); });
   if(!sched.length) ul.appendChild(el('li','empty','등록된 일정이 없어요'));
   $('schedCount').textContent = upcoming ? upcoming : '';
   $('schedBtn').title = upcoming ? '오늘 일정 ' + upcoming + '개' : '오늘 일정 없음';
