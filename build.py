@@ -202,12 +202,20 @@ def share_extras(pages):
 
     sched = {k: [] for k in allkeys}  # 페이지마다 [날짜 줄 + 그 아래 날짜 없는 줄들] 묶음 목록
     memo = {k: [] for k in allkeys}
-    date_re = re.compile(r"^\s*\d{1,2}\s*[/.월]\s*\d{1,2}")
+    date_re = re.compile(r"^\s*(?:\d{4}\s*[/.년-]\s*)?\d{1,2}\s*[/.월]\s*\d{1,2}")
+    year_re = re.compile(r"^\s*(\d{4})\s*년?\s*$")  # '2027년' 줄: 그 아래 날짜는 그 해
     for p in pages:
         cur = None  # 지금 만들고 있는 묶음과 그 묶음이 가는 페이지들
+        year = None
         for line in p["extras"]["schedule"]:
+            yl = year_re.match(line)
+            if yl:
+                year, cur = yl.group(1), None
+                continue
             m = tag_re.match(line)
             ks, text = targets(line, p["key"])
+            if year and date_re.match(text) and not re.match(r"^\s*\d{4}", text):
+                text = year + "." + text.lstrip()  # 화면에서 년도를 알 수 있게 (예: 2027.1/1(금) …)
             if date_re.match(text) or cur is None:
                 cur = (ks, [text])
                 for k in ks:
@@ -235,11 +243,13 @@ def share_extras(pages):
     now = datetime.now(KST)
 
     def date_key(line):
-        m = re.match(r"^\s*(\d{1,2})\s*[/.월]\s*(\d{1,2})", line)
+        m = re.match(r"^\s*(?:(\d{4})\s*[/.년-]\s*)?(\d{1,2})\s*[/.월]\s*(\d{1,2})", line)
         if not m:
             return (1, 0, 0)
-        mon, day = int(m.group(1)), int(m.group(2))
+        mon, day = int(m.group(2)), int(m.group(3))
         y = now.year - 1 if mon - now.month > 6 else (now.year + 1 if now.month - mon > 6 else now.year)
+        if m.group(1):
+            y = int(m.group(1))
         return (0, y * 10000 + mon * 100 + day, 0)
     for p in pages:
         groups, seen = [], set()

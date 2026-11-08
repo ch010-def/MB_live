@@ -89,8 +89,15 @@ main{max-width:720px;margin:0 auto;padding:0 14px 56px}
 .oldbtn{font:inherit;font-size:12.5px;font-weight:700;color:var(--muted);background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer}
 .oldbtn:hover{color:var(--ink);border-color:var(--accent)}
 .oldbtn[hidden],.oldwrap[hidden]{display:none}
-.oldwrap{margin-top:6px;padding-top:12px;border-top:1px dashed var(--line)}
-.oldtt{font-size:12.5px;font-weight:800;color:var(--muted);margin-bottom:2px}
+.sched li.ydiv{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:800;color:var(--accent);border-top:0;padding:14px 0 2px}
+.sched li.ydiv::before,.sched li.ydiv::after{content:"";flex:1;height:1px;background:rgba(76,141,255,.45)}
+.sched li.ydiv + li{border-top:0}
+.oldbtn.on{color:#fff;border-color:var(--accent);background:rgba(76,141,255,.2)}
+.oldwrap{margin:0 0 4px}
+.oldwrap > .sched{background:rgba(255,255,255,.035);border:1px solid var(--line);border-top:0;border-radius:0 0 12px 12px;padding:0 12px 2px}
+.oldtt{font-size:12px;font-weight:800;color:var(--muted);background:rgba(255,255,255,.035);border:1px solid var(--line);border-bottom:0;border-radius:12px 12px 0 0;padding:9px 12px 0}
+.oldwrap .cut{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:var(--accent);margin:12px 0 0}
+.oldwrap .cut::before,.oldwrap .cut::after{content:"";flex:1;height:1px;background:rgba(76,141,255,.4)}
 /* 메모: 줄 앞 표시·줄 사이 선 없이 이어서 (주제 표시는 직접 *, #, 🧡 등으로) */
 .memo-list{padding-bottom:10px}
 .memo-list li{padding:2px 0;color:#c9ccd8;line-height:1.65;overflow-wrap:anywhere;white-space:pre-wrap}
@@ -321,8 +328,8 @@ body.pg-sub .count .chip.live{background:var(--soop)}
     <a class="back" href="#">← <i class="lv"></i>라이브 · 멤버 목록으로</a>
     <section class="card">
       <h3 class="sh">일정<button type="button" class="oldbtn" id="oldBtn" hidden></button></h3>
+      <div class="oldwrap" id="oldWrap" hidden><div class="oldtt">지난 일정</div><ul class="sched" id="schedOld"></ul><div class="cut">어제부터</div></div>
       <ul class="sched" id="schedList"></ul>
-      <div class="oldwrap" id="oldWrap" hidden><div class="oldtt">지난 일정</div><ul class="sched" id="schedOld"></ul></div>
     </section>
     <section class="card memo">
       <h3>메모 <small>보류 · 취소된 일정</small></h3>
@@ -517,13 +524,14 @@ function render(full){
 
 // "11/3(월) 17:00 내용" 또는 "11월 3일 ..." 형태면 날짜를 따로 보여주고 오늘·지난 일정을 표시
 function parseItem(line){
-  var m = line.match(/^(\d{1,2})\s*[\/.월]\s*(\d{1,2})\s*일?\s*(\([^)]*\))?\s*(.*)$/);
+  var m = line.match(/^(?:(\d{4})\s*[\/.년-]\s*)?(\d{1,2})\s*[\/.월]\s*(\d{1,2})\s*일?\s*(\([^)]*\))?\s*(.*)$/);
   if(!m) return {text: line};
+  var Y = m[1] ? +m[1] : 0; m = [m[0], m[2], m[3], m[4], m[5]]; // 년도 적힌 일정 (2027년 줄 아래)
   var rest = m[4], tm = '';
   var t = rest.match(/^(\d{1,2}:\d{2}|오전\s*\d{1,2}시|오후\s*\d{1,2}시)\s*(.*)$/);
   if(t){ tm = t[1]; rest = t[2]; }
   var now = new Date(), mon = +m[1], day = +m[2], y = now.getFullYear();
-  if(mon - (now.getMonth()+1) > 6) y--; else if((now.getMonth()+1) - mon > 6) y++;
+  if(Y) y = Y; else if(mon - (now.getMonth()+1) > 6) y--; else if((now.getMonth()+1) - mon > 6) y++;
   var dt = new Date(y, mon-1, day), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   // 기간 일정: "~17(화)" 또는 "~ 11/17" 처럼 끝나는 날이 있으면 그날까지 매일 '오늘'
   var end = dt, r = rest.match(/^~\s*(?:(\d{1,2})\s*[\/.월]\s*)?(\d{1,2})\s*일?/);
@@ -532,7 +540,7 @@ function parseItem(line){
     var e = new Date(ey, em-1, ed);
     if(e >= dt && e - dt < 60 * 86400000) end = e;
   }
-  return {date: mon + '/' + day + (m[3] || ''), time: tm, text: rest, end: end,
+  return {date: mon + '/' + day + (m[3] || ''), y: y, time: tm, text: rest, end: end,
           when: (dt <= today && today <= end) ? 'today' : (end < today ? 'past' : '')};
 }
 // 일정·메모 속 주소는 짧은 이름표가 달린 링크로 (긴 주소가 그대로 보이지 않게)
@@ -556,9 +564,10 @@ var SHOW_OLD = false;
 document.addEventListener('click', function(e){
   if(e.target && e.target.id === 'oldBtn'){
     SHOW_OLD = !SHOW_OLD;
-    var n = $('schedOld').children.length;
+    var n = $('schedOld').querySelectorAll('.sday').length;
     e.target.textContent = SHOW_OLD ? '지난 일정 닫기 ▴' : '지난 일정 ' + n + ' ▾';
     $('oldWrap').hidden = !SHOW_OLD;
+    e.target.classList.toggle('on', SHOW_OLD);
   }
 });
 function renderSchedule(sched, memo){
@@ -569,6 +578,7 @@ function renderSchedule(sched, memo){
   function newDay(it){
     day = el('li', 'sday' + (it.when ? ' ' + it.when : ''));
     day._when = it.when || '';
+    day._y = it.y || 0;
     var yest = new Date(); yest.setHours(0,0,0,0); yest.setDate(yest.getDate() - 1);
     day._old = !!(it.end && it.end < yest); // 그저께 이전 = 지난 일정 칸으로
     if(it.date){
@@ -581,7 +591,7 @@ function renderSchedule(sched, memo){
   sched.forEach(function(line){
     var it = parseItem(line);
     if(it.date){
-      var key = it.date.replace(/\(.*$/, '');
+      var key = it.y + '/' + it.date.replace(/\(.*$/, '');
       if(!day || key !== dayKey){ newDay(it); dayKey = key; }
     } else if(!day){ newDay(it); dayKey = null; }
     var text = it.date ? it.text : line, tm = it.time || '';
@@ -608,12 +618,24 @@ function renderSchedule(sched, memo){
   });
   // 갠방 줄은 그날 칸 맨 아래로
   [].forEach.call(ul.querySelectorAll('.ssolo'), function(r){ r.parentNode.appendChild(r); });
-  // 그저께 이전 일정은 '지난 일정' 칸으로 (가까운 날이 위로)
+  // 그저께 이전 일정은 '지난 일정' 칸으로 (버튼 바로 아래 상자, 날짜순)
   var ol = $('schedOld'); ol.innerHTML = '';
   var olds = [].filter.call(ul.children, function(li){ return li._old; });
-  olds.reverse().forEach(function(li){ ol.appendChild(li); });
+  olds.forEach(function(li){ ol.appendChild(li); });
+  // 년도가 바뀌는 곳에 한 번만 파란 줄 "2027년"
+  var thisY = new Date().getFullYear();
+  [ol, ul].forEach(function(list){
+    var prev = thisY;
+    [].slice.call(list.children).forEach(function(li){
+      if(li._y && li._y !== prev){
+        var yd = el('li', 'ydiv', li._y + '년'); list.insertBefore(yd, li);
+        prev = li._y;
+      }
+    });
+  });
   $('oldBtn').hidden = !olds.length;
   $('oldBtn').textContent = (SHOW_OLD ? '지난 일정 닫기 ▴' : '지난 일정 ' + olds.length + ' ▾');
+  $('oldBtn').classList.toggle('on', SHOW_OLD);
   $('oldWrap').hidden = !(SHOW_OLD && olds.length);
   if(!sched.length || !ul.children.length) ul.appendChild(el('li','empty', olds.length ? '앞으로 남은 일정이 없어요' : '등록된 일정이 없어요'));
   $('schedCount').textContent = upcoming ? upcoming : '';
