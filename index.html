@@ -868,6 +868,7 @@ function swapToRepoPage(repo){
     .then(function(html){
       if(html.indexOf('id="data"') < 0) return;
       clearInterval(TIMER);
+      try{ sessionStorage.setItem('noCount', '1'); }catch(e){} // 화면만 새로 바꾸는 거라 방문으로 세지 않음
       document.open(); document.write(html); document.close();
     }).catch(function(){});
 }
@@ -904,6 +905,26 @@ window.addEventListener('focus', wake);
 window.addEventListener('online', wake);
 window.addEventListener('pageshow', function(e){ if(e.persisted){ LAST_WAKE = 0; wake(); } });
 $('reloadBtn').addEventListener('click', function(){ location.reload(); });
+// 방문 통계 (GoatCounter, 통계는 본인만 볼 수 있음). 실패해도 화면에는 아무 영향 없음
+(function(){
+  try{
+    if(location.protocol === 'file:') return;
+    if(sessionStorage.getItem('noCount')){ sessionStorage.removeItem('noCount'); return; }
+  }catch(e){}
+  var path = location.hostname === 'ch010-def.github.io' ? '/MB_live/' : '비상주소';
+  var sent = {};
+  function cnt(o){ try{ if(window.goatcounter && window.goatcounter.count) window.goatcounter.count(o); }catch(e){} }
+  function mbu(){ // 마범대 화면을 본 횟수 (한 번 들어올 때 한 번만)
+    if(!sent.mbu && /^#mbu/.test(location.hash)){ sent.mbu = 1; cnt({path: '마범대 보기', title: '마범대 보기', event: true}); }
+  }
+  var s = document.createElement('script');
+  s.async = true; s.src = 'https://gc.zgo.at/count.js';
+  s.setAttribute('data-goatcounter', 'https://ch010-def-mblive.goatcounter.com/count');
+  s.setAttribute('data-goatcounter-settings', '{"no_onload": true}');
+  s.onload = function(){ cnt({path: path, title: '엠비크루 라이브'}); mbu(); };
+  window.addEventListener('hashchange', mbu);
+  document.body.appendChild(s);
+})();
 </script>
 </body>
 </html>
