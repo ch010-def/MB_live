@@ -281,6 +281,28 @@ STATS = {"info_ok": 0, "info_all": 0, "live_ok": 0, "live_all": 0, "on": 0, "bot
 LIVE_MARKS = ('"style":"LIVE"', "BADGE_STYLE_TYPE_LIVE_NOW", "THUMBNAIL_OVERLAY_BADGE_STYLE_LIVE", '"iconType":"LIVE"')
 
 
+def streams_title(page, vid):
+    """라이브 탭 화면에 같이 적혀 있는 방송 제목 (영상 페이지·oEmbed를 못 읽을 때 쓰는 보조, 실패하면 "")"""
+    try:
+        pats = (r'"title":\{"content":"((?:[^"\\]|\\.)*)"',
+                r'"title":\{"runs":\[\{"text":"((?:[^"\\]|\\.)*)"',
+                r'"title":\{"simpleText":"((?:[^"\\]|\\.)*)"')
+        for mk in re.finditer(re.escape('"%s"' % vid), page):
+            win = page[mk.end():mk.end() + 8000]
+            best = None
+            for p in pats:
+                m = re.search(p, win)
+                if m and (best is None or m.start() < best.start()):
+                    best = m
+            if best:
+                t = json.loads('"%s"' % best.group(1)).strip()
+                if t:
+                    return t
+    except Exception:
+        pass
+    return ""
+
+
 def live_candidates(page):
     """채널의 '라이브' 탭에서 LIVE 배지가 붙은 영상 ID들 (예정·다시보기에는 이 배지가 없음)"""
     found = []
@@ -440,6 +462,11 @@ def live_video(path):
     DIAG.append((path, how if vid else "", notes if cands else [], other))
     if vid:
         STATS["on"] += 1
+        if not WATCH_TITLES.get(vid):  # 영상 페이지에서 방제를 못 읽었으면 라이브 탭 화면에서
+            try:
+                WATCH_TITLES[vid] = streams_title(page, vid) or (watch_title(lp) if how == "/live" else "")
+            except Exception:
+                pass
         return vid
     return ""
 
