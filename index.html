@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="theme-color" content="#08080c">
+<title>엠비크루</title>
+<link rel="icon" href="data:image/webp;base64,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">
+<link rel="apple-touch-icon" href="data:image/webp;base64,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">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+/* 레이아웃: 우주빛 헤더(로고·제목·라이브 수) → 4열 멤버 카드 → 더보기 시트. 검정 단일 테마 */
+:root{
+  --bg:#08080c; --panel:#13141b; --panel-2:#1c1e28; --line:#262836;
+  --ink:#f3f4f8; --muted:#8a8fa3; --accent:#4c8dff; --accent-2:#7a5cff;
+  --live:#ff3b4f; --soop:#2f7bff; --fun:#a855f7; --gold:#e9c27a;
+  --font:"Pretendard","Pretendard Variable",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg)}
+body{color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;letter-spacing:-.01em}
+main{max-width:720px;margin:0 auto;padding:0 14px 56px}
+
+/* 헤더 */
+.hero{position:relative;margin:14px 0 26px;padding:30px 20px 24px;border-radius:20px;overflow:hidden;
+  background:
+    radial-gradient(120% 90% at 0% 0%, rgba(76,141,255,.28), transparent 55%),
+    radial-gradient(90% 80% at 100% 10%, rgba(255,59,79,.22), transparent 55%),
+    radial-gradient(70% 60% at 50% 120%, rgba(233,194,122,.16), transparent 60%),
+    linear-gradient(180deg,#121423,#0c0d14);
+  border:1px solid var(--line);display:flex;align-items:center;gap:18px}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:radial-gradient(1px 1px at 12% 30%,#fff,transparent),radial-gradient(1px 1px at 78% 22%,#fff,transparent),
+  radial-gradient(1.5px 1.5px at 62% 70%,#cfe0ff,transparent),radial-gradient(1px 1px at 35% 82%,#fff,transparent),
+  radial-gradient(1px 1px at 90% 60%,#ffd9de,transparent),radial-gradient(1px 1px at 48% 18%,#fff,transparent)}
+.logo{flex:none;width:92px;height:92px;border-radius:50%;padding:4px;background:linear-gradient(140deg,var(--accent),var(--accent-2) 55%,#c13cff)}
+.logo img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;border:3px solid var(--bg)}
+.hero h1{margin:0;font-size:32px;font-weight:800;letter-spacing:-.03em;text-wrap:balance}
+.count{margin-top:8px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.chip{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:12px;letter-spacing:.04em;padding:4px 10px;border-radius:7px}
+.chip.live{background:var(--live);color:#fff}
+.chip.live.soop{background:var(--soop)}
+.chip.live.fun{background:var(--fun)}
+.guide em.nw{white-space:nowrap}
+.chips{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
+.chip.off{background:var(--panel-2);color:var(--muted)}
+.chip.live::before{content:"";width:6px;height:6px;border-radius:50%;background:#fff;animation:blink 1.4s infinite}
+
+.guide{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 18px;margin:-10px 0 18px;padding:12px 14px;border-radius:12px;
+  background:var(--panel);border:1px solid var(--line);color:var(--muted);font-size:13px}
+.guide span{display:inline-flex;align-items:center;gap:7px}
+.guide em{font-style:normal}
+.guide b{color:var(--ink);font-weight:700}
+.guide .dot{flex:none;width:16px;height:16px;border-radius:50%;border:2px solid var(--accent);background:var(--panel-2)}
+.guide .clock{font-style:normal;font-size:14px;line-height:1}
+.guide .mini{font-style:normal;font-size:10px;padding:2px 7px;border-radius:5px}
+.titlerow{display:flex;align-items:center;gap:10px 12px;flex-wrap:wrap}
+.btns{display:flex;gap:8px;flex:none} /* 일정·소식은 한 묶음: 자리가 없으면 둘이 같이 아랫줄로 */
+.sched-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:10px;background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.14);color:var(--ink);text-decoration:none;font-weight:700;font-size:14px;backdrop-filter:blur(4px)}
+.sched-btn:hover{border-color:var(--accent);background:rgba(76,141,255,.14)}
+.sched-btn span:not(:empty){margin-left:2px;background:var(--accent);color:#fff;font-size:11px;padding:1px 6px;border-radius:6px}
+.back{display:inline-flex;align-items:center;gap:6px;margin:0 0 16px;padding:9px 16px;border-radius:999px;background:rgba(76,141,255,.16);border:1px solid rgba(76,141,255,.55);color:#fff;text-decoration:none;font-size:14px;font-weight:700}
+.back:hover{background:rgba(76,141,255,.28)}
+.back .lv{width:7px;height:7px;border-radius:50%;background:var(--live)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 18px 8px;margin-bottom:14px}
+.card h3{margin:0 0 10px;font-size:17px;font-weight:800}
+.card h3 small{font-size:12px;font-weight:600;color:var(--muted);margin-left:6px}
+.sched,.memo-list{list-style:none;margin:0;padding:0}
+.sched li{padding:12px 0;border-top:1px solid var(--line)}
+.sched li:first-child{border-top:0}
+.sched .sdh{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.sched .sdh b{font-size:16px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+.sched .sbadge{font-size:11px;font-weight:800;background:var(--accent);color:#fff;padding:2px 7px;border-radius:6px}
+.sched .srow{display:flex;gap:12px;align-items:baseline;padding:4px 0}
+.sched .st{flex:none;width:3.3em;font-size:13.5px;font-weight:700;color:#cfd6ea;font-variant-numeric:tabular-nums}
+.sched .st.no{color:var(--muted);text-align:center;font-weight:900}
+.sched .tx{flex:1;line-height:1.5;overflow-wrap:anywhere}
+.sched .ssolo{display:flex;gap:12px;align-items:baseline;padding:8px 0 2px}
+.sched .ssolo .slb{flex:none;width:3.3em;box-sizing:border-box;text-align:center;font-size:12px;font-weight:800;color:#9cc2ff;background:rgba(76,141,255,.12);border:1px solid rgba(76,141,255,.35);border-radius:7px;padding:2px 0}
+.sched .snames{display:flex;flex-wrap:wrap;gap:6px}
+.sched .snames span{font-size:13px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+.sched li.today{background:linear-gradient(90deg,rgba(76,141,255,.14),transparent);margin:0 -10px;padding:12px 10px;border-radius:12px;border-top-color:transparent}
+.sched li.today + li{border-top-color:transparent}
+.sched li.past{opacity:.4}
+.card h3.sh{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.oldbtn{font:inherit;font-size:12.5px;font-weight:700;color:var(--muted);background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer}
+.oldbtn:hover{color:var(--ink);border-color:var(--accent)}
+.oldbtn[hidden],.oldwrap[hidden]{display:none}
+.sched li.ydiv{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:800;color:var(--accent);border-top:0;padding:14px 0 2px}
+.sched li.ydiv::before,.sched li.ydiv::after{content:"";flex:1;height:1px;background:rgba(76,141,255,.45)}
+.sched li.ydiv + li{border-top:0}
+.oldbtn.on{color:#fff;border-color:var(--accent);background:rgba(76,141,255,.2)}
+.oldwrap{margin:0 0 4px}
+.oldwrap > .sched{background:rgba(255,255,255,.035);border:1px solid var(--line);border-top:0;border-radius:0 0 12px 12px;padding:0 12px 2px}
+.oldtt{font-size:12px;font-weight:800;color:var(--muted);background:rgba(255,255,255,.035);border:1px solid var(--line);border-bottom:0;border-radius:12px 12px 0 0;padding:9px 12px 0}
+.oldwrap .cut{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:var(--accent);margin:12px 0 0}
+.oldwrap .cut::before,.oldwrap .cut::after{content:"";flex:1;height:1px;background:rgba(76,141,255,.4)}
+/* 메모: 줄 앞 표시·줄 사이 선 없이 이어서 (주제 표시는 직접 *, #, 🧡 등으로) */
+.memo-list{padding-bottom:10px}
+.memo-list li{padding:2px 0;color:#c9ccd8;line-height:1.65;overflow-wrap:anywhere;white-space:pre-wrap}
+.memo-list li.gap{height:16px;padding:0}
+.sched a.lnk,.memo-list a.lnk{display:inline-block;margin:2px 0;padding:3px 9px;border-radius:8px;background:rgba(76,141,255,.12);border:1px solid rgba(76,141,255,.35);color:#9cc2ff;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap}
+.sched a.lnk:hover,.memo-list a.lnk:hover{background:rgba(76,141,255,.22);color:#fff}
+.memo-list li.mt{color:var(--accent);font-weight:800;font-size:1.08em;padding:2px 0 4px}
+.empty{color:var(--muted);padding:10px 0 14px;font-size:14px}
+.refresh{font:inherit;font-size:12px;font-weight:700;color:var(--ink);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:4px 10px;cursor:pointer}
+.refresh:hover{border-color:var(--accent)}
+.refresh:disabled{opacity:.6;cursor:default}
+.flash{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--panel-2);border:1px solid var(--line);color:var(--ink);padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
+.flash.show{opacity:1}
+h2{font-size:15px;font-weight:700;color:var(--muted);margin:28px 4px 12px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.m{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;min-width:0;
+  background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 6px 12px;transition:border-color .2s,transform .2s}
+.m.on{border-color:rgba(255,59,79,.55);background:linear-gradient(180deg,rgba(255,59,79,.12),var(--panel) 60%)}
+.pic{position:relative;display:block;width:min(84px,18vw);height:min(84px,18vw);aspect-ratio:1;flex:none;box-sizing:border-box;border-radius:50%;padding:3px;background:var(--line)}
+.pic .in{display:block;width:100%;height:100%;border-radius:50%;overflow:hidden;background:var(--panel-2);border:2px solid var(--panel)}
+.pic img{width:100%;height:100%;object-fit:cover;object-position:center 25%;display:block}
+.m.on .pic{background:conic-gradient(from 0deg,var(--live),#ff8a3d,var(--live),#c13cff,var(--live));animation:spin 4s linear infinite}
+.m.on .pic .in{animation:spin 4s linear infinite reverse}
+.m.on.soop{border-color:rgba(47,123,255,.6);background:linear-gradient(180deg,rgba(47,123,255,.14),var(--panel) 60%)}
+.m.on.soop .pic{background:conic-gradient(from 0deg,var(--soop),#4fd1ff,var(--soop),#7a5cff,var(--soop))}
+.m.on.fun{border-color:rgba(168,85,247,.6);background:linear-gradient(180deg,rgba(168,85,247,.14),var(--panel) 60%)}
+.m.on.fun .pic{background:conic-gradient(from 0deg,var(--fun),#e879f9,var(--fun),#6366f1,var(--fun))}
+a.pic:hover{background:var(--accent)}
+.m:not(.on) .pic img{filter:saturate(.75) brightness(.85)}
+.name{font-weight:700;font-size:14px;line-height:1.3;max-width:100%;word-break:keep-all;overflow-wrap:anywhere}
+a.chip{text-decoration:none}
+a.chip.live:hover{filter:brightness(1.12)}
+.more{font:inherit;font-weight:600;font-size:12px;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:6px 12px;cursor:pointer}
+.more:hover{border-color:var(--accent);color:#fff}
+.more[hidden]{display:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* 더보기 시트 */
+.dim{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+.dim.show{display:flex}
+.sheet{background:var(--panel);border:1px solid var(--line);border-radius:18px;width:100%;max-width:420px;padding:18px 18px 10px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.sheet header{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.sheet header img{width:44px;height:44px;border-radius:50%;object-fit:cover;background:var(--panel-2)}
+.sheet header b{flex:1;font-size:17px}
+.x{font:inherit;font-size:22px;line-height:1;background:var(--panel-2);border:0;color:var(--muted);cursor:pointer;width:34px;height:34px;border-radius:50%}
+.row{display:flex;align-items:baseline;gap:10px;font-size:14px;text-decoration:none;border-top:1px solid var(--line);padding:13px 4px;color:var(--ink)}
+.row .lb{flex:none;color:var(--muted);min-width:5.5em}
+.row .v{color:var(--accent);overflow-wrap:anywhere}
+.row:hover .v{text-decoration:underline;text-underline-offset:3px}
+.hint{font-size:12px;color:var(--muted);text-align:center;margin:6px 0 4px}
+/* 상단 크루 전환 버튼 */
+.switch{display:flex;justify-content:center;gap:8px;margin:14px 0 0}
+.switch[hidden]{display:none}
+.switch a{min-width:104px;text-align:center;padding:10px 18px;border-radius:12px;font-weight:800;font-size:15px;text-decoration:none;color:var(--muted);background:var(--panel);border:1px solid var(--line)}
+.switch a:hover{color:var(--ink)}
+.switch a.cur{color:#fff;background:var(--accent);border-color:var(--accent);box-shadow:0 4px 14px rgba(76,141,255,.35)}
+.switch + .hero{margin-top:14px}
+/* 계열사 페이지: 레이아웃은 같고 색만 숲 파란색 */
+.logo .tl{display:none}
+.logo img.sublogo{display:none}
+body.pg-sub .logo img.mainlogo{display:none}
+body.pg-mbu .logo img.sublogo{display:block}
+body.pg-mbu .logo .tl{display:none!important}
+body.pg-sub .logo .tl{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;background:radial-gradient(circle at 35% 30%,#1b2a55,#0a0f22);font-style:normal;font-weight:900;font-size:24px;color:#fff;letter-spacing:.01em;border:3px solid var(--bg);box-sizing:border-box}
+body.pg-sub .logo{background:linear-gradient(140deg,#2f7bff,#4fd1ff 55%,#7a5cff)}
+body.pg-sub .hero{background:radial-gradient(120% 90% at 0% 0%, rgba(47,123,255,.34), transparent 55%),radial-gradient(90% 80% at 100% 10%, rgba(79,209,255,.18), transparent 55%),radial-gradient(70% 60% at 50% 120%, rgba(122,92,255,.18), transparent 60%),linear-gradient(180deg,#0f1630,#0b0d18)}
+body.pg-sub .count .chip.live{background:var(--soop)}
+.guide[hidden]{display:none}
+/* 카드 속 방제 (ON 아래) */
+.m .btitle{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin:6px 0 0;max-width:100%;font-size:11.5px;line-height:1.4;color:#b9bdcc;text-decoration:none;text-align:center;overflow-wrap:anywhere}
+.m .btitle:hover{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
+@media (max-width:420px){.switch a{min-width:96px;padding:9px 14px}body.pg-sub .logo .tl{font-size:19px}}
+/* 비상 주소 안내 */
+.stale{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 16px;padding:14px 16px;border-radius:14px;
+  background:rgba(233,194,122,.12);border:1px solid rgba(233,194,122,.55);color:var(--ink);font-size:14px;line-height:1.5}
+.stale b{color:var(--gold)}
+.stale p{margin:0;flex:1;min-width:200px}
+.stale{flex-direction:column;align-items:stretch}
+.stale .steps{margin:0;padding-left:20px;display:grid;gap:8px;font-size:13.5px;line-height:1.5}
+.stale .steps li::marker{color:var(--gold);font-weight:800}
+.stale .steps a,.stale .reload{display:inline-block;margin:2px 0 0;padding:6px 12px;border-radius:9px;font:inherit;font-size:13px;font-weight:800;cursor:pointer}
+.stale .reload{background:rgba(255,255,255,.1);color:var(--ink);border:1px solid rgba(255,255,255,.25)}
+.stale a{flex:none;padding:9px 14px;border-radius:10px;background:var(--gold);color:#1a1405;font-weight:800;text-decoration:none;white-space:nowrap}
+.stale[hidden],.foot .backup[hidden]{display:none}
+.foot .backup{color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:3px}
+.foot .backup:hover{color:var(--ink)}
+.foot .backup-tip{margin:-4px 0 0;max-width:340px;font-size:12px;line-height:1.55;color:var(--muted)}
+.foot .backup-tip b{color:#ff8a8a;font-weight:700}
+.stale .tip{display:inline-block;margin-top:4px;font-size:12.5px;color:var(--muted)}
+.stale .tip b{color:#ff8a8a}
+.foot .backup-tip[hidden]{display:none}
+.foot{margin-top:32px;padding:18px 14px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;color:var(--muted);font-size:13px;border-top:1px solid var(--line)}
+.report{display:inline-flex;align-items:center;padding:7px 14px;border-radius:9px;background:transparent;border:1px solid var(--line);color:var(--muted);font-weight:600;font-size:12px;text-decoration:none}
+.report:hover{color:var(--ink);border-color:#3a3d4e}
+
+/* 소식 화면 */
+.sched-btn.cur{border-color:var(--accent);background:rgba(76,141,255,.18)}
+.sched-btn span.new:not(:empty){background:var(--live)}
+.ptop{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin:0 2px 12px}
+.ptop h3{margin:0;font-size:20px;font-weight:800}
+.ptop small{display:block;margin-top:4px;font-size:12px;color:var(--muted);font-weight:500}
+.ptop .note{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:8px;font-size:12px;color:var(--muted)}
+.ptop .note span{display:inline-flex;align-items:center;gap:5px}
+.ptop .note span::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--gold)}
+.tabs{display:flex;gap:6px;flex:none}
+.tab{font:inherit;font-size:12.5px;font-weight:700;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.tab i{width:7px;height:7px;border-radius:50%}
+.tab small{opacity:.6;font-size:inherit}
+.tab.on{color:#fff;border-color:#4a4e66;background:var(--panel-2)}
+.who{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 12px;margin-bottom:6px;scrollbar-width:none}
+.who::-webkit-scrollbar{display:none}
+.who button{flex:none;font:inherit;background:none;border:0;padding:0;color:var(--muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;width:54px}
+.who .av{width:46px;height:46px;border-radius:50%;padding:2px;background:var(--line);position:relative}
+.who .av b{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;border:2px solid var(--bg);font-size:12px;font-weight:800;color:#fff;background:var(--panel-2);overflow:hidden}
+.who .av img{width:100%;height:100%;object-fit:cover;display:block}
+.who .av em{position:absolute;right:-3px;top:-3px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--live);color:#fff;font-style:normal;font-size:10.5px;font-weight:800;display:grid;place-items:center;border:2px solid var(--bg)}
+.who span.nm{font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.who button.on .av{background:linear-gradient(140deg,var(--accent),var(--accent-2))}
+.who button.on span.nm{color:var(--ink)}
+.day{display:flex;align-items:center;gap:10px;margin:18px 2px 10px;font-size:13px;font-weight:800;color:var(--muted)}
+.day::after{content:"";flex:1;height:1px;background:var(--line)}
+.day.today{color:var(--ink)}
+.post{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px 12px;margin-bottom:10px}
+/* 6시간 안의 새 글: 출처 색으로 강조 (유튜브 빨강 · 숲 파랑) */
+.post.fresh.yt{border-color:rgba(255,59,79,.6);background:linear-gradient(180deg,rgba(255,59,79,.09),var(--panel) 70%)}
+.post.fresh.soop{border-color:rgba(47,123,255,.65);background:linear-gradient(180deg,rgba(47,123,255,.11),var(--panel) 70%)}
+.ph{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ph .av{flex:none;width:36px;height:36px;border-radius:50%;overflow:hidden;background:var(--panel-2);display:grid;place-items:center;font-size:13px;font-weight:800}
+.ph .av img{width:100%;height:100%;object-fit:cover;display:block}
+.ph .nm{flex:1;min-width:0}
+.ph .nm b{display:block;font-size:14.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ph .nm span{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ph .nm .n{font-weight:800;margin-right:5px;font-size:10.5px;padding:1px 6px;border-radius:5px;color:#fff;vertical-align:1px}
+.post.yt .ph .nm .n{background:var(--live)}
+.post.soop .ph .nm .n{background:var(--soop)}
+.src{flex:none;display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;padding:4px 8px;border-radius:7px}
+.src.yt{background:rgba(255,59,79,.14);color:#ff7a88}
+.src.soop{background:rgba(47,123,255,.16);color:#7fb0ff}
+.src svg{width:12px;height:12px}
+.ttl{font-size:15px;font-weight:800;margin:0 0 4px;line-height:1.4;overflow-wrap:anywhere}
+.ptx{font-size:14.5px;line-height:1.6;color:#d6d8e2;white-space:pre-line;overflow-wrap:anywhere}
+.ptx a{color:var(--accent)}
+.media{display:grid;gap:4px;margin-top:10px;border-radius:12px;overflow:hidden}
+.media.n2{grid-template-columns:1fr 1fr}
+.media a{display:block;position:relative;aspect-ratio:16/10;background:var(--panel-2)}
+.media.n2 a{aspect-ratio:1}
+.media img{width:100%;height:100%;object-fit:cover;display:block}
+.media .plus{position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.55);font-weight:800;font-size:18px;color:#fff}
+.media .vt{position:absolute;left:0;right:0;bottom:0;padding:18px 12px 10px;background:linear-gradient(transparent,rgba(0,0,0,.8));color:#fff;font-size:13px;font-weight:700;text-align:left}
+.poll{margin-top:10px;display:grid;gap:6px}
+.poll div{position:relative;padding:9px 12px;border-radius:10px;background:var(--panel-2);font-size:13.5px;overflow:hidden;display:flex;justify-content:space-between;gap:10px}
+.poll div i{position:absolute;inset:0 auto 0 0;background:rgba(76,141,255,.18)}
+.poll div span,.poll div b{position:relative}
+.poll div b{color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums}
+.pf{display:flex;align-items:center;gap:14px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.pf .st{display:inline-flex;align-items:center;gap:5px;font-variant-numeric:tabular-nums}
+.pf .st svg{width:14px;height:14px}
+.pf .go{margin-left:auto;color:var(--accent);font-weight:700;text-decoration:none;font-size:13px}
+.pf .go:hover{text-decoration:underline;text-underline-offset:3px}
+.post.yt .pf .go{color:#ff7a88}
+.post.soop .pf .go{color:#7fb0ff}
+@media (max-width:420px){
+  .sched-btn{padding:6px 10px;font-size:13px}
+  .ptop{flex-direction:column;align-items:flex-start}
+  .post{padding:13px 14px 11px}
+}
+
+@keyframes blink{50%{opacity:.25}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (max-width:420px){
+  .hero{padding:22px 16px 18px;gap:14px}
+  .logo{width:72px;height:72px}
+  .hero h1{font-size:26px}
+  .grid{gap:7px}
+  .m{padding:12px 3px 10px;border-radius:13px}
+  .name{font-size:12.5px}
+  .chip{font-size:11px;padding:3px 8px}
+  .more{font-size:11px;padding:5px 9px}
+}
+@media (prefers-reduced-motion:reduce){.m.on .pic,.m.on .pic .in,.chip.live::before{animation:none}}
+</style>
+</head>
+<body>
+<main>
+  <nav class="switch" id="switch" hidden></nav>
+  <section class="hero">
+    <div class="logo"><i class="tl" id="logoText"></i><img class="sublogo" id="logoMbu" alt="" src="data:image/webp;base64,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"><img class="mainlogo" src="data:image/webp;base64,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" alt="엠비크루 로고"></div>
+    <div>
+      <div class="titlerow">
+        <h1 id="title">엠비크루</h1>
+        <div class="btns">
+        <a class="sched-btn" href="#schedule" id="schedBtn">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          일정<span id="schedCount"></span>
+        </a>
+        <a class="sched-btn" href="#posts" id="postsBtn" title="최근 24시간 안에 올라온 글 수">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M5 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H10l-5 4v-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 9h8M8 12.5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          소식<span class="new" id="postsCount"></span>
+        </a>
+        </div>
+      </div>
+      <div class="count" id="meta">불러오는 중…</div>
+    </div>
+  </section>
+  <div class="stale" id="stale" hidden>
+    <p><b>화면 업데이트가 늦어지고 있어요.</b> <span id="staleMsg"></span></p>
+    <ol class="steps">
+      <li>위쪽 <b>↻ 새로고침</b>을 눌러 보세요.</li>
+      <li>그래도 이 칸이 그대로면 <button type="button" class="reload" id="reloadBtn">페이지 다시 열기</button></li>
+      <li>그래도 안 되면 GitHub 쪽 문제예요. <a id="staleLink" href="#" target="_blank" rel="noopener">비상 주소로 보기 ↗</a><br><small class="tip">처음 열면 영어 안내 화면이 나와요. <b>빨간 「Open the page」 버튼</b>을 누르면 돼요.</small></li>
+    </ol>
+  </div>
+  <div id="home">
+  <div class="guide" id="guideSub" hidden>
+    <span><i class="dot"></i><em>프로필 사진을 누르면 <b>숲 방송국</b>으로 이동</em></span>
+    <span><i class="chip live soop mini">ON</i><em>숲 · 누르면 <b>라이브 방송</b>으로 이동</em></span>
+    <span><i class="clock">⏱</i><em>라이브 상태는 <b>약 5분마다</b> 확인</em></span>
+  </div>
+  <div class="guide" id="guideMain">
+    <span><i class="dot"></i><em>프로필 사진을 누르면 <b>채널</b>로 이동</em></span>
+    <span><i class="chip live mini">ON</i><em class="nw">유튜브</em><i class="chip live soop mini">ON</i><em class="nw">숲</em><i class="chip live fun mini">ON</i><em class="nw">펀네이션</em></span>
+    <span><em>ON을 누르면 <b>라이브 방송</b>으로 이동</em></span>
+    <span><i class="clock">⏱</i><em>라이브 상태는 <b>약 5분마다</b> 확인</em></span>
+  </div>
+  <div id="groups"></div>
+  </div>
+  <div id="schedule" hidden>
+    <a class="back" href="#">← <i class="lv"></i>라이브 · 멤버 목록으로</a>
+    <section class="card">
+      <h3 class="sh">일정<button type="button" class="oldbtn" id="oldBtn" hidden></button></h3>
+      <div class="oldwrap" id="oldWrap" hidden><div class="oldtt">지난 일정</div><ul class="sched" id="schedOld"></ul><div class="cut">어제부터</div></div>
+      <ul class="sched" id="schedList"></ul>
+    </section>
+    <section class="card memo">
+      <h3>메모 <small>보류 · 취소된 일정</small></h3>
+      <ul class="memo-list" id="memoList"></ul>
+    </section>
+  </div>
+  <div id="posts" hidden>
+    <a class="back" href="#">← <i class="lv"></i>라이브 · 멤버 목록으로</a>
+    <div class="ptop">
+      <div>
+        <h3>멤버 소식</h3>
+        <small>유튜브 커뮤니티 · 숲 방송국 글 · 최근 3일</small>
+        <div class="note"><span>3일 지난 글은 자동으로 사라집니다</span><span id="postsNote">소식은 약 10분마다 새로 확인합니다</span></div>
+      </div>
+      <div class="tabs" id="srcTabs"></div>
+    </div>
+    <div class="who" id="who"></div>
+    <div id="feed"></div>
+  </div>
+  <div class="foot" id="foot">
+    <a class="report" href="https://open.kakao.com/o/scKACbVi" target="_blank" rel="noopener">버그 및 일정 알려주세요</a>
+    <a class="backup" id="backupLink" href="#" target="_blank" rel="noopener" hidden>화면이 멈춰 있으면 → 비상 주소로 보기</a>
+    <p class="backup-tip" id="backupTip" hidden>처음 열면 영어로 된 안내 화면(rawgit.hack)이 나와요. 놀라지 말고 <b>빨간 「Open the page」 버튼</b>을 누르면 라이브 화면이 열려요.</p>
+  </div>
+</main>
+
+<div class="dim" id="dim">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetName">
+    <header><img id="sheetPic" alt=""><b id="sheetName"></b><button class="x" id="close" type="button" aria-label="닫기">×</button></header>
+    <div id="rows"></div>
+    <p class="hint">링크를 누르면 새 탭에서 열려요</p>
+  </div>
+</div>
+
+<div class="flash" id="flash" role="status"></div>
+<script id="data" type="application/json">{"title": "엠비크루", "updated": "2026-11-14T21:48:33+00:00", "groups": [{"title": "", "members": [{"name": "엠비크루", "channel": "https://www.youtube.com/channel/UCLP1A-4zmhi7uqD5VSn8_0A", "avatar": "https://yt3.googleusercontent.com/ll7D96CGvwLkwCMn4XN_dZszNCVgyVSjahNg-o8v83-ajaZI0OtgpysyfX4SLgIq_a2RNZKyfA=s240-c-k-c0x00ffffff-no-rj", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "투네이션", "value": "toon.at/donate/mbcrew"}, {"label": "펀네이션", "value": "funn.at/mbcrew"}, {"label": "홈페이지", "value": "mbcrew.funn.at"}, {"label": "오픈채팅문의", "value": "open.kakao.com/o/s6XTpini"}], "autoName": "팀엠비", "live_title": ""}, {"name": "마예준", "channel": "https://www.youtube.com/channel/UCJOx1Z6Bx1FF80Rmpl1P2Ug", "avatar": "https://yt3.googleusercontent.com/QwRqhfk06IE6luv09ENcAa_I48sd-ciU-SWoQ06ZUonXfq0cMKbpbV9FhRXirO-bZuzwztpPZw=s240-c-k-c0x00ffffff-no-rj", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "숲(soop)", "value": "www.sooplive.com/station/tiger3006"}], "autoName": "마예준TV", "live_title": ""}, {"name": "하연서", "channel": "https://www.youtube.com/channel/UC_sMqY0uRInGxrXuZa-QUPA", "avatar": "https://yt3.googleusercontent.com/U1SQKUix-Bi6f4PjIba5kXLgbO597QdvG9Xcsc99O6ofGnrbhG9s-wodazFvUKrAZKc06I8inGQ=s240-c-k-c0x00ffffff-no-rj", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "유튜브 2", "value": "youtube.com/channel/UCneKDj5nkuWocfZ4WiPpynQ"}, {"label": "유튜브 3", "value": "youtube.com/channel/UC2JPt6ziQ6Ig8DcNd-ZxepQ"}, {"label": "유튜브 4", "value": "youtube.com/channel/UCVV4MN_U5MVZR_uRCooJkAw"}, {"label": "투네이션", "value": "toon.at/donate/hayeonseo"}, {"label": "오픈카톡", "value": "open.kakao.com/o/sONQeksh"}, {"label": "신청곡 리스트", "value": "gady4860.songlist.cloud"}], "autoName": "하연서 Hayeonseo", "live_title": ""}, {"name": "지금이", "channel": "https://www.youtube.com/channel/UCJiSZYq6JWRv3RPmOdr-0VQ", "avatar": "https://yt3.googleusercontent.com/zv2TqKp1viIxalS1_layC_O604sHCkwnxAPRRaJ6GoryJirpatS7EIVgE-XwD5wpcFYz5ect49I=s240-c-k-c0x00ffffff-no-rj", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "유튜브 2", "value": "youtube.com/channel/UCO6leL5dR15A4bTYZuY2k2g"}, {"label": "투네이션", "value": "toon.at/donate/ggold"}, {"label": "1:1 오픈카톡", "value": "open.kakao.com/o/sK1R3rCi"}, {"label": "지금이공지방🫡", "value": "open.kakao.com/o/gqfrDnTi"}], "autoName": "지금이", "live_title": ""}, {"name": "찡찡시아", "channel": "https://www.youtube.com/channel/UC4cdinD3ZjJy1B2ChfoJYaw", "avatar": "https://yt3.googleusercontent.com/EuA1punHehRlDW6cDtYYchFjB6zANPT1I8nUIKGmB1mMzePlikzZNOT4TnLGCMLOuGAsO_pFLKY=s240-c-k-c0x00ffffff-no-rj", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "유튜브 2", "value": "youtube.com/channel/UC4BMgPKqAbBYI9GSxKpO-Xw"}, {"label": "유튜브 3", "value": "youtube.com/channel/UCb1R4Rp4h2YHSX3mRykLR9w"}, {"label": "투네이션", "value": "toon.at/donate/siahzzz"}, {"label": "쥐새끼단(옾쳇)플단", "value": "open.kakao.com/o/sIkaOnMi"}, {"label": "카톡 공지방", "value": "open.kakao.com/o/gHXaDZTi"}, {"label": "숲(soop)", "value": "www.sooplive.com/station/siahag"}], "autoName": "매일찡찡거리는시아 21살", "live_title": ""}, {"name": "혜로로", "channel": "https://www.youtube.com/channel/UCB4keNxXCYpircBIgW3OYOw", "avatar": "https://yt3.googleusercontent.com/IPOcszAbvWI_fgoI4b899ZR2W078rY3kqFlnvU15WxCHaofZcSWZRO5ny-7N1CZM0V0kTcfqHQ=s240-c-k-c0x00ffffff-no-rj", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "유튜브 2", "value": "youtube.com/channel/UCKuROTp9mcU9mL5tnyTghPw"}, {"label": "유튜브 3", "value": "youtube.com/channel/UC7UuZCcNaNmN4YmMv09joRw"}, {"label": "로로오픈카톡", "value": "open.kakao.com/o/sWVAhoBi"}, {"label": "로로카톡공지방", "value": "open.kakao.com/o/pPeBBzUi"}, {"label": "투네이션", "value": "toon.at/donate/hyeroro"}, {"label": "펀네이션", "value": "funn.at/hyeroro"}, {"label": "숲(soop)", "value": "www.sooplive.com/station/llqqqq"}], "autoName": "혜로로", "live_title": ""}, {"name": "체리", "channel": "https://www.youtube.com/channel/UC-jitPLnys7CFEaY50mfpKw", "avatar": "https://yt3.googleusercontent.com/XUUeBzKj8F06xbpVXXLVK0-qDIOXO8oflMzIcm4Q06ibdFiZ6RPzBkdWAiHMPioyEub7VXHTrZc=s240-c-k-c0x00ffffff-no-rj", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "유튜브 2", "value": "youtube.com/channel/UCVWhpjCug_NDsDGzSiO-MNA"}, {"label": "유튜브 3", "value": "youtube.com/@quinsu5805"}, {"label": "투네이션", "value": "toon.at/donate/cherrya"}, {"label": "인스타", "value": "instagram.com/suyacaron"}, {"label": "오픈카톡", "value": "open.kakao.com/o/sKa0iSGi"}, {"label": "공지방", "value": "open.kakao.com/o/gSfgCfVi"}], "autoName": "권체리🍒", "live_title": ""}, {"name": "자대", "channel": "https://www.youtube.com/channel/UCorSu3etifKjKdha1MkfFMg", "avatar": "https://yt3.googleusercontent.com/ZoC6nHI2puY0ayj2eKksiUXmFlrybSyDOqKLw5yP_aaXqYb0JOcR1tddA5G77Kai62W9WKeD=s240-c-k-c0x00ffffff-no-rj", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "유튜브 2", "value": "youtube.com/channel/UCvY92GvfOuDp27UQH8UtchA"}, {"label": "유튜브 3", "value": "youtube.com/channel/UCkfUnosyKv-ldCuzCDzTwvw"}, {"label": "투네이션", "value": "toon.at/donate/welcomejadae"}, {"label": "숲(soop)", "value": "www.sooplive.com/station/cobraboy"}], "autoName": "BJ자대", "live_title": ""}, {"name": "이우연", "channel": "https://www.youtube.com/channel/UChpk79NSbcni-E7Erjffx1A", "avatar": "https://yt3.googleusercontent.com/_ZnkFEo4p5pxS-TjaGJYKgveZmlR64JWitsGHGNNOlDs78GfQp9bor0Iv3nUBBbgRV4vZfPcZQ=s240-c-k-c0x00ffffff-no-rj", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "투네이션", "value": "toon.at/donate/1724"}, {"label": "공지방", "value": "open.kakao.com/o/g69t2KHi"}, {"label": "오픈채팅", "value": "open.kakao.com/o/sxElnZGi"}], "autoName": "우연", "live_title": ""}, {"name": "르밍", "channel": "https://www.youtube.com/channel/UCtTaR2mAFsseE74RCUMJD3Q", "avatar": "https://yt3.googleusercontent.com/AGXfNMug5qEPDD_fKK9m8lB0PjtvhE22ET6j9rhLzOp4_c1WCQW589NwqbmE-LAY_jCcak_Dsw=s240-c-k-c0x00ffffff-no-rj", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "유튜브 2", "value": "youtube.com/channel/UCJGLN8ahSMTD96JKu3jECZQ"}, {"label": "투네이션", "value": "toon.at/donate/borming"}, {"label": "펀네이션", "value": "funn.at/borming"}, {"label": "오픈카톡", "value": "open.kakao.com/o/sYsaMwHi"}, {"label": "팬카페", "value": "cafe.naver.com/borming"}, {"label": "숲(soop)", "value": "www.sooplive.com/station/ssjj0507"}], "autoName": "보르밍 Borming", "live_title": ""}, {"name": "백사랑", "channel": "https://www.youtube.com/channel/UC_JI14d0Af2sdwaLaUb_Ysw", "avatar": "https://yt3.googleusercontent.com/InoNVD1FhAIM_tyuuS9UxAsZAWY26Wt8jXHzVEx7Tr8V7P7c88m8PZI07LlsGuvIiJ-GSb5o=s240-c-k-c0x00ffffff-no-rj", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "유튜브 2", "value": "youtube.com/channel/UCmeatsbul4Y1hIgHD4ee3oQ"}, {"label": "유튜브 3", "value": "youtube.com/channel/UCj53ZDDD39yZ3pxGkkk72UA"}, {"label": "유튜브 4", "value": "youtube.com/channel/UCI8tWy6CbsI4rrxfItrRUcw"}, {"label": "공지방", "value": "open.kakao.com/o/paIy8eVi"}, {"label": "투네이션", "value": "toon.at/donate/nayalove"}, {"label": "인스타그램", "value": "nstagram.com/vitaonshine?obrf=MTg1OW5lZzhjenE4aw==&utm_source=qr"}, {"label": "오픈카톡", "value": "open.kakao.com/o/sSXYRkRi"}, {"label": "틱톡", "value": "tiktok.com/@vitaonshine"}], "autoName": "비타VITA", "live_title": ""}, {"name": "빡죠스", "channel": "https://www.youtube.com/channel/UCO2nN7QwVX5HYMuQEn3P47A", "avatar": "https://yt3.googleusercontent.com/ryytrNMdL7q8gNkALCgafRRtGJ_Uk8Dyhx5DQWE-qCo2VzgYQ8E7HexP4bHgpHQUz3Xp9X3D-Xk=s240-c-k-c0x00ffffff-no-rj", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "유튜브 2", "value": "youtube.com/channel/UCcklJR4jTVbxZyaTlo1zuJQ"}, {"label": "투네이션", "value": "toon.at/donate/mbshark"}, {"label": "숲(soop)", "value": "www.sooplive.com/station/askl021"}], "autoName": "인간 빡죠스", "live_title": ""}, {"name": "묘아이", "channel": "https://www.youtube.com/channel/UCm1HaPYRvFED5zdbV72TwJg", "avatar": "https://yt3.googleusercontent.com/pGZpf6moID6f0ryEgSO0yDgZg64JKfPvNjUlcdRNWiyfE25lqg2MHGC4m4EPPcxMVv0a6OIYFA=s240-c-k-c0x00ffffff-no-rj", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "유튜브 2", "value": "youtube.com/channel/UC1ZJ2ep9S6YzB_Yo0OrELbQ"}, {"label": "투네이션", "value": "toon.at/donate/chanel0813"}, {"label": "숲(soop)", "value": "sooplive.com/station/sarang0813"}, {"label": "묘팬페이지", "value": "bjfans.kr/bj/myoi"}, {"label": "공지방", "value": "open.kakao.com/o/gcp9uYHi"}, {"label": "묘사단 단체톡", "value": "open.kakao.com/o/gtSfgtSi"}, {"label": "1:1카톡", "value": "open.kakao.com/o/sinUsVWi"}, {"label": "인스타", "value": "instagram.com/pinkjinxqueenzellx"}, {"label": "틱톡", "value": "tiktok.com/@pinkyjinxqueen"}], "autoName": "묘아이", "live_title": ""}, {"name": "백설빈", "channel": "https://www.youtube.com/channel/UC4ggmHrlNDufVGmb28eYjQQ", "avatar": "https://yt3.googleusercontent.com/pNKpgYOoDX-GO-QXZmcfYDTYx_HoQ0NGepYcoKc204Abdm1eiw0cVcEgrFdxkKCUEbQMokecJQ=s240-c-k-c0x00ffffff-no-rj", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "유튜브 2", "value": "youtube.com/channel/UCQycUX2xN6kzSmtLIn2o7hw"}, {"label": "투네이션 (support)", "value": "toon.at/donate/seol1004"}, {"label": "펀네이션", "value": "funn.at/backseolbin1004"}, {"label": "인스타", "value": "instagram.com/o1_b_s"}, {"label": "숲(soop)", "value": "sooplive.com/station/seolbin086"}, {"label": "틱톡(tiktok)", "value": "tiktok.com/@bini86866"}, {"label": "공지방", "value": "open.kakao.com/o/gqN7puWi"}, {"label": "1:1카톡방", "value": "open.kakao.com/o/saDzHcHi"}], "autoName": "백설빈 BAEK SEOLBIN", "live_title": ""}, {"name": "백서현", "channel": "https://www.youtube.com/channel/UCnbAssV2OaZjWw9DXGUxlIg", "avatar": "https://yt3.googleusercontent.com/n3IP_5_fzvGirzKiwBdxw6kRqybhf-BFn7tkYVarCjHGt4eDre3n6DRg6pszZ5MnWvQWICMVvw=s240-c-k-c0x00ffffff-no-rj", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "투네이션", "value": "toon.at/donate/luvrxeq03"}, {"label": "펀네이션", "value": "funnation.co.kr/store"}, {"label": "1:1카톡방", "value": "open.kakao.com/o/sQI1xcNi"}], "autoName": "백서현", "live_title": ""}, {"name": "지민", "channel": "https://www.youtube.com/channel/UC-b3IlavISVGqPptbMefW0g", "avatar": "https://yt3.googleusercontent.com/rWU3gnaUte5rM67OEGSBuqs_H2_t4NxUOjzyc6rGZEfcYfXQakverKdNw853oGjHXyHZ3EYj5g=s240-c-k-c0x00ffffff-no-rj", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "투네이션", "value": "toon.at/donate/jimining"}, {"label": "1:1 오픈채팅", "value": "open.kakao.com/o/sgrrZcOi"}, {"label": "공지방", "value": "open.kakao.com/o/pXzqDLRi"}], "autoName": "지미니", "live_title": ""}, {"name": "먹츄(졸업)", "channel": "https://www.youtube.com/channel/UCEmUk0KHttpRn9LG-bOTY7A", "avatar": "https://yt3.googleusercontent.com/yYn5ksU4xWZW7mYhikVti5qqmPbD-QxA5K-sQ9RRrli5ug4XoQtf3kJpi8B-2jfExK9dos7S=s240-c-k-c0x00ffffff-no-rj", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "투네이션", "value": "toon.at/donate/wonywangchu"}, {"label": "오픈카톡", "value": "open.kakao.com/o/so4waDxi"}, {"label": "팬카페", "value": "왕츄.com"}], "autoName": "먹츄야", "live_title": ""}, {"name": "(??)비비", "channel": "https://www.youtube.com/channel/UC1d2gtUwsbpXN41gouORmzw", "avatar": "https://yt3.googleusercontent.com/GvOPlPkfHOub7onek9YJjFWJzq3A3jVdf_tBtvoJKX8-N5RHn1i079hJ8bzlNceGLoSXU3WMpA=s240-c-k-c0x00ffffff-no-rj", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "유튜브 2", "value": "youtube.com/channel/UC3SAVdMHhi-33txAX0R-WMQ"}, {"label": "오픈카톡", "value": "open.kakao.com/o/snJKehLi"}, {"label": "단톡방", "value": "open.kakao.com/o/gdQDihLi"}, {"label": "투네이션", "value": "toon.at/donate/bibi2"}, {"label": "펀네이션", "value": "funn.at/bibiworld"}], "autoName": "비비_팀엠비", "live_title": ""}]}], "schedule": ["11/05(목) 17:00 MBCREW 시즌5-12 END 방송", "11/06(금) 르밍-스타 연습 + 펀네 유튭 동시 송출 연습", "21:00 이우연 시그 90퍼 할인 야방", "11/07(토) 권체리-청주 야방", "이우연-하이디라오 야방", "갠방 : 권체리 이우연 르밍 백사랑 묘아이 자대 백설빈", "11/08(일) 14:30 백사랑x이우연-빼빼로 만들기", "백사랑x이우연x묘아이-찜질방 놀러가기", "지금이 여수 야방", "갠방 : 지금이 권체리 이우연 르밍 백사랑 묘아이", "11/08(일) 20:00 르밍 스타교육 받기 (교수 만두호성)", "11/09(월)", "갠방 : 지금이 찡시 혜로로 권체리 이우연 백사랑 묘아이 백설빈 비비", "11/10(화) 혜로로-원주 야방", "찡시-숲에서 스타 배우기 (정경두)", "이우연x백사랑-한강 야방 + 11일 백사랑 생일축하 전야제", "갠방 : 하연서 찡시 혜로로 이우연 르밍 백사랑", "11/11(수) 1:00 💗백사랑 생일파티💗하이디라오-하연서x찡시x권체리x이우연", "20:00 💗백사랑 생일파티 2부💗 권체리x이우연", "갠방 : 하연서 지금이 혜로로 권체리 자대 르밍 백사랑 묘아이 빡죠스 백설빈 비비 (찡시는합방) (이우연은합방)", "11/11(수) 16:00 자대x빡죠스-빡청교육대 + 2500개빵 봄덕님과 스타 3판2선승. 이후 비방연습", "11/12(목) 15:00 엑셀부 vs 스타부 CK (같은 계열사끼리 하는 내부 CK)", "갠방 : 하연서 지금이 혜로로 찡시 자대 이우연 묘아이 백설빈 (르밍)", "11/13(금) 이우연x백사랑-성수동 야방", "갠방 : 지금이 권체리 자대 이우연 르밍 백사랑 백설빈", "11/14(토) 갠방 : 하연서 지금이 찡시 혜로로 권체리 이우연 르밍 백사랑 지민", "11/15(일)~16(월) 10:00 혜로로-48시간 '여수' 노방종", "11/15(일)~17(화) 🏕️ 스타부 MT-마예준x빡죠스x자대. 선수형님 숙소 지원.", "첫 날만 방송, 그 이후 비방", "11/16(월) 르밍-글램핑", "11/17(화)", "11/18(수)"], "memo": ["📅 마예준 방송 일정 공지", "7(토) 휴방 아님", "8(일) 마예준 - 7티어 대회 게스트", "9(월)~11(수) 휴방, 스탭과 일본 여행 (2박 3일)", "12(목) 15:00 엑셀부 vs 스타부 CK (같은 계열사끼리 하는 내부 CK)", "13(금) VS 뉴캣슬 미니대전 /  VS JSA 미니대전 / 상중하 반배정. 우등반 칭찬 열등반 벌칙", "14(토) 비프로 저티어 수장들 CK", "11월 15(일)~17(화) 스타부 강원도 MT (2박 3일). 하루는 방송, 하루는 비공개로 보냄", "11월 셋째 주쯤 마범대 새 멤버들 위주로 11월 내전", "", "📅 자대 방송 일정", "7(토) 숲 열혈형님 결혼으로 식사. 마치고 방송 켰음.", "8(일) ~ 10(화) 휴방", "11(수) 자대 : 빡청교육대 + 2500개빵 봄덕님과 3/2", "12(목) 계열사CK", "13(금) 할머니 뵈러 감", "14(토) ...?", "15(일) ~ 17(화) 엠티", "18(수) 르밍 자대 빡죠스  (일정 조율중)", "19오픈? 미뤄지면 23 26 일 듯", "오픈 늦어지면 19~21 사이에 빡죠스랑 뭐 할지", "", "📅 혜로로 방송 일정", "9(월)~11(수) 갠방", "12(목) 15:00 계열사 CK (상대 카히리)", "13(금) 집 알아보기", "14(토) 휴방", "15(일)~16(월) 48시간 여행지 노방종", "?(??) 자대 죠스 집밥로선생", "", "💎 엑셀부 vs 스타부 계열사CK (12(목) 15:00 )", "🏆스타부 vs 댄스부 스타대전🏆", "━━━━━━━━━━━━━━━", "📢 11판 6선승", "엑셀부 6:5 스타부", "━━━━━━━━━━━━━━━", "1️⃣져지현-혜로로✅🆚️⬜️카히리 [라데온]", "2️⃣만두호성-르밍⬜️🆚️✅안눙이 [폴리포이드]", "3️⃣창우-파워영웅⬜️🆚️✅헤요이 [녹아웃]", "4️⃣쿨지지-마예준⬜️🆚️✅권아온 [폴]", "5️⃣빡죠스-자  대✅🆚️⬜️휘 연 [폴]", "6️⃣경두-찡찡시아✅🆚️⬜️또 치 [폴]", "7️⃣빡죠스-자  대✅🆚️⬜️휘 연 [폴]", "8️⃣창우-파워영웅⬜️🆚️✅헤요이 [라]", "9️⃣만두호성-르밍⬜️🆚️✅안눙이 [폴]", "🔟경두-찡찡시아✅🆚️⬜️또 치 [폴]", "━━━━━━━━━━━━━━━", "🅰️경두-찡찡시아✅🆚️⬜️또 치 [폴]", "━━━━━━━━━━━━━━━", "", "🏕️ 스타부 MT : 마예준x빡죠스x자대 (11월 15~17일, 강원도)", "이번에는 새로운 게임을 해 볼 계획. 재밌는 게임을 알면 쪽지로 제보해 달라함.", "", "💤 휴방", "자대 : 8(일)~10(화) 3~4일 예정", "찡시, 백사랑 : 6(금)~8(일) 정도 3일 예정", "혜로로 : 6(금)~8(일) 정도 3일 예정", "죠스 : 8(일)~9(월)", "", "🔶 보류 or 고민중 일정", "1. CAR끗하게 -빡죠스x자대 세차방송 : 의뢰해주신 분의 차를 청소해 드립니다.", "- 1화 빡죠스 차로 세차연습 / 2화 둠칫님 3화 리즈님"], "posts": [{"id": "yt:UgkxICJrgXixzl3_zH7P_pW5njhusAis6JT9", "src": "yt", "url": "https://www.youtube.com/post/UgkxICJrgXixzl3_zH7P_pW5njhusAis6JT9", "ts": "2026-11-14T19:47:33+00:00", "est": false, "title": "", "text": "새벽 4시까지 진행 된 합방 ..!\n오늘 레슨두 하고 왔다보니 체력이 고갈인데두\n가ㅡㅡ맨의 부름에 또 한달음에 달려가\n열시미 텐션 올려서 하구 왔답니다 !!\n\n참 외로웠는데 등장해준\n체리단 너무너무 고마워요 🥲\n체리단 한명도 안온다고 놀림 받았는데\n그래두 기 살려주구 가구 ㅎㅎ 고맙습니댜ㅜ..\n\n현재시각 4:45 !\n집 무사히 도착 했구여\n쪼금 자구 낮에 페스티벌을 가보려구 해요!\n아마 🍒오후 2:30~3:30 사이 !!🍒\n이런게 알고리즘 잘 탄다길래🥹\n열심히 하는 체리 망강부,,\n\n요즘 컨디션이 사실 너무 안좋아서\n티 안내려구 하구 있는데여 !\n체리 예뿌게 봐주세요 🥹\n입술도 붓고 눈도 붓고 난리야 ~\n(그런데도 실물 1등 열번이나 해땨??? 하항)\n\n버티면 알고리즘 열리게찌? ㅜ..\n그래두 웃으면서 열시미 하구 있으께여!\n다들 보러왕 ~~ 덕분에 행복한 토요일 밤이에여💖\n고마워 진짜루", "imgs": ["https://yt3.ggpht.com/tFKVx6SLL1lr89DyYS3dUb2zoG0aNpUCKO34PW462UPaVQl5iNh2RzJpjhY4C8KR3iXZrHq2QnAUi_o=s1576-c-fcrop64=1,00001ff0ffffe00f-rw-nd-v1", "https://yt3.ggpht.com/hGnBfGHHUzAe2-SkFR3DrybgTw0pHtxVmxujuSvjp6ts9hAOelHuv-_ohRZJLu929NVRXGiY-0XZ7g=s3024-c-fcrop64=1,00002000ffffdfff-rw-nd-v1", "https://yt3.ggpht.com/5CbcvqynltmytOfcvpowBGAtgHxJPivj89qSQv02PBn41LfBt8MI3pZzULzNGIw2d334x2TELo5Vh2s=s4284-c-fcrop64=1,00002000ffffdfff-rw-nd-v1", "https://yt3.ggpht.com/ZybLw10yvGVqwQFZlLg7i23_2pIXRo0UiF6Iq8L24s84FhoYyvaD6lhs75BTsBff9SYGpRJw99tTyA=s800-c-fcrop64=1,00000000ffffffff-rw-nd-v1"], "poll": [], "video": null, "like": "3", "cmt": "1", "k": "yt:channel/UC-jitPLnys7CFEaY50mfpKw", "member": "체리", "pg": ""}, {"id": "yt:UgkxDp75KUaBdKQp5VgAjcoVuqQ-F02yUxq7", "src": "yt", "url": "https://www.youtube.com/post/UgkxDp75KUaBdKQp5VgAjcoVuqQ-F02yUxq7", "ts": "2026-11-14T19:42:08+00:00", "est": false, "title": "", "text": "토요일날 내가 5:00에온다하고 내가 까먹어서 미안해 \n고개숙여 도개자박고 시작했으니 봐죠ㅠ\n요즘정신이없오,,,ㅠㅜ\n\n오늘도 지금이랑 놀아줘서 고마워여😬😬\n나는 진짜 부끄러워 죽을뻔했네,,,\n제에에에발 노래 그만시켜!!!!!\n나진짜,,,, 살이 더빠질꺼같아!!!\n\n일요일은 모바일 켜보꺄…???\n아님 컴퓨터랑 친해지길 바래를 찍어볼까,,,,\n허허허☹️☹️\n이것저것만져보는중인대 어려워죽게써,,,\n\n다들 잘자고 우린 일요일날 오후에 내가 게시물에\n방송시간 올릴께!!!! \n다들 잘쟈 👋🏻👋🏻굿나잇 💕", "imgs": ["https://yt3.ggpht.com/BywoA-8qKH4rAckPOqfFZWuPsEuhQ6PoCnzVNZGLQ1a67AIyWrJ2Ww49cjRLvlxQUfvjWSt-2zmM=s387-c-fcrop64=1,0000362dffffc9d2-nd-v1-rwa", "https://yt3.ggpht.com/TNv-XH5YNYi2ZUU1fkDfX_bUW5N_dLNqcLSqpocosYJgHByq3sWVyXOAlZBhF2hemz8Qyq2-tRvSGg=s308-c-fcrop64=1,0000453fffffbac0-nd-v1-rwa", "https://yt3.ggpht.com/9B20uhE08uvcGjSqiHVuz7nK9LviUFxNCTkOAM4ugTPoeKlUPfZEW3xv9r6RVM4BpQA3GpdrihhoyIA=s385-c-fcrop64=1,0000368effffc971-nd-v1-rwa"], "poll": [], "video": null, "like": "18", "cmt": "4", "k": "yt:channel/UCJiSZYq6JWRv3RPmOdr-0VQ", "member": "지금이", "pg": ""}, {"id": "yt:UgkxH64edFBjdxQyw5SEQYGsaSo4j-vuDgA_", "src": "yt", "url": "https://www.youtube.com/post/UgkxH64edFBjdxQyw5SEQYGsaSo4j-vuDgA_", "ts": "2026-11-14T19:35:08+00:00", "est": false, "title": "", "text": "빼빼로 말고 초코로 통일 하여\n팬분들 제가 늦었지만 오늘 일요일 선물 보내드릴게요\n늘 감사합니다\n\n오늘 방송 킬거에요 \n생각할게 좀 있어섭 ! 음 몇시에 킬지는 모르겠어요", "imgs": ["https://yt3.ggpht.com/Hnr_rR4wxLjL29mDDKOdq8iTDendCauE9oo_nMQAKSyCED1i5qH2mhgQqZL4-aP2R8P_6tqI1GCy4w=s2316-c-fcrop64=1,00002000ffffdfff-rw-nd-v1"], "poll": [], "video": null, "like": "2", "cmt": "", "k": "yt:channel/UC4cdinD3ZjJy1B2ChfoJYaw", "member": "찡찡시아", "pg": ""}, {"id": "soop:212655645", "src": "soop", "url": "https://www.sooplive.com/station/siahag/post/212655645", "ts": "2026-11-14T18:45:49+00:00", "est": false, "title": "나 찡시", "text": "스타 하고 싶다", "imgs": [], "poll": [], "video": null, "like": "4", "cmt": "4", "k": "soop:siahag", "member": "찡찡시아", "pg": ""}, {"id": "yt:UgkxlZT0DkbEvkBud4hc-mcGLxNr5erMio9r", "src": "yt", "url": "https://www.youtube.com/post/UgkxlZT0DkbEvkBud4hc-mcGLxNr5erMio9r", "ts": "2026-11-14T18:45:44+00:00", "est": false, "title": "", "text": "화장을 햇어여댓는데 일오나자마자 그냥 하루종일 울어서 오늘은 침대눕방 4시요… 낼은 팀엠비 가기전 첫날이니까 … 이쁘게하고 오께요 오늘까지만 바주셈…. ㅠ. \n\n일단 오방공4시\n\n#마예준 #팀엠비 #신입 #여캠", "imgs": [], "poll": [], "video": null, "like": "", "cmt": "", "k": "yt:channel/UC1d2gtUwsbpXN41gouORmzw", "member": "(??)비비", "pg": ""}, {"id": "soop:212647535", "src": "soop", "url": "https://www.sooplive.com/station/bora99/post/212647535", "ts": "2026-11-14T16:56:43+00:00", "est": false, "title": "마범대MT", "text": "드디어 완성체 마범대MT 갑니다!\n스타대학 최초 첫날은 방송 두번째날은 비방 MT입니다..\n오늘 엠티전 막방이라고 챙겨주신 팬분들 다 너무너무 감사해용~\n재밋게다녀오겠습니다!\n저는 이따 마사장님방송차에 픽되었기때문에 12시30분쯤 마사장님방송에서 뵐께요!", "imgs": ["https://stimg.sooplive.co.kr/NORMAL_BBS/3/22078443/27801794675278669.png"], "poll": [], "video": null, "like": "21", "cmt": "2", "k": "soop:bora99", "member": "3-P 구보라", "pg": "mbu"}, {"id": "soop:212647035", "src": "soop", "url": "https://www.sooplive.com/station/tiger3006/post/212647035", "ts": "2026-11-14T16:50:51+00:00", "est": false, "title": "마범대 MT", "text": "낮 12시 30분 전후로 뵙겠습니다.\n\n많은 관심 부탁 드립니다.", "imgs": ["https://stimg.sooplive.co.kr/NORMAL_BBS/4/21592474/68881794675019477.png"], "poll": [], "video": null, "like": "47", "cmt": "1", "k": "soop:tiger3006", "member": "마예준", "pg": ""}, {"id": "soop:212647035", "src": "soop", "url": "https://www.sooplive.com/station/tiger3006/post/212647035", "ts": "2026-11-14T16:50:51+00:00", "est": false, "title": "마범대 MT", "text": "낮 12시 30분 전후로 뵙겠습니다.\n\n많은 관심 부탁 드립니다.", "imgs": ["https://stimg.sooplive.co.kr/NORMAL_BBS/4/21592474/68881794675019477.png"], "poll": [], "video": null, "like": "47", "cmt": "1", "k": "soop:tiger3006", "member": "이사장 마예준", "pg": "mbu"}, {"id": "yt:Ugkxa29_N3dD3VMWBn0jzCR-YtFHahfSrOQY", "src": "yt", "url": "https://www.youtube.com/post/Ugkxa29_N3dD3VMWBn0jzCR-YtFHahfSrOQY", "ts": "2026-11-14T16:09:39+00:00", "est": false, "title": "", "text": "인기투표에서 9번이나 1등한 체리\n실물 1등 권체리 ㄷㄷ \n우연이랑 합방중이에요~🍒\n체리단 .. 나 보러와조..", "imgs": [], "poll": [], "video": {"id": "3lLifoqxXSU", "title": "1+1=우요미압구정 인기투표하러 가는중♥ 시그 50프로 할인중!", "thumb": "https://i.ytimg.com/vi/3lLifoqxXSU/hqdefault.jpg?sqp=-oaymwEcCOADEI4CSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBosEoZ87H4JhbfXUVi3W-0b0dYzg"}, "like": "2", "cmt": "", "k": "yt:channel/UC-jitPLnys7CFEaY50mfpKw", "member": "체리", "pg": ""}, {"id": "yt:UgkxzgV3-1rSKwgHlpIvihzSYkLH1QQ3IwN5", "src": "yt", "url": "https://www.youtube.com/post/UgkxzgV3-1rSKwgHlpIvihzSYkLH1QQ3IwN5", "ts": "2026-11-14T14:15:00+00:00", "est": false, "title": "", "text": "매번 모든 일이 원하는 방향대로\n흘러가지는 않는 것 같습니다..\n\n아버지께서 통증이 심하셔서\n약을 다시 드시고 주무시는 걸 보고\n이따 늦게라도 잠시  방송 켜겠습니다.", "imgs": [], "poll": [], "video": null, "like": "12", "cmt": "6", "k": "yt:channel/UCorSu3etifKjKdha1MkfFMg", "member": "자대", "pg": ""}, {"id": "soop:212617681", "src": "soop", "url": "https://www.sooplive.com/station/arr0530/post/212617681", "ts": "2026-11-14T12:14:01+00:00", "est": false, "title": "비상!! 라박공장 돌아갑니당..ㅠㅠ", "text": "꼴지 안할수있게 도와주실 오빠들 이쓰까요..?\n어제 나름 3상1패 했슴다!!!!\n1000개부터 방셀있슴다!!!\n도와쥬세요 ㅠㅠ", "imgs": [], "poll": [], "video": null, "like": "4", "cmt": "1", "k": "soop:arr0530", "member": "8-Z 권아온", "pg": "mbu"}, {"id": "soop:212617353", "src": "soop", "url": "https://www.sooplive.com/station/quaestor1/post/212617353", "ts": "2026-11-14T12:11:10+00:00", "est": false, "title": "MT전 막방으로, 토요일밤에 공장을 돌려보려 합니다 라박x져지x아온x삐약삐약x베트남테란", "text": "내일 MT 가기전에,\n\n에너지좀 끌어올리기위해 공장에 취직했습니다.\n\n라박x져지x아온x삐약삐약x베트남테란\n\n5인이서 공장을 돌리게되었는데..\n\n염치불구하고 부탁 좀 드려보겠습니다..\n\n어떻게.. 없을까요..? \n\n형님누님친구여신남신분들 없을까요?!", "imgs": [], "poll": [], "video": null, "like": "1", "cmt": "", "k": "soop:quaestor1", "member": "Jo-Z 져지현", "pg": "mbu"}, {"id": "yt:UgkxdpIkfaGnXmvklGBkC6C9vHnDrc2nTQkE", "src": "yt", "url": "https://www.youtube.com/post/UgkxdpIkfaGnXmvklGBkC6C9vHnDrc2nTQkE", "ts": "2026-11-14T11:38:11+00:00", "est": false, "title": "", "text": "나 10시까지올깨,,,, 잠을못쟈써,,😮‍💨😮‍💨허허", "imgs": [], "poll": [], "video": null, "like": "12", "cmt": "3", "k": "yt:channel/UCJiSZYq6JWRv3RPmOdr-0VQ", "member": "지금이", "pg": ""}, {"id": "soop:212612715", "src": "soop", "url": "https://www.sooplive.com/station/askl021/post/212612715", "ts": "2026-11-14T11:23:59+00:00", "est": false, "title": "공지", "text": "형님들 8시 40분쯤 올게요!!!", "imgs": [], "poll": [], "video": null, "like": "5", "cmt": "", "k": "soop:askl021", "member": "빡죠스", "pg": ""}, {"id": "soop:212612715", "src": "soop", "url": "https://www.sooplive.com/station/askl021/post/212612715", "ts": "2026-11-14T11:23:59+00:00", "est": false, "title": "공지", "text": "형님들 8시 40분쯤 올게요!!!", "imgs": [], "poll": [], "video": null, "like": "5", "cmt": "", "k": "soop:askl021", "member": "Sp-P 빡죠스", "pg": "mbu"}, {"id": "soop:212612561", "src": "soop", "url": "https://www.sooplive.com/station/rlarnfk24/post/212612561", "ts": "2026-11-14T11:22:21+00:00", "est": false, "title": "마지막 공지..", "text": "4:4 빨무를 하게 되었습니다..\n입장료 3천개인데\n도와주실 형님 있을까요...", "imgs": [], "poll": [], "video": null, "like": "2", "cmt": "", "k": "soop:rlarnfk24", "member": "Ja-T 만두호성", "pg": "mbu"}, {"id": "soop:212611917", "src": "soop", "url": "https://www.sooplive.com/station/lyh8808/post/212611917", "ts": "2026-11-14T11:15:34+00:00", "est": false, "title": "오늘 마범대 멤버들이랑 모여서", "text": "4:4 빠무합니다\n\n입장료 3000개 받고있어요!!! 저랑 호선이형이랑 밸로\n\n요새 빠무공장 자주돌아가네요.... 애들이랑 같이 스타하면서 즐겁게 팀플하는데\n\n입장료 조금씩만도와주세요!!", "imgs": [], "poll": [], "video": null, "like": "4", "cmt": "", "k": "soop:lyh8808", "member": "G-Z 이영한", "pg": "mbu"}, {"id": "soop:212611581", "src": "soop", "url": "https://www.sooplive.com/station/rlarnfk24/post/212611581", "ts": "2026-11-14T11:12:15+00:00", "est": false, "title": "마지막 2부.........", "text": "마지막 2부입니다................이번주\n\n현재 200개........ 부탁드립니다", "imgs": [], "poll": [], "video": null, "like": "1", "cmt": "", "k": "soop:rlarnfk24", "member": "Ja-T 만두호성", "pg": "mbu"}, {"id": "soop:212611267", "src": "soop", "url": "https://www.sooplive.com/station/ghtjs3833/post/212611267", "ts": "2026-11-14T11:08:38+00:00", "est": false, "title": "비상..", "text": "형님들 오늘 mt 가기전에 마지막으로 마범대 친구들과 빨무 4:4 하는데 \n입장료가 3000개 라네요...\n\n혹시 입장료 조금만 도와주실형님 계신가용...", "imgs": [], "poll": [], "video": null, "like": "4", "cmt": "", "k": "soop:ghtjs3833", "member": "G-T 최호선", "pg": "mbu"}, {"id": "soop:212607953", "src": "soop", "url": "https://www.sooplive.com/station/rlarnfk24/post/212607953", "ts": "2026-11-14T10:32:32+00:00", "est": false, "title": "SOS", "text": "입장료 3통개입니다..\n도와주실 형님 구합니다..\nhelp me..", "imgs": [], "poll": [], "video": null, "like": "", "cmt": "", "k": "soop:rlarnfk24", "member": "Ja-T 만두호성", "pg": "mbu"}, {"id": "soop:212607647", "src": "soop", "url": "https://www.sooplive.com/station/wlsdkd1/post/212607647", "ts": "2026-11-14T10:28:45+00:00", "est": false, "title": "나 일주일동안 갠방없오..", "text": "나 엠티 다녀와서 \n\n바로 본가내려가야되서\n\n(아부지가 아푸심 ㅠㅠ)\n\n일주일동안 방송 못키는데\n\n4대4 빨무하는거 입장료 좀 도와줄겸\n\n방송좀 놀러와 주실 분?\n\n복귀 5일만에 어제 미니대전도 1승했는데\n\nㅎㅅㅎ..\n\n아무도 없네 흑흑", "imgs": [], "poll": [], "video": null, "like": "8", "cmt": "", "k": "soop:wlsdkd1", "member": "6-P 엄보리", "pg": "mbu"}, {"id": "yt:Ugkx-LymA4bt9EiKVkLJPYaNXxXA5IcRePO6", "src": "yt", "url": "https://www.youtube.com/post/Ugkx-LymA4bt9EiKVkLJPYaNXxXA5IcRePO6", "ts": "2026-11-14T10:06:33+00:00", "est": false, "title": "", "text": "레슨이 끝나구 갈 곳 잃은 체리\n연습실에서 소통뱅 켜께오🍒 5분뒤 ~~\n심심한사람 나랑 수다떨자\n근데 또 알러지가 올라온 여자 체리.\n얼굴 팅팅 부어있어도 놀라지마 ㅠ 눈이 부어있동", "imgs": [], "poll": [], "video": null, "like": "8", "cmt": "", "k": "yt:channel/UC-jitPLnys7CFEaY50mfpKw", "member": "체리", "pg": ""}, {"id": "soop:212605173", "src": "soop", "url": "https://www.sooplive.com/station/ghkdud1617/post/212605173", "ts": "2026-11-14T10:00:45+00:00", "est": false, "title": "구냥", "text": "오늘 방셀찍구 올리고 쉴게여 ㅠ ㅠ \n내일 좋은 컨디션으로 방송하겠습니다 !! \n혹시나 원하는 멤버와 함께 방셀 원하시는분\n계신다면 저에게 따로 쪽지주십시용~~>\u003c \n그 멤버와 함께 방셀 가겠듬니다!! \n그럼 내일보쟈뀽!!!", "imgs": [], "poll": [], "video": null, "like": "13", "cmt": "1", "k": "soop:ghkdud1617", "member": "2-Z 카히리", "pg": "mbu"}, {"id": "soop:212602009", "src": "soop", "url": "https://www.sooplive.com/station/hasaeyo/post/212602009", "ts": "2026-11-14T09:18:09+00:00", "est": false, "title": "1114", "text": "안눙하세요\n어제처럼 수장ck 끝나고 방송하러가면 너무 늦어지는 관계로 오늘 휴방입니따 ㅠㅠㅠㅠ\n\n컨디션 풀충전해서 MT 때 재미있는 모습 보여드리겠습니다 내일 봬요!!", "imgs": [], "poll": [], "video": null, "like": "23", "cmt": "6", "k": "soop:hasaeyo", "member": "B-Z 안눙이", "pg": "mbu"}, {"id": "soop:212601271", "src": "soop", "url": "https://www.sooplive.com/station/arr0530/post/212601271", "ts": "2026-11-14T09:08:36+00:00", "est": false, "title": "오방공", "text": "굿모닝!\n어제 우울해있었어서 미안합니둥 ㅜㅠ\n티가 나면 안되는데 왜이러케 표정관리가 안되는지 헤헤\n오늘은 기분 죠아졌으니까\n재밌게 놀쟈욤\n나 준비하구 7시~7시반쯤 킬게\n이따보쟈!!", "imgs": [], "poll": [], "video": null, "like": "10", "cmt": "2", "k": "soop:arr0530", "member": "8-Z 권아온", "pg": "mbu"}, {"id": "soop:212601111", "src": "soop", "url": "https://www.sooplive.com/station/quaestor1/post/212601111", "ts": "2026-11-14T09:06:40+00:00", "est": false, "title": "11.14", "text": "오늘 방송은 오후 8시~8시 30분 까지 와서 또 열심히\n\n소통도해보고, 놀아도 보며\n\n방송해보도록 하겠습니다!\n\n내일 MT라서 아마 오래는 못할 것 같지만 늘 진심으로 감사드립니다! :)\n\n이따뵙겠습니다! 충성!", "imgs": [], "poll": [], "video": null, "like": "3", "cmt": "", "k": "soop:quaestor1", "member": "Jo-Z 져지현", "pg": "mbu"}, {"id": "soop:212600769", "src": "soop", "url": "https://www.sooplive.com/station/heyyo0123/post/212600769", "ts": "2026-11-14T09:02:38+00:00", "est": false, "title": "1114 오방공!!", "text": "흐앙\n잠을 몰아서 푹 자버렷당\n역시 방종을 늦게하면 일찎 일어나는게 넘나 힘드네여,,,,\n\n내일부터 MT가는데\n이번주 막방 모두 자리해!!!!!\n오후 6시 30분까지 올게용!!", "imgs": [], "poll": [], "video": null, "like": "9", "cmt": "1", "k": "soop:heyyo0123", "member": "7-P 헤요이", "pg": "mbu"}, {"id": "soop:212600253", "src": "soop", "url": "https://www.sooplive.com/station/wlsdkd1/post/212600253", "ts": "2026-11-14T08:56:09+00:00", "est": false, "title": "오뱅", "text": "6시 반쯤 올게여 이따보자", "imgs": [], "poll": [], "video": null, "like": "7", "cmt": "1", "k": "soop:wlsdkd1", "member": "6-P 엄보리", "pg": "mbu"}, {"id": "soop:212600123", "src": "soop", "url": "https://www.sooplive.com/station/have1y/post/212600123", "ts": "2026-11-14T08:54:12+00:00", "est": false, "title": "1114", "text": "어제 2패나 해버렸네요 죄송합니다 ... \n낼 운전 오래해야해서 오늘은 휴방하고 엠티 방송에서 뵐게여", "imgs": [], "poll": [], "video": null, "like": "10", "cmt": "1", "k": "soop:have1y", "member": "6-Z 김채이", "pg": "mbu"}, {"id": "soop:212596843", "src": "soop", "url": "https://www.sooplive.com/station/lyh8808/post/212596843", "ts": "2026-11-14T08:10:10+00:00", "est": false, "title": "와;;;", "text": "잠을 무슨 12시간 넘게 잤네요;;\n\n어제 사슬온리업 끝나고 바로 잠에 들었는데 이제 일어났네요...예비군때매 계속 아침일찍 일어나다보니 잠을 많이 못잤었는데 엄청 푹 잤습니다\n\n오랜만에 풀컨디션인 만큼 방송텐션올려서 7시쯤 올게요!!", "imgs": [], "poll": [], "video": null, "like": "8", "cmt": "", "k": "soop:lyh8808", "member": "G-Z 이영한", "pg": "mbu"}, {"id": "soop:212593031", "src": "soop", "url": "https://www.sooplive.com/station/paralyze92/post/212593031", "ts": "2026-11-14T07:16:19+00:00", "est": false, "title": "오늘", "text": "오후 5시 전으로 올게요\n\n이따 보아요", "imgs": [], "poll": [], "video": null, "like": "4", "cmt": "", "k": "soop:paralyze92", "member": "Ja-P 정경두", "pg": "mbu"}, {"id": "soop:212592449", "src": "soop", "url": "https://www.sooplive.com/station/tiger3006/post/212592449", "ts": "2026-11-14T07:05:33+00:00", "est": false, "title": "수장ck 대결이 받는중입니다ㅜ 비상!!", "text": "부탁드립니다!", "imgs": [], "poll": [], "video": null, "like": "10", "cmt": "", "k": "soop:tiger3006", "member": "마예준", "pg": ""}, {"id": "soop:212592449", "src": "soop", "url": "https://www.sooplive.com/station/tiger3006/post/212592449", "ts": "2026-11-14T07:05:33+00:00", "est": false, "title": "수장ck 대결이 받는중입니다ㅜ 비상!!", "text": "부탁드립니다!", "imgs": [], "poll": [], "video": null, "like": "10", "cmt": "", "k": "soop:tiger3006", "member": "이사장 마예준", "pg": "mbu"}, {"id": "yt:UgkxpnpAzaLoF0el63QbbvkielUUh1Is8tvC", "src": "yt", "url": "https://www.youtube.com/post/UgkxpnpAzaLoF0el63QbbvkielUUh1Is8tvC", "ts": "2026-11-14T06:53:28+00:00", "est": false, "title": "", "text": "애플매장가서 무상교체하구 6시 ON\n\n오늘 아빠강 과메기 먹으루가자해서 같이 머그루강!!!", "imgs": ["https://yt3.ggpht.com/KhXXf2CU6_fq7lq-oxDjO-Tn2SvhJi5FPJf0lU89RktZPkwNfyUrt5zdTmC6LOzBymxjMbBJnmoP=s1199-c-fcrop64=1,00000b06fffff4f9-rw-nd-v1"], "poll": [], "video": null, "like": "9", "cmt": "2", "k": "yt:channel/UCEmUk0KHttpRn9LG-bOTY7A", "member": "먹츄(졸업)", "pg": ""}, {"id": "soop:212590223", "src": "soop", "url": "https://www.sooplive.com/station/ghkdud1617/post/212590223", "ts": "2026-11-14T06:32:27+00:00", "est": false, "title": "공지", "text": "오늘 수장ck를 방송키고 같이 보려고\n알람 많이 맞췄는데 너무 피고내서 다끄고 잤당 ㅠ\n내일 엠티 가기 전에 방셀 다 찍고 가야해서\n밥먹구 수장ck보면서 방셀 좀 찍겠숨니당 ㅇㅅㅇ \n아홉시쯤? 짧방 소통하러 올게요 !!!", "imgs": [], "poll": [], "video": null, "like": "14", "cmt": "1", "k": "soop:ghkdud1617", "member": "2-Z 카히리", "pg": "mbu"}, {"id": "yt:UgkxMfbqW3LMy3drV9l_m9v28yrzLKFOB4g4", "src": "yt", "url": "https://www.youtube.com/post/UgkxMfbqW3LMy3drV9l_m9v28yrzLKFOB4g4", "ts": "2026-11-14T06:06:29+00:00", "est": false, "title": "", "text": "11.14\n\n4시반까지 올게여:)", "imgs": [], "poll": [], "video": null, "like": "3", "cmt": "", "k": "yt:channel/UCB4keNxXCYpircBIgW3OYOw", "member": "혜로로", "pg": ""}, {"id": "yt:UgkxJWU-yjxCb3CO5SeBnQJvyZJQgVyd8iEF", "src": "yt", "url": "https://www.youtube.com/post/UgkxJWU-yjxCb3CO5SeBnQJvyZJQgVyd8iEF", "ts": "2026-11-14T05:45:17+00:00", "est": false, "title": "", "text": "오늘 차 세차를 배우는 방송을 진행하려고 했는데, 재민이한테 다른 일정이 생겨 오늘은 진행하지 못할 것 같습니다.\n\n일정을 다시 잡아서 배우도록 하겠습니다.\n\n아버지 병원은 잘 다녀왔습니다. 걱정해 주신 팬분들께 진심으로 감사드립니다.\n\n이따가 다시 공지 올리겠습니다.", "imgs": [], "poll": [], "video": null, "like": "13", "cmt": "", "k": "yt:channel/UCorSu3etifKjKdha1MkfFMg", "member": "자대", "pg": ""}, {"id": "soop:212584919", "src": "soop", "url": "https://www.sooplive.com/station/khy12088wsss/post/212584919", "ts": "2026-11-14T05:03:21+00:00", "est": false, "title": "공지", "text": "오늘 휴방입니다 내일 합방으로 뵙겠습니다!!", "imgs": [], "poll": [], "video": null, "like": "8", "cmt": "", "k": "soop:khy12088wsss", "member": "Ja-P 쿨지지", "pg": "mbu"}, {"id": "soop:212583287", "src": "soop", "url": "https://www.sooplive.com/station/ehcl000/post/212583287", "ts": "2026-11-14T04:34:07+00:00", "est": false, "title": "오방공〰️〰️", "text": "안녕하세요 또치입니당!\n\n오늘은 4시쯤 오도록 하갰습니당\n\n이따봅시당〰️", "imgs": [], "poll": [], "video": null, "like": "9", "cmt": "2", "k": "soop:ehcl000", "member": "B-Z 또치", "pg": "mbu"}, {"id": "yt:UgkxR_mmJFIvegSfaPNMpz2QN1eeCHljEtH_", "src": "yt", "url": "https://www.youtube.com/post/UgkxR_mmJFIvegSfaPNMpz2QN1eeCHljEtH_", "ts": "2026-11-14T03:53:24+00:00", "est": false, "title": "", "text": "35시간 날라감..\n\n부산 2박 코스\n1일:청사포\u003c조개구이>  서면\u003c밀양 돼지국밥>\n2일:광안리\u003c회센터 감성돔> 서면\u003c원조서면양곱창>\n\n고마운 페가수스옵 \n퍼킹옵 과일비 차비 고마오..😭\n\n다들 도와줘서 감쟈합니다🐈‍⬛🐾\n\n방송이 날라 갈 수 있으니 이래서 라이브 꼭 봐야해!! 🖤🖤", "imgs": ["https://yt3.ggpht.com/biHi1yCpth-JWLvyP51P7AyhlW4Qn7TDBqpsBt5ZvBc6tPA64S4f_Fixh28iXw8jw0jpbv6S0Aao9Q=s1206-c-fcrop64=1,00004520ffffbadf-rw-nd-v1", "https://yt3.ggpht.com/6KEYoZ6XEZ3aTgQIwcLDXUjWjfK8AyZ2KSeAsN4FLW0A3VnN6gPpLDSqIuE6jvuxngqJC1jy6lt-En8=s1206-c-fcrop64=1,00004139ffffbec6-rw-nd-v1", "https://yt3.ggpht.com/PdxbAXdJjMh3e4U_E5HaDFv_0D_izbIBf2L3D6jkFwKRHjkKDX6q1LNgJv9NypKhlCqK1cGliCHL1Q=s941-c-fcrop64=1,37f60000c809ffff-rw-nd-v1", "https://yt3.ggpht.com/0e-wYhbt8R2X51bxLEXJXxPDUBjzxpwgBZFE8yGpFdnZKxFKpRU7Z5eMC0-h35oxct1XwuTYAOM4FA=s3213-c-fcrop64=1,00003800ffffc7ff-rw-nd-v1", "https://yt3.ggpht.com/eP23-K1Nl5j96XCM3V8YqlLV85QGjox4LRX7GMi7379f0u-_t-51DG8sdhKokVlhgP5XoMWcgNLuMug=s3213-c-fcrop64=1,38000000c7ffffff-rw-nd-v1", "https://yt3.ggpht.com/_zzBBmlbiX1VzU_KsxNm8v-zlDLnsRFjLv241Sw34g3wfHYJ2pke4_NROxi0jlua6AR437u9qvYYxA=s1206-c-fcrop64=1,00004520ffffbadf-rw-nd-v1", "https://yt3.ggpht.com/mLKfGw_wjwO3NsDfB9GKogaUeM0wqRrM-b-3MX9g3ClB5QbM7Gl-5EVUpCstgMMilgixdNuysYaI-50=s1206-c-fcrop64=1,00004520ffffbadf-rw-nd-v1", "https://yt3.ggpht.com/5JLAdVweroPF12TPWkotsTdnA329oIPgOBpnbrdeN2Yq302KgcSLRBz66NmHiF5YZxxk4Rk4byKlnA=s3213-c-fcrop64=1,00003800ffffc7ff-rw-nd-v1"], "poll": [], "video": null, "like": "14", "cmt": "1", "k": "yt:channel/UC4ggmHrlNDufVGmb28eYjQQ", "member": "백설빈", "pg": ""}, {"id": "yt:UgkxXuvy1lXUU9kvTkgeh2AE9Fv_eTFjKD_Z", "src": "yt", "url": "https://www.youtube.com/post/UgkxXuvy1lXUU9kvTkgeh2AE9Fv_eTFjKD_Z", "ts": "2026-11-13T20:24:37+00:00", "est": false, "title": "", "text": "급하게 방종해서 죄송합니다.\n일단 아버지 모시고 병원 다녀오겠습니다.\n그리고 이따가 제 친구 재민이한테\n세차 교육방송 받는 방송으로 오겠습니다.\n다시 한 번 죄송합니다.", "imgs": [], "poll": [], "video": null, "like": "13", "cmt": "3", "k": "yt:channel/UCorSu3etifKjKdha1MkfFMg", "member": "자대", "pg": ""}, {"id": "yt:UgkxE-TAUBjQBw2ZbEKBnU3xqBOwdUUNuZiW", "src": "yt", "url": "https://www.youtube.com/post/UgkxE-TAUBjQBw2ZbEKBnU3xqBOwdUUNuZiW", "ts": "2026-11-13T19:50:07+00:00", "est": false, "title": "", "text": "2알 남은 신입은 무쏘유ㅗ요 https://www.youtube.com/live/Ad_REYB7...", "imgs": [], "poll": [], "video": null, "like": "2", "cmt": "", "k": "yt:channel/UC1d2gtUwsbpXN41gouORmzw", "member": "(??)비비", "pg": ""}, {"id": "soop:212561617", "src": "soop", "url": "https://www.sooplive.com/station/tiger3006/post/212561617", "ts": "2026-11-13T18:31:49+00:00", "est": false, "title": "(26.11.14) MB 최신시그 리스트", "text": "", "imgs": ["https://stimg.sooplive.co.kr/NORMAL_BBS/4/21592474/73521794594602922.png"], "poll": [], "video": null, "like": "30", "cmt": "", "k": "soop:tiger3006", "member": "마예준", "pg": ""}, {"id": "soop:212561617", "src": "soop", "url": "https://www.sooplive.com/station/tiger3006/post/212561617", "ts": "2026-11-13T18:31:49+00:00", "est": false, "title": "(26.11.14) MB 최신시그 리스트", "text": "", "imgs": ["https://stimg.sooplive.co.kr/NORMAL_BBS/4/21592474/73521794594602922.png"], "poll": [], "video": null, "like": "30", "cmt": "", "k": "soop:tiger3006", "member": "이사장 마예준", "pg": "mbu"}, {"id": "yt:UgkxceyA4EOLnT7eOWO34xLFUBDIimnQfSdH", "src": "yt", "url": "https://www.youtube.com/post/UgkxceyA4EOLnT7eOWO34xLFUBDIimnQfSdH", "ts": "2026-11-13T17:11:42+00:00", "est": false, "title": "", "text": "아오 이것저것눌러보는데 잘 안된다요,,,,\n내일은 아주아주 천천히 세팅부터 싹다 해보자,,,,\n\n컴맹 1일차,,,,,,,,,,🥹\n내일은 피부과 들렸다가 가족들이랑 밥먹구\npm5:00부터 방송온!!!🫡🫡\n나 이제 잘래ㅠ 어려워ㅠㅡㅠ\n다들 잘자고 우리 이따 오후에보자\n\n어떤게나은지 어떤걸 추가하고 빼야하는지 알려줘\n다들잘장👋🏻👋🏻", "imgs": ["https://yt3.ggpht.com/4YasTA96aAmzZHaSxuSB2bxdneMy2Ovz-0Enfc3mPFoppqvJbDbmmJ2ByRSDu5D-RT2vVIGlDPcc=s409-c-fcrop64=1,000031faffffce05-nd-v1-rwa"], "poll": [], "video": null, "like": "58", "cmt": "12", "k": "yt:channel/UCJiSZYq6JWRv3RPmOdr-0VQ", "member": "지금이", "pg": ""}, {"id": "yt:UgkxLFjTOjwd4MfNToaYhWXb0uIj3PAfL2iA", "src": "yt", "url": "https://www.youtube.com/post/UgkxLFjTOjwd4MfNToaYhWXb0uIj3PAfL2iA", "ts": "2026-11-13T17:02:22+00:00", "est": false, "title": "", "text": "갑자기 방송이 터지고 겨울준비가 이렇게 마나여,,,, 미투규 미루다갘ㅋㅋ!! 용달 불럿고 집가서 폰방하께엽!", "imgs": ["https://yt3.ggpht.com/31Kl679bJ4o4e3c7I7I7VWIlFtgfqswnNByaEVllcq1Heyas8O9w_2g5GWG02nIItx4d4eLBKC9B4A=s1029-c-fcrop64=1,03fa0000fc05ffff-rw-nd-v1"], "poll": [], "video": null, "like": "2", "cmt": "", "k": "yt:channel/UC1d2gtUwsbpXN41gouORmzw", "member": "(??)비비", "pg": ""}, {"id": "soop:212552687", "src": "soop", "url": "https://www.sooplive.com/station/tiger3006/post/212552687", "ts": "2026-11-13T16:25:39+00:00", "est": false, "title": "저티어 수장 CK", "text": "오후 3시 30분쯤 뵙겠습니다.\n\n많은 관심 부탁 드립니다.", "imgs": ["https://stimg.sooplive.co.kr/NORMAL_BBS/4/21592474/55591794587106152.png"], "poll": [], "video": null, "like": "89", "cmt": "11", "k": "soop:tiger3006", "member": "마예준", "pg": ""}, {"id": "soop:212552687", "src": "soop", "url": "https://www.sooplive.com/station/tiger3006/post/212552687", "ts": "2026-11-13T16:25:39+00:00", "est": false, "title": "저티어 수장 CK", "text": "오후 3시 30분쯤 뵙겠습니다.\n\n많은 관심 부탁 드립니다.", "imgs": ["https://stimg.sooplive.co.kr/NORMAL_BBS/4/21592474/55591794587106152.png"], "poll": [], "video": null, "like": "89", "cmt": "11", "k": "soop:tiger3006", "member": "이사장 마예준", "pg": "mbu"}, {"id": "soop:212552267", "src": "soop", "url": "https://www.sooplive.com/station/lyh8808/post/212552267", "ts": "2026-11-13T16:20:53+00:00", "est": false, "title": "오랜만에", "text": "개인방송 켰어요 예비군 4일 잘 마치고\n\n오늘 저녁 합방 미니대전도 잘 마치고\n\n집에와서 방송 켰습니다!!!\n\n마침 오랜만에 멤버들 헤요이 보라 카히리랑 같이 또 친목다질겸 오늘 스타 마무리겸 2부 사슬온리업꼇습니다!!\n\n입장료 받고있는데 조금씩만도와주세요!!!!", "imgs": [], "poll": [], "video": null, "like": "4", "cmt": "", "k": "soop:lyh8808", "member": "G-Z 이영한", "pg": "mbu"}, {"id": "yt:UgkxXYaS53cgnUkdjGYFpDN4JKIHxVPveqFV", "src": "yt", "url": "https://www.youtube.com/post/UgkxXYaS53cgnUkdjGYFpDN4JKIHxVPveqFV", "ts": "2026-11-13T14:41:39+00:00", "est": false, "title": "", "text": "생각보다 인천으로 가는 시간이\n늦어 졌습니다.\n아마 12시쯤 도착 예상이고\n가서 짐 정리하고 \n최대한 빠르게 키도록 하겠습니다.", "imgs": [], "poll": [], "video": null, "like": "10", "cmt": "4", "k": "yt:channel/UCorSu3etifKjKdha1MkfFMg", "member": "자대", "pg": ""}, {"id": "yt:UgkxoZVLgm-Rfc0cX3Ikpz2BjJOV4xN2jhYv", "src": "yt", "url": "https://www.youtube.com/post/UgkxoZVLgm-Rfc0cX3Ikpz2BjJOV4xN2jhYv", "ts": "2026-11-13T14:11:25+00:00", "est": false, "title": "", "text": "밥먹고 킬떼요ㅠㅑㅣ아줌머가 눈치줘여ㅜ릉", "imgs": [], "poll": [], "video": null, "like": "3", "cmt": "", "k": "yt:channel/UC1d2gtUwsbpXN41gouORmzw", "member": "(??)비비", "pg": ""}, {"id": "yt:Ugkx2DmlIEObBKwRE34W218zBZmrIGfgdfbl", "src": "yt", "url": "https://www.youtube.com/post/Ugkx2DmlIEObBKwRE34W218zBZmrIGfgdfbl", "ts": "2026-11-13T12:39:08+00:00", "est": false, "title": "", "text": "옾톡 다시 만들었는데 \n관리가 아예 안되서 후원자 위주로 연락받으께요\n서운해하지말기 🧸\n\n묘아이와 친구들\nhttps://open.kakao.com/o/sinUsVWi", "imgs": [], "poll": [], "video": null, "like": "7", "cmt": "", "k": "yt:channel/UCm1HaPYRvFED5zdbV72TwJg", "member": "묘아이", "pg": ""}, {"id": "yt:UgkxxCUDqV9Cb5nPYLpNaqdLxDxaVBZk7Xh4", "src": "yt", "url": "https://www.youtube.com/post/UgkxxCUDqV9Cb5nPYLpNaqdLxDxaVBZk7Xh4", "ts": "2026-11-13T12:23:16+00:00", "est": false, "title": "", "text": "빫방 지듬 ㄱㄱ", "imgs": [], "poll": [], "video": null, "like": "1", "cmt": "", "k": "yt:channel/UC1d2gtUwsbpXN41gouORmzw", "member": "(??)비비", "pg": ""}, {"id": "soop:212523463", "src": "soop", "url": "https://www.sooplive.com/station/hasaeyo/post/212523463", "ts": "2026-11-13T12:01:13+00:00", "est": false, "title": "(수정)지금", "text": "가고있습니돠악\n연습실 자리 또 셋팅해야해서\n11시에 뵙겠습니댜 더 일찍 올수도 있어요!!\n\n++ 10시반에 도착해서 같이 응원하고 잇어욜!!\n갠방은 끝나는대로 켜야될 것 같아요", "imgs": [], "poll": [], "video": null, "like": "12", "cmt": "6", "k": "soop:hasaeyo", "member": "B-Z 안눙이", "pg": "mbu"}, {"id": "yt:UgkxNeRHxZ2Zf0chmSDVp6a1PJfknKSMQTDe", "src": "yt", "url": "https://www.youtube.com/post/UgkxNeRHxZ2Zf0chmSDVp6a1PJfknKSMQTDe", "ts": "2026-11-13T11:58:02+00:00", "est": false, "title": "", "text": "캠세팅 완!!!🫶🏻헤헤\n아직버벅거리는데!!!!!!!😭😭\n이따가 9:30분에 킬께!!\n이따보쟈💕💕", "imgs": ["https://yt3.ggpht.com/pvQd5ZgxA2qd3ClmFECvO6B5PUOcPMi4x6zZ8SrAjrqrxECAh8hr2De-Agz1qybDuwEPRp2Yh0AuqV8=s517-c-fcrop64=1,00001d60ffffe29f-nd-v1-rwa"], "poll": [], "video": null, "like": "60", "cmt": "7", "k": "yt:channel/UCJiSZYq6JWRv3RPmOdr-0VQ", "member": "지금이", "pg": ""}, {"id": "yt:UgkxKkb7ykh-XAPXxIrASku_CNhhQbtZYoSr", "src": "yt", "url": "https://www.youtube.com/post/UgkxKkb7ykh-XAPXxIrASku_CNhhQbtZYoSr", "ts": "2026-11-13T10:47:18+00:00", "est": false, "title": "", "text": "24시간 노방종 일주일 조져야겟움 .", "imgs": [], "poll": [], "video": null, "like": "5", "cmt": "1", "k": "yt:channel/UCm1HaPYRvFED5zdbV72TwJg", "member": "묘아이", "pg": ""}, {"id": "yt:UgkxDpADu9lHyjBuXAqeVowEJgfopSJ5oE7M", "src": "yt", "url": "https://www.youtube.com/post/UgkxDpADu9lHyjBuXAqeVowEJgfopSJ5oE7M", "ts": "2026-11-13T09:30:11+00:00", "est": false, "title": "", "text": "나 지금 캠세팅중인데 옴총오래걸리네ㅠㅡㅠ\n캠으로한번켜보고시퍼서!!!\n4개월만에 컴퓨터 샀댜 히히 \n아마 8:30 ~9:00?????????????\n그때되려나????????????\n그때되면좋겠댜 암튼 나 캠세팅되면그걸로켜볼께", "imgs": ["https://yt3.ggpht.com/mnDwbqhIWffZzwkMGiAgLATixE88zMy3IxHJlJipnHb4zWT_ZjHwUgYQhLdv3JMQE0FB-gWlfZcY-Q=s1184-c-fcrop64=1,000014d2ffffeb2d-rw-nd-v1"], "poll": [], "video": null, "like": "68", "cmt": "9", "k": "yt:channel/UCJiSZYq6JWRv3RPmOdr-0VQ", "member": "지금이", "pg": ""}, {"id": "yt:UgkxS13okL7vdkIDs0gU7j9BdBkcj5X67K-v", "src": "yt", "url": "https://www.youtube.com/post/UgkxS13okL7vdkIDs0gU7j9BdBkcj5X67K-v", "ts": "2026-11-13T08:19:40+00:00", "est": false, "title": "", "text": "오방공 8시쯤 ! 올게요 🫶\n병원가따가 주사맞구 와야집 🥲", "imgs": [], "poll": [], "video": null, "like": "12", "cmt": "", "k": "yt:channel/UC-jitPLnys7CFEaY50mfpKw", "member": "체리", "pg": ""}, {"id": "soop:212500777", "src": "soop", "url": "https://www.sooplive.com/station/have1y/post/212500777", "ts": "2026-11-13T07:23:45+00:00", "est": false, "title": "1113", "text": "손풀고 7시 전에 올게요", "imgs": [], "poll": [], "video": null, "like": "7", "cmt": "1", "k": "soop:have1y", "member": "6-Z 김채이", "pg": "mbu"}, {"id": "soop:212496699", "src": "soop", "url": "https://www.sooplive.com/station/heyyo0123/post/212496699", "ts": "2026-11-13T06:14:09+00:00", "est": false, "title": "1113 오방공 !", "text": "어제 야무지게 마사장님이 사준 갈비 먹구\n인증사진 찍는데\n대충찍으니까 멋있게 찍어달라고 해서\n야무지게 찍었습니다 ㅎㅎ\n근데 눈빛이 왤케 무서운것같지\nㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ\n\n그리고 오늘 미니대전있어요!!!\n3시반까지 올게용 ~.~!!", "imgs": ["https://stimg.sooplive.co.kr/NORMAL_BBS/3/23216633/18251794550361435.jpeg"], "poll": [], "video": null, "like": "18", "cmt": "1", "k": "soop:heyyo0123", "member": "7-P 헤요이", "pg": "mbu"}, {"id": "yt:Ugkxj_jNstVlTpzE2E20Ap4UVwZq8l4EJ9fz", "src": "yt", "url": "https://www.youtube.com/post/Ugkxj_jNstVlTpzE2E20Ap4UVwZq8l4EJ9fz", "ts": "2026-11-13T05:59:30+00:00", "est": false, "title": "", "text": "빠네파스타 시켜먹는 먹츄야🐽\n\n우리 너구리는 행동대장 왈왈왈\n\n\n오방휴\n\n내일보아오왈왈\n\n\n현재 완튜 부산펀딩 진행중 20/70 많관뷰❤️\n\n펀딩 18일까지 달성시 19일부터 바로 부산 2박3일슛\n토요일에 드론쇼도 한대!!!!!\n\n\n계획은 왈민주가 다 짜주기로함~~후훗^^", "imgs": ["https://yt3.ggpht.com/QDRYN1pTMxHTi4BzVQN1qa6pSw2Ssl0cF-VnWclgH1WIys3YTY1fbMCg8Mcy8YM2QErcOyaLqRkm=s3024-c-fcrop64=1,00002000ffffdfff-rw-nd-v1", "https://yt3.ggpht.com/UffnKexGoyIqj21c6vrd4LxsrAg9oOVy3wfJWIrkdcZZHyZR9ezUJKv3VYLtS1y6TmmbBn5t_Xn1=s4284-c-fcrop64=1,20000000dfffffff-rw-nd-v1", "https://yt3.ggpht.com/skJok9z-vUOffDfIk2B5K5huxq0Sal5yZ7Qw5sOcds9L3VWwJhSsH4f4aedtdmsTrsM8mE03LB0Jia0=s4284-c-fcrop64=1,20000000dfffffff-rw-nd-v1", "https://yt3.ggpht.com/NjC9VcN1pXYJ-4a5IE7KQoOP8-evW_shp6aBTmvL5SQfuALiUudWnNX40AWVBWAWRaXemxwJtYzVHGg=s4284-c-fcrop64=1,20000000dfffffff-rw-nd-v1"], "poll": [], "video": null, "like": "5", "cmt": "11", "k": "yt:channel/UCEmUk0KHttpRn9LG-bOTY7A", "member": "먹츄(졸업)", "pg": ""}, {"id": "soop:212494863", "src": "soop", "url": "https://www.sooplive.com/station/rldyal71/post/212494863", "ts": "2026-11-13T05:38:16+00:00", "est": false, "title": "오뱅공", "text": "준비하고 바로 킬게여 !!!", "imgs": [], "poll": [], "video": null, "like": "10", "cmt": "2", "k": "soop:rldyal71", "member": "8-P 휘연", "pg": "mbu"}, {"id": "soop:212494815", "src": "soop", "url": "https://www.sooplive.com/station/arr0530/post/212494815", "ts": "2026-11-13T05:37:23+00:00", "est": false, "title": "오방공", "text": "미니대전 있는날입니당\n이따 세시에 킬게요~!", "imgs": [], "poll": [], "video": null, "like": "9", "cmt": "3", "k": "soop:arr0530", "member": "8-Z 권아온", "pg": "mbu"}, {"id": "soop:212494189", "src": "soop", "url": "https://www.sooplive.com/station/askl021/post/212494189", "ts": "2026-11-13T05:23:37+00:00", "est": false, "title": "공지", "text": "형님들 오늘 미니대전 두탕있습니다\n\n세시전에 방송 키겠습니다!!!", "imgs": [], "poll": [], "video": null, "like": "11", "cmt": "", "k": "soop:askl021", "member": "빡죠스", "pg": ""}, {"id": "soop:212494189", "src": "soop", "url": "https://www.sooplive.com/station/askl021/post/212494189", "ts": "2026-11-13T05:23:37+00:00", "est": false, "title": "공지", "text": "형님들 오늘 미니대전 두탕있습니다\n\n세시전에 방송 키겠습니다!!!", "imgs": [], "poll": [], "video": null, "like": "11", "cmt": "", "k": "soop:askl021", "member": "Sp-P 빡죠스", "pg": "mbu"}, {"id": "soop:212492965", "src": "soop", "url": "https://www.sooplive.com/station/ghkdud1617/post/212492965", "ts": "2026-11-13T04:57:21+00:00", "est": false, "title": "공지", "text": "일어나뚜아.. \n어제 집 도착해서 씻고 비로 \n비방스타 다섯시까지 하다가\n배고파서 밥먹고 잠들었더니 \n완전 푹 자버렸지 모야😋\n오늘은 실력점검의 날입니당\n저는 따로 테스트를 여섯시에 봐서 \n손 좀 풀고 5:20pm에 오겠습니당!!", "imgs": [], "poll": [], "video": null, "like": "15", "cmt": "4", "k": "soop:ghkdud1617", "member": "2-Z 카히리", "pg": "mbu"}, {"id": "soop:212492873", "src": "soop", "url": "https://www.sooplive.com/station/wlsdkd1/post/212492873", "ts": "2026-11-13T04:55:18+00:00", "est": false, "title": "오뱅", "text": "3시 전까지 오겠습니다\n\n오늘 나 미니대전 화잇팅", "imgs": [], "poll": [], "video": null, "like": "15", "cmt": "3", "k": "soop:wlsdkd1", "member": "6-P 엄보리", "pg": "mbu"}, {"id": "yt:Ugkx1pHB55x27gry7G9wL-YThFixg2XVJeJB", "src": "yt", "url": "https://www.youtube.com/post/Ugkx1pHB55x27gry7G9wL-YThFixg2XVJeJB", "ts": "2026-11-13T04:09:03+00:00", "est": false, "title": "", "text": "오빠들 어제 옆 동네에서\n스타크래프트 경기 하고 왔습니다\n저는 모든 경기 완승 마지막 애결 제가 나와서\n경기했는데 이겼습니다:) 어제 회식하고\n머하고 그래서 방송을 못 켰는데 \n오늘까지 휴방 좀 하고! 좀 체력 회복 후 오겠습니다\n\n요즘 스타한다고 잠을 못자고 옆 동네에서 활동 했어서\nㅠㅠ 😭\n\n암튼! 기다려 주신 분들께 죄송하고\n내일 뵙겠습니다\n\n늦은 공지 죄송해요", "imgs": ["https://yt3.ggpht.com/WNvsQyYRJkO_4tcSzgSdpfjVS6NcHztDiDeyg9_EjuiP7RrMU5VX43jkM3nmkQJnS5DcoLdfyWvP6Q=s678-c-fcrop64=1,380a0000c7f5ffff-rw-nd-v1"], "poll": [], "video": null, "like": "7", "cmt": "1", "k": "yt:channel/UC4cdinD3ZjJy1B2ChfoJYaw", "member": "찡찡시아", "pg": ""}, {"id": "soop:212487873", "src": "soop", "url": "https://www.sooplive.com/station/hasaeyo/post/212487873", "ts": "2026-11-13T03:01:36+00:00", "est": false, "title": "1113", "text": "[긴 글을 주의하십시오]\n\n안농하세요 어제 짧게 야방 키고 엑셀부 ck 너무 새롭고 재미있었어요!!    좋은 컨텐츠 만들어주신 마사장님 최고십니다  \n\n눙 언급하며 응원해주신 분들!! 너무 감사드립니다\n그리도 펀딩 받을 때 도와주신\n탐방 님, 리즈 님, 라방드토끼 님, 넉파 님\n끝나고 고생했다 챙겨주신 눈 님\n너무 감동이었습니다..... 저를 생각해주시는 마음 20000% 전달됐슴다 덕분에 2판 무사히 잘 마칠 수 있었어요 감사 표현의 방셀은 17일까지 올려보겠습니댜\n\n응원해주시는 마음 잊지 않고 더 열심히 해보겠습니다 야호\n  \n오늘은 마범대 vs JSA vs 뉴캣슬 미니대전이 있는데요!\n저는 비방에서 응원해야 될 것 같슴다ㅠ\n오프라인으로 하시기 때문에 갠방은 미니대전 끝난 늦은 저녁에 가서 킬 수 있을 것 같아요 자세한 공지는 출발할 때 다시 올리겠습니다\n감사합니다", "imgs": [], "poll": [], "video": null, "like": "22", "cmt": "5", "k": "soop:hasaeyo", "member": "B-Z 안눙이", "pg": "mbu"}, {"id": "soop:212485683", "src": "soop", "url": "https://www.sooplive.com/station/ehcl000/post/212485683", "ts": "2026-11-13T01:59:06+00:00", "est": false, "title": "오방공", "text": "안녕하세요\n\n11시반 조금 넘어서 오겠슴당\n\nㅇㄸㅂㅈ~", "imgs": [], "poll": [], "video": null, "like": "12", "cmt": "3", "k": "soop:ehcl000", "member": "B-Z 또치", "pg": "mbu"}, {"id": "yt:Ugkxk5J7JBJUtI3FL6XG9AgWTZVog-fcxvnE", "src": "yt", "url": "https://www.youtube.com/post/Ugkxk5J7JBJUtI3FL6XG9AgWTZVog-fcxvnE", "ts": "2026-11-12T23:28:25+00:00", "est": false, "title": "", "text": "할머니댁에 잘 도착하였습니다.\n할머니 생신이라 오랜만에\n가족들이 모여서\n좋은 시간 보내고\n이따 밤에 집가서\n방송키도록 하겠습니다 !!", "imgs": ["https://yt3.ggpht.com/bu58qJX49qyLWSS2qlLIc8eaDH6W_32uJVJQiDnPfoMR7l15MV_OGjICquyf_LCCiw0N3sxKmQVsvA=s3000-c-fcrop64=1,00002000ffffdfff-rw-nd-v1"], "poll": [], "video": null, "like": "27", "cmt": "3", "k": "yt:channel/UCorSu3etifKjKdha1MkfFMg", "member": "자대", "pg": ""}, {"id": "soop:212471919", "src": "soop", "url": "https://www.sooplive.com/station/tiger3006/post/212471919", "ts": "2026-11-12T18:27:10+00:00", "est": false, "title": "vs 뉴캣슬 / vs JSA 미니대전 공지", "text": "오후 3시전에 뵙겠습니다.\n\n많은 관심 부탁 드립니다.", "imgs": ["https://stimg.sooplive.co.kr/NORMAL_BBS/4/21592474/14791794534144330.png", "https://stimg.sooplive.co.kr/NORMAL_BBS/4/21592474/78181794534144236.png"], "poll": [], "video": null, "like": "64", "cmt": "7", "k": "soop:tiger3006", "member": "마예준", "pg": ""}, {"id": "soop:212471919", "src": "soop", "url": "https://www.sooplive.com/station/tiger3006/post/212471919", "ts": "2026-11-12T18:27:10+00:00", "est": false, "title": "vs 뉴캣슬 / vs JSA 미니대전 공지", "text": "오후 3시전에 뵙겠습니다.\n\n많은 관심 부탁 드립니다.", "imgs": ["https://stimg.sooplive.co.kr/NORMAL_BBS/4/21592474/14791794534144330.png", "https://stimg.sooplive.co.kr/NORMAL_BBS/4/21592474/78181794534144236.png"], "poll": [], "video": null, "like": "64", "cmt": "7", "k": "soop:tiger3006", "member": "이사장 마예준", "pg": "mbu"}, {"id": "yt:Ugkxt8qwWHDpj7Ecs6KZLyZVlXe2k_7-Fpqu", "src": "yt", "url": "https://www.youtube.com/post/Ugkxt8qwWHDpj7Ecs6KZLyZVlXe2k_7-Fpqu", "ts": "2026-11-12T17:37:42+00:00", "est": false, "title": "", "text": "3시에 짧방 눕방 소콩 우울....\n#킴엠비 #마예준 #신입 #여캠", "imgs": [], "poll": [], "video": null, "like": "5", "cmt": "", "k": "yt:channel/UC1d2gtUwsbpXN41gouORmzw", "member": "(??)비비", "pg": ""}, {"id": "soop:212466829", "src": "soop", "url": "https://www.sooplive.com/station/khy12088wsss/post/212466829", "ts": "2026-11-12T17:03:54+00:00", "est": false, "title": "공지", "text": "오늘 펀딩 도와주셔서 너무 감사합니다!!\n비방으로 내일 미니대전 준비하고 내일 낮에 뵙겠습니다!!", "imgs": [], "poll": [], "video": null, "like": "8", "cmt": "1", "k": "soop:khy12088wsss", "member": "Ja-P 쿨지지", "pg": "mbu"}, {"id": "soop:212459239", "src": "soop", "url": "https://www.sooplive.com/station/paralyze92/post/212459239", "ts": "2026-11-12T15:33:23+00:00", "est": false, "title": "공지", "text": "펀딩 도와주신 많은 형님들 감사드립니다\n\n컨텐츠 재밌게 하고 집에 도착했습니다\n\n찡시가 캐리하는 걸 다 보네요 ㅋ.ㅋ\n\n비방 연습 좀 해야 돼서 방송은 못 할 것 같고\n\n이따 마사장님 방송에서 미니대전으로 뵙겠습니다!!", "imgs": [], "poll": [], "video": null, "like": "12", "cmt": "1", "k": "soop:paralyze92", "member": "Ja-P 정경두", "pg": "mbu"}, {"id": "soop:212458381", "src": "soop", "url": "https://www.sooplive.com/station/askl021/post/212458381", "ts": "2026-11-12T15:24:52+00:00", "est": false, "title": "공지", "text": "오늘 엑셀부vs스타부 컨텐츠 마치고 방금 집에 도착했씁니당!!!!\n\n가르친 자대가 2승을 갈겨버려서 너무 재밌었고 팀도 승리로 장식해서 더욱 좋았네요 ^^\n비방으로 낼 미니대전 연습좀 하고 낼 갠방 키겠습니다\n\n낼봐유~~~~", "imgs": [], "poll": [], "video": null, "like": "12", "cmt": "3", "k": "soop:askl021", "member": "빡죠스", "pg": ""}, {"id": "soop:212458381", "src": "soop", "url": "https://www.sooplive.com/station/askl021/post/212458381", "ts": "2026-11-12T15:24:52+00:00", "est": false, "title": "공지", "text": "오늘 엑셀부vs스타부 컨텐츠 마치고 방금 집에 도착했씁니당!!!!\n\n가르친 자대가 2승을 갈겨버려서 너무 재밌었고 팀도 승리로 장식해서 더욱 좋았네요 ^^\n비방으로 낼 미니대전 연습좀 하고 낼 갠방 키겠습니다\n\n낼봐유~~~~", "imgs": [], "poll": [], "video": null, "like": "12", "cmt": "3", "k": "soop:askl021", "member": "Sp-P 빡죠스", "pg": "mbu"}, {"id": "soop:212457901", "src": "soop", "url": "https://www.sooplive.com/station/ehcl000/post/212457901", "ts": "2026-11-12T15:20:27+00:00", "est": false, "title": "오방공", "text": "안녕하세요 또치입니당\n\n합방 다녀왔는데 \n내전 CK에서 3패했습니다..\n\n지금은 너무 눅눅해서 텐션 챙겨서 \n내일 오전 방송으로 오겠습니다\n\n응원해주셨는데 기대에 만족 드리지 못해 \n죄송합니다..", "imgs": [], "poll": [], "video": null, "like": "19", "cmt": "5", "k": "soop:ehcl000", "member": "B-Z 또치", "pg": "mbu"}, {"id": "soop:212455869", "src": "soop", "url": "https://www.sooplive.com/station/quaestor1/post/212455869", "ts": "2026-11-12T15:03:04+00:00", "est": false, "title": "오방공 및.. (수정)", "text": "오늘 마범대에 들어와서 처음으로 컨텐츠를 같이했네요 :)\n\n도움주신 많은 분께 진심으로 감사드리고,\n\n조금이나마 도움 되는 사람이 되어보려고 노력하겠습니다.\n\n오늘은 내일 미니대전 대비 비방연습이 있어서 휴방을 하고\n\n내일 미니대전 시간에 맞춰 오도록 하겠습니다.\n\n아무쪼록 늘 진심으로 감사드립니다!\n\n그리고 아무것도 없이 혼자 너무 잘해주신 로로누나와 펀딩 너무많이 받아주신 댄스부 분들에게 진심으로 감사드립니다 :)", "imgs": [], "poll": [], "video": null, "like": "9", "cmt": "1", "k": "soop:quaestor1", "member": "Jo-Z 져지현", "pg": "mbu"}, {"id": "soop:212454369", "src": "soop", "url": "https://www.sooplive.com/station/ghkdud1617/post/212454369", "ts": "2026-11-12T14:49:39+00:00", "est": false, "title": "공지", "text": "오늘 댄스부랑 스타 너무 재밌게 했습니다!!\n집에 가서 방송 키랴고 했는데\n너무 피곤한 관계로.. \n집가서 비방스타 좀 하고 \n푹 자구 내일 미니대전 시간 맞춰서 오겠습니다!! \n\n오늘 댄스부가 펀딩 넘 많이 받아와줘서\n넘넘 고마븜니다 ㅠ-ㅠ \n그리고 요즘같이 힘든시기에도 카플해준 \n두부랑 눈눈이랑 탐방오빠\n넘넘넘 고맙습니다아 ❤️\n오늘 너무 후리하게 화장도 대충하고 왔는데\n담에는 조큼 신경써서 와보도록 할게요 ㅎㅎ.. \n\n그럼 굿밤!!", "imgs": [], "poll": [], "video": null, "like": "23", "cmt": "2", "k": "soop:ghkdud1617", "member": "2-Z 카히리", "pg": "mbu"}, {"id": "yt:UgkxCGiN-Gk3lMEhFOEoS8OShUTG7lF0IOTg", "src": "yt", "url": "https://www.youtube.com/post/UgkxCGiN-Gk3lMEhFOEoS8OShUTG7lF0IOTg", "ts": "2026-11-12T14:39:31+00:00", "est": false, "title": "", "text": "체리으 신체와 정신건강을 위해\n오늘은 완츄츄 언니와 맛있는 식사 + 고민 상담소\n비방으로 하면서 쉬어가께여 . . ㅠㅠ\n내일 보쟈 체리단 따랑해 💗\n\n그리구 알고가 안타서\n퀸수연으로 켜볼테니까 구독 부탁드려요🫶\nhttps://youtube.com/channel/UCGd01wxZ...", "imgs": ["https://yt3.ggpht.com/wHmrSpt2bkvDUTcS-FFR6SO7i7iPqdM0vNZe8PNEsoozSx2LpRU4yZBha_WAP-o_LSbEuAnEvbuwjw=s4284-c-fcrop64=1,00002000ffffdfff-rw-nd-v1"], "poll": [], "video": null, "like": "17", "cmt": "", "k": "yt:channel/UC-jitPLnys7CFEaY50mfpKw", "member": "체리", "pg": ""}, {"id": "yt:Ugkx761K3UuPLndrpRJQUNPbYcSd-ctaR61i", "src": "yt", "url": "https://www.youtube.com/post/Ugkx761K3UuPLndrpRJQUNPbYcSd-ctaR61i", "ts": "2026-11-12T14:33:59+00:00", "est": false, "title": "", "text": "오늘 숲에서\n스타부 VS 댄스부 \n응원해주시고 펀딩해주신 팬분들 진심으로 감사드립니다.\n빡죠스 실장님이 새벽까지 빌드 잘 갈아주셔서\n두번 다 운좋게 승리하게 되었습니다.\n다시 한 번 진심으로 감사드립니다\n\n이제 막 집에 도착하였습니다.\n오전 12시 키겠습니다", "imgs": [], "poll": [], "video": null, "like": "17", "cmt": "1", "k": "yt:channel/UCorSu3etifKjKdha1MkfFMg", "member": "자대", "pg": ""}, {"id": "soop:212447527", "src": "soop", "url": "https://www.sooplive.com/station/tiger3006/post/212447527", "ts": "2026-11-12T13:42:36+00:00", "est": false, "title": "공지 승리회식방송 좌표 찡찡시아 와주세요!", "text": "ㄱㄱ", "imgs": [], "poll": [], "video": null, "like": "17", "cmt": "", "k": "soop:tiger3006", "member": "마예준", "pg": ""}, {"id": "soop:212447527", "src": "soop", "url": "https://www.sooplive.com/station/tiger3006/post/212447527", "ts": "2026-11-12T13:42:36+00:00", "est": false, "title": "공지 승리회식방송 좌표 찡찡시아 와주세요!", "text": "ㄱㄱ", "imgs": [], "poll": [], "video": null, "like": "17", "cmt": "", "k": "soop:tiger3006", "member": "이사장 마예준", "pg": "mbu"}, {"id": "soop:212446359", "src": "soop", "url": "https://www.sooplive.com/station/hasaeyo/post/212446359", "ts": "2026-11-12T13:32:31+00:00", "est": false, "title": "안눙하세오", "text": "오늘 저는 엄마가 밥 먹으러 오라고 해서\n짧게 방송키고 인사 드리고 가려고 회식 불참핼습니다\n셋팅 끝나고 뵙겠습니다 감스흡니다\n\n+++ 으악 이것저것 해보다가 결국 집에서 내려서 야방으로 켜야 될 것 같아요 30분 뒤에 봐료... 😭", "imgs": [], "poll": [], "video": null, "like": "17", "cmt": "9", "k": "soop:hasaeyo", "member": "B-Z 안눙이", "pg": "mbu"}, {"id": "soop:212442373", "src": "soop", "url": "https://www.sooplive.com/station/cobraboy/post/212442373", "ts": "2026-11-12T12:53:29+00:00", "est": false, "title": "공지", "text": "오늘 스타부 vs 댄스부\n펀딩 해주시고 응원 해주신\n팬분 한분한분 진심으로 감사드립니다.\n회식 저도 가고 싶었는데\n내일 친할머니 생신이셔서\n함께하지 못해 죄송합니다.\n엠티때 좋은 모습으로 인사드리겠습니다\n감사합니다.", "imgs": [], "poll": [], "video": null, "like": "11", "cmt": "1", "k": "soop:cobraboy", "member": "자대", "pg": ""}, {"id": "soop:212439035", "src": "soop", "url": "https://www.sooplive.com/station/ghtjs3833/post/212439035", "ts": "2026-11-12T12:21:27+00:00", "est": false, "title": "공지", "text": "내일 3시부터 마범대 미니대전 두탕 있습니당\n\n내일 일찍 가야해서 쉬고\n\n내일 3시에 마예준이사장님 방송으로 와주세요", "imgs": [], "poll": [], "video": null, "like": "12", "cmt": "", "k": "soop:ghtjs3833", "member": "G-T 최호선", "pg": "mbu"}, {"id": "yt:Ugkx3qOHFvW1WfiaC9EwNgU711IFe5XBgNY9", "src": "yt", "url": "https://www.youtube.com/post/Ugkx3qOHFvW1WfiaC9EwNgU711IFe5XBgNY9", "ts": "2026-11-12T12:05:35+00:00", "est": false, "title": "", "text": "나 집가는중!!오늘pm10:00에 뱅온😬😬", "imgs": [], "poll": [], "video": null, "like": "17", "cmt": "7", "k": "yt:channel/UCJiSZYq6JWRv3RPmOdr-0VQ", "member": "지금이", "pg": ""}, {"id": "soop:212432065", "src": "soop", "url": "https://www.sooplive.com/station/have1y/post/212432065", "ts": "2026-11-12T11:09:44+00:00", "est": false, "title": "1112", "text": "실력이 많이 부족해서 미니대전 대비 좀 할게요 \n낼 오후에 오겠습니당", "imgs": [], "poll": [], "video": null, "like": "13", "cmt": "2", "k": "soop:have1y", "member": "6-Z 김채이", "pg": "mbu"}, {"id": "soop:212421613", "src": "soop", "url": "https://www.sooplive.com/station/lyh8808/post/212421613", "ts": "2026-11-12T09:07:49+00:00", "est": false, "title": "마범대vs댄스부 중계하러 늦지 않게 왔습니다", "text": "딱 첫경기가 카히리경기네요 중계 바로 들어갈게요!!!\n\n마범대 화이팅!!", "imgs": [], "poll": [], "video": null, "like": "6", "cmt": "", "k": "soop:lyh8808", "member": "G-Z 이영한", "pg": "mbu"}, {"id": "yt:UgkxvfplBxkYX9KAiampz6NonRq7YTOg_ynY", "src": "yt", "url": "https://www.youtube.com/post/UgkxvfplBxkYX9KAiampz6NonRq7YTOg_ynY", "ts": "2026-11-12T08:25:12+00:00", "est": false, "title": "", "text": "https://www.sooplive.com/station/tige...\n\n스타대결 많관부\n제발 !!", "imgs": [], "poll": [], "video": null, "like": "14", "cmt": "1", "k": "yt:channel/UCorSu3etifKjKdha1MkfFMg", "member": "자대", "pg": ""}, {"id": "yt:Ugkxa8iuM3WeTphXxFaVppZVQPiTPb8XjnlN", "src": "yt", "url": "https://www.youtube.com/post/Ugkxa8iuM3WeTphXxFaVppZVQPiTPb8XjnlN", "ts": "2026-11-12T08:08:48+00:00", "est": false, "title": "", "text": "언니랑 밥먹는중!!!", "imgs": ["https://yt3.ggpht.com/hZ2AnL5bahsRhmnGwrv3zUxuZFMnrXOcl4Ag7u-cRJ79q1kNfZk7hGAe2mcTqB7YeIn8mhIxeszy=s4284-c-fcrop64=1,20000000dfffffff-rw-nd-v1"], "poll": [], "video": null, "like": "34", "cmt": "4", "k": "yt:channel/UCJiSZYq6JWRv3RPmOdr-0VQ", "member": "지금이", "pg": ""}, {"id": "soop:212416155", "src": "soop", "url": "https://www.sooplive.com/station/arr0530/post/212416155", "ts": "2026-11-12T07:44:20+00:00", "est": false, "title": "비상..", "text": "씨케이 펀딩 아온플단 이쓰까요..?\n제상대 마사장님 꼭이기고오겠슴다 ㅠㅠ\n조금씩만 도와쥬십셔!!!!\n\n마사장님 방송으루 와쥬세용 ㅠㅠ", "imgs": [], "poll": [], "video": null, "like": "7", "cmt": "1", "k": "soop:arr0530", "member": "8-Z 권아온", "pg": "mbu"}, {"id": "soop:212414353", "src": "soop", "url": "https://www.sooplive.com/station/wlsdkd1/post/212414353", "ts": "2026-11-12T07:14:17+00:00", "est": false, "title": "오늘", "text": "일단 씻고 밥먹었구여\n\n우체국가서 빼빼로 부치고\n\n치과도 다녀와야되서\n\n오늘은 5시전에는 못킬거 같아요 ㅠㅠ\n\n7시전에는 오겠습니다\n\n이따봬요", "imgs": [], "poll": [], "video": null, "like": "11", "cmt": "2", "k": "soop:wlsdkd1", "member": "6-P 엄보리", "pg": "mbu"}, {"id": "soop:212413297", "src": "soop", "url": "https://www.sooplive.com/station/tiger3006/post/212413297", "ts": "2026-11-12T06:54:55+00:00", "est": false, "title": "오늘 스타부vs댄스부 내부ck 펀딩받습니다 비상!!", "text": "부탁드려요~~~!", "imgs": [], "poll": [], "video": null, "like": "11", "cmt": "", "k": "soop:tiger3006", "member": "마예준", "pg": ""}, {"id": "soop:212413297", "src": "soop", "url": "https://www.sooplive.com/station/tiger3006/post/212413297", "ts": "2026-11-12T06:54:55+00:00", "est": false, "title": "오늘 스타부vs댄스부 내부ck 펀딩받습니다 비상!!", "text": "부탁드려요~~~!", "imgs": [], "poll": [], "video": null, "like": "11", "cmt": "", "k": "soop:tiger3006", "member": "이사장 마예준", "pg": "mbu"}, {"id": "soop:212411673", "src": "soop", "url": "https://www.sooplive.com/station/siahag/post/212411673", "ts": "2026-11-12T06:26:35+00:00", "est": false, "title": "마대표님 근황 공익제보", "text": "마대표님 혼자 칸막이 치고\n야!! 내가 이길게 난 이겨 이러고선", "imgs": ["https://stimg.sooplive.co.kr/NORMAL_BBS/2/28918532/79531794464793482.jpeg"], "poll": [], "video": null, "like": "10", "cmt": "", "k": "soop:siahag", "member": "찡찡시아", "pg": ""}, {"id": "soop:212411083", "src": "soop", "url": "https://www.sooplive.com/station/heyyo0123/post/212411083", "ts": "2026-11-12T06:15:44+00:00", "est": false, "title": "1112 오방공 ! 합방", "text": "오늘은 마범대 스타부 vs 엑셀부 뜹니당!!!!\n>>>마예준\u003c\u003c\u003c 으로 오세요!!", "imgs": [], "poll": [], "video": null, "like": "4", "cmt": "2", "k": "soop:heyyo0123", "member": "7-P 헤요이", "pg": "mbu"}, {"id": "yt:UgkxVAIBKeheT1GqaUjMxXL7X_EzXRvYccrr", "src": "yt", "url": "https://www.youtube.com/post/UgkxVAIBKeheT1GqaUjMxXL7X_EzXRvYccrr", "ts": "2026-11-12T06:12:34+00:00", "est": false, "title": "", "text": "숲TV 방송에서\n오늘 마예준과 아이들 스타 내부 ck가\n있습니다.\n오늘 꼭 이기겠습니다 !!\n바로 많관부 !!\n\nhttps://www.sooplive.com/station/tige...", "imgs": [], "poll": [], "video": null, "like": "15", "cmt": "", "k": "yt:channel/UCorSu3etifKjKdha1MkfFMg", "member": "자대", "pg": ""}, {"id": "soop:212410753", "src": "soop", "url": "https://www.sooplive.com/station/cobraboy/post/212410753", "ts": "2026-11-12T06:10:17+00:00", "est": false, "title": "공지", "text": "오늘 마예준과 아이들 스타\n내부 ck가 있습니다.\n저도 출전하게 되었습니다 !!\n많관부 !!\n\n좌표 --> 마예준\n\nhttps://www.sooplive.com/station/tiger3006", "imgs": [], "poll": [], "video": null, "like": "4", "cmt": "1", "k": "soop:cobraboy", "member": "자대", "pg": ""}, {"id": "soop:212410481", "src": "soop", "url": "https://www.sooplive.com/station/askl021/post/212410481", "ts": "2026-11-12T06:05:54+00:00", "est": false, "title": "공지", "text": "형님들 오늘은 마범대 스타부vs댄스부\n컨텐츠 있습니다!!!!\n\n마사장님방송으로 와주세요!!", "imgs": [], "poll": [], "video": null, "like": "6", "cmt": "", "k": "soop:askl021", "member": "빡죠스", "pg": ""}, {"id": "soop:212410481", "src": "soop", "url": "https://www.sooplive.com/station/askl021/post/212410481", "ts": "2026-11-12T06:05:54+00:00", "est": false, "title": "공지", "text": "형님들 오늘은 마범대 스타부vs댄스부\n컨텐츠 있습니다!!!!\n\n마사장님방송으로 와주세요!!", "imgs": [], "poll": [], "video": null, "like": "6", "cmt": "", "k": "soop:askl021", "member": "Sp-P 빡죠스", "pg": "mbu"}, {"id": "soop:212409909", "src": "soop", "url": "https://www.sooplive.com/station/rldyal71/post/212409909", "ts": "2026-11-12T05:55:20+00:00", "est": false, "title": "엑셀부 vs 스타부", "text": "좌표 마예준 이사장님 !!!! \n3시 시작 입니다", "imgs": [], "poll": [], "video": null, "like": "5", "cmt": "1", "k": "soop:rldyal71", "member": "8-P 휘연", "pg": "mbu"}, {"id": "soop:212408757", "src": "soop", "url": "https://www.sooplive.com/station/khy12088wsss/post/212408757", "ts": "2026-11-12T05:32:35+00:00", "est": false, "title": "공지", "text": "오늘 이사장님 방송에서 합방입니다!!", "imgs": [], "poll": [], "video": null, "like": "6", "cmt": "", "k": "soop:khy12088wsss", "member": "Ja-P 쿨지지", "pg": "mbu"}, {"id": "soop:212408639", "src": "soop", "url": "https://www.sooplive.com/station/ehcl000/post/212408639", "ts": "2026-11-12T05:30:19+00:00", "est": false, "title": "나름 비장한 오방공", "text": "안녕하세요 또치입니당.\n\n🐯마범대🐯\n엑셀부 vs 스타부\n\nCK 합방 갑니당.\n3시쯤 마사장님 방송에서 만납시다. \n\n만간부 바랍니다.", "imgs": [], "poll": [], "video": null, "like": "9", "cmt": "5", "k": "soop:ehcl000", "member": "B-Z 또치", "pg": "mbu"}, {"id": "soop:212405867", "src": "soop", "url": "https://www.sooplive.com/station/paralyze92/post/212405867", "ts": "2026-11-12T04:31:21+00:00", "est": false, "title": "오늘", "text": "스타부 vs 엑셀부합니다\n\n대결이라니 펀딩도 부탁드려 봅니다..!\n\n이따 마사장님 방송에서 뵐게요", "imgs": ["https://stimg.sooplive.co.kr/NORMAL_BBS/8/23651008/25711794457737586.png"], "poll": [], "video": null, "like": "6", "cmt": "1", "k": "soop:paralyze92", "member": "Ja-P 정경두", "pg": "mbu"}, {"id": "soop:212405491", "src": "soop", "url": "https://www.sooplive.com/station/arr0530/post/212405491", "ts": "2026-11-12T04:22:17+00:00", "est": false, "title": "오늘은!", "text": "엑셀부 vs 스타부\n내부ck있는날!!!\n이따 3시~3시반쯤 마사장님 방송에서 보아용❤️❤️", "imgs": [], "poll": [], "video": null, "like": "7", "cmt": "3", "k": "soop:arr0530", "member": "8-Z 권아온", "pg": "mbu"}, {"id": "soop:212404417", "src": "soop", "url": "https://www.sooplive.com/station/ghkdud1617/post/212404417", "ts": "2026-11-12T03:57:23+00:00", "est": false, "title": "공지", "text": "오늘은 스타부vs엑셀부 스타내전이 있는 날입니다!! \n저는 스튜디오 가고있오용 \n이따 마사장님 방송으로 3시에 키니까\n카플 많관부입니다🥹❤️ㅎ \n사랑합뉘다 😍", "imgs": [], "poll": [], "video": null, "like": "18", "cmt": "1", "k": "soop:ghkdud1617", "member": "2-Z 카히리", "pg": "mbu"}, {"id": "soop:212401781", "src": "soop", "url": "https://www.sooplive.com/station/hasaeyo/post/212401781", "ts": "2026-11-12T02:46:14+00:00", "est": false, "title": "1112", "text": "안눙하세요 지금 서울 가는 중입니다\n장비에 MT 짐까지 왕큰 케리어 들고 내렸다실었다 하니까 손목이 매우 아픕니돠\n언능 가서 셋팅하고 손 좀 풀고있겠습니다\n첫 ck인데 좋은 경기력 보여드리고 싶어요 파이팅    \n\n그럼 이따 3시 마사장님 방송에서 뵙겠습니다 많응부!!!\n\n++쪽지 답장은 오늘내로 드리겠습니다", "imgs": [], "poll": [], "video": null, "like": "18", "cmt": "5", "k": "soop:hasaeyo", "member": "B-Z 안눙이", "pg": "mbu"}, {"id": "yt:UgkxD06fyMaru3HftCZceDCzY-Yyff6hHtGy", "src": "yt", "url": "https://www.youtube.com/post/UgkxD06fyMaru3HftCZceDCzY-Yyff6hHtGy", "ts": "2026-11-12T02:16:37+00:00", "est": false, "title": "", "text": "먹츄는 왕츄야ㅠㅠ 씻고 방송키께오오\n\n이따가 왕츄포차 벽에 발 달러 아빠가2시에 오거등오\n\n먼저켜서 소통하규 발설치하구 나 병원갈예죵ㅠㅠ🥹", "imgs": ["https://yt3.ggpht.com/-tk9HInsezfD6KqaNqxq7I9JztuMWz0q_MohbMzUyo6RX3Lyz2HAFvplnZSohkPmOxrA80_kcc-Ci9s=s4284-c-fcrop64=1,00002000ffffdfff-rw-nd-v1"], "poll": [], "video": null, "like": "4", "cmt": "", "k": "yt:channel/UCEmUk0KHttpRn9LG-bOTY7A", "member": "먹츄(졸업)", "pg": ""}, {"id": "yt:UgkxxQ4bFSHbmMWzq_DbCbSuMGIyxvxE1eKU", "src": "yt", "url": "https://www.youtube.com/post/UgkxxQ4bFSHbmMWzq_DbCbSuMGIyxvxE1eKU", "ts": "2026-11-12T02:06:12+00:00", "est": false, "title": "", "text": "방송 끝나고 울었지만 방접하고 싶지만 \n화가나서 부산가서 그대로 노방종 갈길게", "imgs": [], "poll": [], "video": null, "like": "10", "cmt": "1", "k": "yt:channel/UC4ggmHrlNDufVGmb28eYjQQ", "member": "백설빈", "pg": ""}, {"id": "yt:UgkxTJSd-GfRdZYelbD5sd3e_nCkUtu9Rl7x", "src": "yt", "url": "https://www.youtube.com/post/UgkxTJSd-GfRdZYelbD5sd3e_nCkUtu9Rl7x", "ts": "2026-11-11T21:29:34+00:00", "est": true, "title": "", "text": "연플단 우연이 사랑이생일방송 마지막까지 같이 있어주려구요\n30분쯤 사랑이 방송으로 켤게요\n저녁 잘챙겨먹구 이따보자 연플단✨💛", "imgs": [], "poll": [], "video": null, "like": "2", "cmt": "", "k": "yt:channel/UChpk79NSbcni-E7Erjffx1A", "member": "이우연", "pg": ""}, {"id": "yt:UgkxvWA6PaE0XcrQl89DSqe9dkIB4Syo1Mgy", "src": "yt", "url": "https://www.youtube.com/post/UgkxvWA6PaE0XcrQl89DSqe9dkIB4Syo1Mgy", "ts": "2026-11-11T21:29:33+00:00", "est": true, "title": "", "text": "11.11\n\n7시반까지 올게요🥰", "imgs": [], "poll": [], "video": null, "like": "6", "cmt": "", "k": "yt:channel/UCB4keNxXCYpircBIgW3OYOw", "member": "혜로로", "pg": ""}, {"id": "yt:UgkxNXLF2sK7o9sseZYYqiYy2Hw8kDYKRMnv", "src": "yt", "url": "https://www.youtube.com/post/UgkxNXLF2sK7o9sseZYYqiYy2Hw8kDYKRMnv", "ts": "2026-11-11T21:20:12+00:00", "est": true, "title": "", "text": "다시 만들었으니까 들어와 주세요 ! 🍒\n들어오면 좋은 일이 있을 수도?\nhttps://open.kakao.com/o/gv5QoBWi", "imgs": [], "poll": [], "video": null, "like": "4", "cmt": "", "k": "yt:channel/UC-jitPLnys7CFEaY50mfpKw", "member": "체리", "pg": ""}, {"id": "yt:Ugkxb5WPQvOQjUwLJ0GaVBSjB-EkZxxR9G7J", "src": "yt", "url": "https://www.youtube.com/post/Ugkxb5WPQvOQjUwLJ0GaVBSjB-EkZxxR9G7J", "ts": "2026-11-11T18:49:46+00:00", "est": true, "title": "", "text": "https://www.sooplive.com/station/askl021\n\n오후 4시\n\n숲에서 빡실장님 스타교육 방송이 있습니다\n많관부 !!", "imgs": [], "poll": [], "video": null, "like": "17", "cmt": "1", "k": "yt:channel/UCorSu3etifKjKdha1MkfFMg", "member": "자대", "pg": ""}, {"id": "yt:Ugkx-IQD3v1UsbjSJOk1iPwgTrFuo-l7robB", "src": "yt", "url": "https://www.youtube.com/post/Ugkx-IQD3v1UsbjSJOk1iPwgTrFuo-l7robB", "ts": "2026-11-11T17:16:04+00:00", "est": true, "title": "", "text": "휴방공 내일 스타크래프트 경기 나가서\n컨디션 조절 하겠습니다\n\n그동안 저를 도와주신 분들 중\n빼빼로 받고 싶으시면 옾쳇 주시면\n보내드립니다🫡💕🩷\n\n행복하세요", "imgs": [], "poll": [], "video": null, "like": "9", "cmt": "2", "k": "yt:channel/UC4cdinD3ZjJy1B2ChfoJYaw", "member": "찡찡시아", "pg": ""}, {"id": "yt:Ugkx0e-yF0h6JGqSblz8HPUlVCaexUl_p_NA", "src": "yt", "url": "https://www.youtube.com/post/Ugkx0e-yF0h6JGqSblz8HPUlVCaexUl_p_NA", "ts": "2026-11-11T16:26:18+00:00", "est": false, "title": "", "text": "고향 잘 다녀왔습니다.\n빡죠스 실장님이 잘 알려주셔서 오늘 승리 할 수 있었습니다.\n응원해주시고 펀딩해주신 형님 누님들 진심으로 감사드립니다\n저는 이제 집 도착하였습니다.\n짧게나마 소통방송하고 마무리 하도록 하겠습니다\n지금 바로 키도록 하겠습니다", "imgs": [], "poll": [], "video": null, "like": "17", "cmt": "2", "k": "yt:channel/UCorSu3etifKjKdha1MkfFMg", "member": "자대", "pg": ""}, {"id": "yt:UgkxZvZARTsA8ydKYXc1ECjYV2QNyHE3fqcV", "src": "yt", "url": "https://www.youtube.com/post/UgkxZvZARTsA8ydKYXc1ECjYV2QNyHE3fqcV", "ts": "2026-11-11T15:44:16+00:00", "est": false, "title": "", "text": "오방공 새벽 1시\n\n#팀엠비 #마예준 #신입 #여캠", "imgs": [], "poll": [], "video": null, "like": "2", "cmt": "", "k": "yt:channel/UC1d2gtUwsbpXN41gouORmzw", "member": "(??)비비", "pg": ""}, {"id": "yt:UgkxEdBVMSvgYYw8hKTJz1FoNlyj9V1GXbhj", "src": "yt", "url": "https://www.youtube.com/post/UgkxEdBVMSvgYYw8hKTJz1FoNlyj9V1GXbhj", "ts": "2026-11-11T13:53:52+00:00", "est": false, "title": "", "text": "완튜 약먹구 누워써오😭😭\n몸이추운여자 완튜\n\n눈떠서 몸상태보구 공지쓰께오오 텐션안조아도 바죠 눈이뜨거운여자\n\n오늘 완튜 살려준 쩔어ㅠㅠㅠ 샤인 감사합니다\n\n완튜 부산펀딩시작녀💗 가보쟈꾸", "imgs": ["https://yt3.ggpht.com/XzTcuW1QtDh3hcs_HBhDs5TnBQdBP0lUV7mdsvpR5utOOQM7icOdSWxwKopIqR37PfHQQ0DXchco5-8=s4284-c-fcrop64=1,00002000ffffdfff-rw-nd-v1", "https://yt3.ggpht.com/_Qn8sUTRpgZ3OkS23sCUCGwcaVVeAygIT1PYaxQRXmAX8H2kAPqrivTD_6QLY8NN5axGKpEi9QHpPjM=s3024-c-fcrop64=1,00002000ffffdfff-rw-nd-v1"], "poll": [], "video": null, "like": "3", "cmt": "3", "k": "yt:channel/UCEmUk0KHttpRn9LG-bOTY7A", "member": "먹츄(졸업)", "pg": ""}, {"id": "yt:UgkxOC_blOgsH_LrU4MAIDEYsRgayOiaUYBg", "src": "yt", "url": "https://www.youtube.com/post/UgkxOC_blOgsH_LrU4MAIDEYsRgayOiaUYBg", "ts": "2026-11-11T11:37:25+00:00", "est": false, "title": "", "text": "내일 방송 공지 오후 9시!!!❄️❄️\n111111개 빼빼로 데이 내일인데 받고 싶다\n근데 하필 가나 오빠 시그인데..흠🙁\n\n저는 빼빼로를 받아 본 적이 없어요..\n받고 싶어요\n근데 오빠들 빼빼로데이 이벤트 합니다\n\n빼빼로를 만들어 주진 못하지만 \n고급 초콜릿 보내 드릴게여\n11111개 핀볼 넣어 드림🎀\n1111111개 받아보고 싶당\n\n빼빼로 사 먹게 선물 주면 나도 선물 쥼~🩷\n내 존재가 선물이양^^", "imgs": ["https://yt3.ggpht.com/WImVFXX61K71Kb8v0y23Sho3m3fv3A1BCaNz-qV0C2D6pbWky2TepaF4qXNJCRnFboLSbZeq-249lg=s1206-c-fcrop64=1,00001271ffffed8e-rw-nd-v1"], "poll": [], "video": null, "like": "6", "cmt": "1", "k": "yt:channel/UC4cdinD3ZjJy1B2ChfoJYaw", "member": "찡찡시아", "pg": ""}, {"id": "yt:Ugkx2YOVpF6bl9u5KbjBCTuK5bZhyxqJbu2x", "src": "yt", "url": "https://www.youtube.com/post/Ugkx2YOVpF6bl9u5KbjBCTuK5bZhyxqJbu2x", "ts": "2026-11-11T11:37:25+00:00", "est": false, "title": "", "text": "체리 집 가서 빼빼로만들기 방송 켜께오 ~!\n오픈톡 들어오면 빼빼로주지😽💗", "imgs": [], "poll": [], "video": null, "like": "8", "cmt": "2", "k": "yt:channel/UC-jitPLnys7CFEaY50mfpKw", "member": "체리", "pg": ""}, {"id": "yt:UgkxHojCFo4_7_ockGiLwu3WMeAL8kTVAYwW", "src": "yt", "url": "https://www.youtube.com/post/UgkxHojCFo4_7_ockGiLwu3WMeAL8kTVAYwW", "ts": "2026-11-11T11:30:10+00:00", "est": false, "title": "", "text": "8시반 48시간노방종 여행지핀볼탑니다\n\n검단아라동스타트\n\n200km이내 1,000원\n500km이내 3,000원\n섬지역 5,000원", "imgs": [], "poll": [], "video": null, "like": "9", "cmt": "", "k": "yt:channel/UCB4keNxXCYpircBIgW3OYOw", "member": "혜로로", "pg": ""}], "postsUpdated": "2026-11-14T21:48:33+00:00", "repo": "ch010-def/MB_live", "sub": [{"key": "mbu", "label": "MBU", "title": "마범대", "groups": [{"title": "", "members": [{"name": "이사장 마예준", "channel": "https://www.sooplive.com/station/tiger3006", "avatar": "https://stimg.sooplive.co.kr/LOGO/ti/tiger3006/tiger3006.jpg", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "", "value": "www.sooplive.com/station/tiger3006"}], "autoName": "", "live_title": ""}, {"name": "G-Z 이영한", "channel": "https://www.sooplive.com/station/lyh8808", "avatar": "https://stimg.sooplive.co.kr/LOGO/ly/lyh8808/lyh8808.jpg", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "", "value": "www.sooplive.com/station/lyh8808"}], "autoName": "", "live_title": ""}, {"name": "G-T 최호선", "channel": "https://www.sooplive.com/station/ghtjs3833", "avatar": "https://stimg.sooplive.co.kr/LOGO/gh/ghtjs3833/ghtjs3833.jpg", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "", "value": "www.sooplive.com/station/ghtjs3833"}], "autoName": "", "live_title": ""}, {"name": "Ja-T 만두호성", "channel": "https://www.sooplive.com/station/rlarnfk24", "avatar": "https://stimg.sooplive.co.kr/LOGO/rl/rlarnfk24/rlarnfk24.jpg", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "", "value": "www.sooplive.com/station/rlarnfk24"}], "autoName": "", "live_title": ""}, {"name": "Ja-Z 이창우", "channel": "https://www.sooplive.com/station/jackpot", "avatar": "https://stimg.sooplive.co.kr/LOGO/ja/jackpot/jackpot.jpg", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "", "value": "www.sooplive.com/station/jackpot"}], "autoName": "", "live_title": ""}, {"name": "Ja-P 정경두", "channel": "https://www.sooplive.com/station/paralyze92", "avatar": "https://stimg.sooplive.co.kr/LOGO/pa/paralyze92/paralyze92.jpg", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "", "value": "www.sooplive.com/station/paralyze92"}], "autoName": "", "live_title": ""}, {"name": "Ja-P 쿨지지", "channel": "https://www.sooplive.com/station/khy12088wsss", "avatar": "https://stimg.sooplive.co.kr/LOGO/kh/khy12088wsss/khy12088wsss.jpg", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "", "value": "www.sooplive.com/station/khy12088wsss"}], "autoName": "", "live_title": ""}, {"name": "Jo-Z 져지현", "channel": "https://www.sooplive.com/station/quaestor1", "avatar": "https://stimg.sooplive.co.kr/LOGO/qu/quaestor1/quaestor1.jpg", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "", "value": "www.sooplive.com/station/quaestor1"}], "autoName": "", "live_title": ""}, {"name": "Sp-P 빡죠스", "channel": "https://www.sooplive.com/station/askl021", "avatar": "https://stimg.sooplive.co.kr/LOGO/as/askl021/askl021.jpg", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "", "value": "www.sooplive.com/station/askl021"}], "autoName": "", "live_title": ""}, {"name": "2-Z 카히리", "channel": "https://www.sooplive.com/station/ghkdud1617", "avatar": "https://stimg.sooplive.co.kr/LOGO/gh/ghkdud1617/ghkdud1617.jpg", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "", "value": "www.sooplive.com/station/ghkdud1617"}], "autoName": "", "live_title": ""}, {"name": "3-P 구보라", "channel": "https://www.sooplive.com/station/bora99", "avatar": "https://stimg.sooplive.co.kr/LOGO/bo/bora99/bora99.jpg", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "", "value": "www.sooplive.com/station/bora99"}], "autoName": "", "live_title": ""}, {"name": "5-T 최세상", "channel": "https://www.sooplive.com/station/rabbitmiffy", "avatar": "https://stimg.sooplive.co.kr/LOGO/ra/rabbitmiffy/rabbitmiffy.jpg", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "", "value": "www.sooplive.com/station/rabbitmiffy"}], "autoName": "", "live_title": ""}, {"name": "5-Z 시녕뭉", "channel": "https://www.sooplive.com/station/synyoung", "avatar": "https://stimg.sooplive.co.kr/LOGO/sy/synyoung/synyoung.jpg", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "", "value": "www.sooplive.com/station/synyoung"}], "autoName": "", "live_title": ""}, {"name": "6-Z 김채이", "channel": "https://www.sooplive.com/station/have1y", "avatar": "https://stimg.sooplive.co.kr/LOGO/ha/have1y/have1y.jpg", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "", "value": "www.sooplive.com/station/have1y"}], "autoName": "", "live_title": ""}, {"name": "6-P 엄보리", "channel": "https://www.sooplive.com/station/wlsdkd1", "avatar": "https://stimg.sooplive.co.kr/LOGO/wl/wlsdkd1/wlsdkd1.jpg", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "", "value": "www.sooplive.com/station/wlsdkd1"}], "autoName": "", "live_title": ""}, {"name": "7-P 헤요이", "channel": "https://www.sooplive.com/station/heyyo0123", "avatar": "https://stimg.sooplive.co.kr/LOGO/he/heyyo0123/heyyo0123.jpg", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "", "value": "www.sooplive.com/station/heyyo0123"}], "autoName": "", "live_title": ""}, {"name": "8-Z 권아온", "channel": "https://www.sooplive.com/station/arr0530", "avatar": "https://stimg.sooplive.co.kr/LOGO/ar/arr0530/arr0530.jpg", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "", "value": "www.sooplive.com/station/arr0530"}], "autoName": "", "live_title": ""}, {"name": "8-P 휘연", "channel": "https://www.sooplive.com/station/rldyal71", "avatar": "https://stimg.sooplive.co.kr/LOGO/rl/rldyal71/rldyal71.jpg", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "", "value": "www.sooplive.com/station/rldyal71"}], "autoName": "", "live_title": ""}, {"name": "B-Z 또치", "channel": "https://www.sooplive.com/station/ehcl000", "avatar": "https://stimg.sooplive.co.kr/LOGO/eh/ehcl000/ehcl000.jpg", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "", "value": "www.sooplive.com/station/ehcl000"}], "autoName": "", "live_title": ""}, {"name": "B-Z 안눙이", "channel": "https://www.sooplive.com/station/hasaeyo", "avatar": "https://stimg.sooplive.co.kr/LOGO/ha/hasaeyo/hasaeyo.jpg", "on": false, "video": "", "soop": "", "fun": "", "links": [{"label": "", "value": "www.sooplive.com/station/hasaeyo"}], "autoName": "", "live_title": ""}]}], "schedule": ["11/06(금) 16:00 영입 방송 : 최호선", "17:00 최세상 :  흑운장 유즈맵 최강자전 - 혈압 마라톤", "11/08(일) 16:00 7티어 통베이컵 마예준 게스트 + 헤요이 출전", "11/08(일) 20:00 르밍 스타교육 받기 (교수 만두호성)", "11/09(월) 17:00 이영한 CK 참여", "11/11(수) 16:00 자대x빡죠스-빡청교육대 + 2500개빵 봄덕님과 스타 3판2선승. 이후 비방연습", "11/12(목) 15:00 엑셀부 vs 스타부 CK (같은 계열사끼리 하는 내부 CK)", "갠방 : 하연서 지금이 혜로로 찡시 자대 이우연 묘아이 백설빈 (르밍)", "11/13(금) 15:00 마범대 VS 뉴캣슬 미니대전", "11/13(금) 19:00 마범대 VS JSA 미니대전", "11/13(금) 미니대전 결과 상중하 반배정. 우등반 칭찬 열등반 벌칙", "11/14(토) 15:30 저티어 수장들 CK", "11/15(일)~17(화) 🏕️ 스타부 MT-마예준x빡죠스x자대. 선수형님 숙소 지원.", "첫 날만 방송, 그 이후 비방", "11/20(금) 17:00 권아온-8티어 또아컵 신청", "11/22(금) 16:00 또치 : 사과게임 대회 참가", "12/5(토) 호랑이굴 이전 (마예준 이사)"], "memo": ["📅 마예준 방송 일정 공지", "7(토) 휴방 아님", "8(일) 마예준 - 7티어 대회 게스트", "9(월)~11(수) 휴방, 스탭과 일본 여행 (2박 3일)", "12(목) 15:00 엑셀부 vs 스타부 CK (같은 계열사끼리 하는 내부 CK)", "13(금) VS 뉴캣슬 미니대전 /  VS JSA 미니대전 / 상중하 반배정. 우등반 칭찬 열등반 벌칙", "14(토) 비프로 저티어 수장들 CK", "11월 15(일)~17(화) 스타부 강원도 MT (2박 3일). 하루는 방송, 하루는 비공개로 보냄", "11월 셋째 주쯤 마범대 새 멤버들 위주로 11월 내전", "", "💎 엑셀부 vs 스타부 계열사CK (12(목) 15:00 )", "🏆스타부 vs 댄스부 스타대전🏆", "━━━━━━━━━━━━━━━", "📢 11판 6선승", "엑셀부 6:5 스타부", "━━━━━━━━━━━━━━━", "1️⃣져지현-혜로로✅🆚️⬜️카히리 [라데온]", "2️⃣만두호성-르밍⬜️🆚️✅안눙이 [폴리포이드]", "3️⃣창우-파워영웅⬜️🆚️✅헤요이 [녹아웃]", "4️⃣쿨지지-마예준⬜️🆚️✅권아온 [폴]", "5️⃣빡죠스-자  대✅🆚️⬜️휘 연 [폴]", "6️⃣경두-찡찡시아✅🆚️⬜️또 치 [폴]", "7️⃣빡죠스-자  대✅🆚️⬜️휘 연 [폴]", "8️⃣창우-파워영웅⬜️🆚️✅헤요이 [라]", "9️⃣만두호성-르밍⬜️🆚️✅안눙이 [폴]", "🔟경두-찡찡시아✅🆚️⬜️또 치 [폴]", "━━━━━━━━━━━━━━━", "🅰️경두-찡찡시아✅🆚️⬜️또 치 [폴]", "━━━━━━━━━━━━━━━", "", "🏕️ 스타부 MT : 마예준x빡죠스x자대 (11월 15~17일, 강원도)", "이번에는 새로운 게임을 해 볼 계획. 재밌는 게임을 알면 쪽지로 제보해 달라함.", "", "권아온-8티어 또아컵 신청 (11/20(금) 17:00)", "권아온/마범대/져지현/저그/이번엔 준우승 가보쟈!!/[온]lips(enterslayer3)", "https://www.sooplive.com/station/jooyoung0040/post/212006433#comment_noti124638903"]}], "code": "cf5c6de596"}</script>
+<script>
+var $ = function(id){ return document.getElementById(id); };
+function el(tag, cls, text){ var e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
+
+// 비상 주소: GitHub Pages를 거치지 않고 저장소 live-data 칸의 페이지를 바로 보여 주는 주소
+var CHECKED = false; // 저장소의 최신 결과를 한 번이라도 확인했는지
+var ON_BACKUP = /(^|\.)githack\.com$/.test(location.hostname);
+function repoOf(d){
+  if(d && d.repo && /^[\w.-]+\/[\w.-]+$/.test(d.repo)) return d.repo;
+  var m = location.hostname.match(/^([\w-]+)\.github\.io$/), seg = location.pathname.split('/')[1];
+  return m && seg ? m[1] + '/' + seg : '';
+}
+function showBackup(d, ago){
+  var repo = repoOf(d);
+  var url = repo ? 'https://raw.githack.com/' + repo + '/live-data/index.html' : '';
+  var link = $('backupLink');
+  link.hidden = ON_BACKUP || !url;
+  $('backupTip').hidden = link.hidden;
+  if(url) link.href = url;
+  // 10분 넘게 결과가 안 바뀌면 위쪽에 눈에 띄는 안내 칸을 띄움 (비상 주소에서는 안 띄움)
+  // 새로고침 직후에는 페이지 안의 (오래됐을 수 있는) 데이터로 먼저 그려서, 최신 결과를 한 번 확인한 뒤에만 판단해요
+  var stale = CHECKED && !ON_BACKUP && url && ago >= 10;
+  $('stale').hidden = !stale;
+  if(stale){ $('staleLink').href = url; $('staleMsg').textContent = '마지막 결과가 ' + ago + '분 전이에요.'; }
+}
+
+// 주소 뒤 #으로 페이지와 화면을 구분: (없음)/#schedule/#posts = 기본 페이지, #mbu, #mbu/schedule, #mbu/posts = 계열사 페이지
+function parseHash(){
+  var h = location.hash.replace(/^#/, ''), parts = h.split('/');
+  var views = {schedule: 1, posts: 1};
+  if(views[parts[0]]) return {pg: '', view: parts[0]};
+  return {pg: parts[0] || '', view: views[parts[1]] ? parts[1] : 'home'};
+}
+function pageOf(full, pg){
+  var sub = (full.sub || []).filter(function(s){ return s.key === pg; })[0];
+  var key = sub ? pg : '';
+  var src = sub || full;
+  var d = {};
+  for(var k in full) d[k] = full[k];
+  d.title = src.title; d.groups = src.groups || []; d.schedule = src.schedule || []; d.memo = src.memo || [];
+  d.posts = (full.posts || []).filter(function(p){ return (p.pg || '') === key; });
+  d.pg = key;
+  return d;
+}
+var CUR_PG = null;
+function renderSwitch(full, pg){
+  var nav = $('switch'), subs = full.sub || [];
+  nav.hidden = !subs.length;
+  nav.innerHTML = '';
+  if(!subs.length) return;
+  [{key: '', label: full.title}].concat(subs.map(function(s){ return {key: s.key, label: s.label || s.title}; })).forEach(function(p){
+    var a = el('a', p.key === pg ? 'cur' : '', p.label);
+    a.href = p.key ? '#' + p.key : '#';
+    nav.appendChild(a);
+  });
+}
+// 휴대폰(안드로이드)에서는 유튜브 링크를 유튜브 앱으로 바로 열기 (앱이 없으면 원래 주소를 브라우저로)
+var IS_ANDROID = /Android/i.test(navigator.userAgent);
+var APP_PKG = [
+  [/^https?:\/\/(www\.|m\.)?youtube\.com\/|^https?:\/\/youtu\.be\//i, 'com.google.android.youtube']
+  // 숲은 앱이 방송 주소를 받아 주지 않아서 지금처럼 새 탭(브라우저)으로 열어요
+];
+function setLink(a, url){
+  a.href = url; a.target = '_blank'; a.rel = 'noopener';
+  if(!IS_ANDROID || !url) return a;
+  for(var i = 0; i < APP_PKG.length; i++){
+    if(APP_PKG[i][0].test(url)){
+      a.href = 'intent://' + url.replace(/^https?:\/\//i, '') + '#Intent;scheme=https;package=' + APP_PKG[i][1] +
+               ';S.browser_fallback_url=' + encodeURIComponent(url) + ';end';
+      a.target = '_self'; // 앱으로 넘길 때는 빈 새 탭이 남지 않게
+      break;
+    }
+  }
+  return a;
+}
+function render(full){
+  var pg = parseHash().pg;
+  if(!(full.sub || []).some(function(s){ return s.key === pg; })) pg = '';
+  CUR_PG = pg;
+  renderSwitch(full, pg);
+  var d = pageOf(full, pg);
+  var pre = pg ? '#' + pg + '/' : '#';
+  document.body.classList.toggle('pg-sub', !!pg);
+  document.body.classList.toggle('pg-mbu', pg === 'mbu');
+  $('logoText').textContent = pg ? ((full.sub.filter(function(s){ return s.key === pg; })[0] || {}).label || '') : '';
+  $('guideMain').hidden = !!pg; $('guideSub').hidden = !pg;
+  $('schedBtn').href = pre + 'schedule'; $('postsBtn').href = pre + 'posts';
+  [].forEach.call(document.querySelectorAll('a.back'), function(a){ a.href = pg ? '#' + pg : '#'; });
+  $('title').textContent = d.title;
+  document.title = d.title;
+  var all = [].concat.apply([], d.groups.map(function(g){ return g.members; }));
+  var n = all.filter(function(m){ return m.on || m.soop || m.fun; }).length;
+  var t = new Date(d.updated);
+  var hm = t.getHours() + ':' + ('0'+t.getMinutes()).slice(-2);
+  var meta = $('meta'); meta.innerHTML = '';
+  meta.appendChild(el('span', 'chip ' + (n ? 'live' : 'off'), n ? 'LIVE ' + n + '명' : '방송 중인 멤버 없음'));
+  var ago = Math.max(0, Math.round((Date.now() - t) / 60000));
+  meta.appendChild(el('span', null, '멤버 ' + all.length + '명 · ' + hm + ' 업데이트' + (ago >= 1 ? ' (' + ago + '분 전)' : ' (방금)')));
+  var rb = el('button', 'refresh', '↻ 새로고침'); rb.type = 'button'; rb.id = 'refreshBtn';
+  rb.title = '가장 최근 확인 결과를 바로 불러와요';
+  rb.addEventListener('click', function(){ rb.disabled = true; rb.textContent = '불러오는 중…'; load(true); });
+  meta.appendChild(rb);
+  lastData = full;
+  showBackup(full, ago);
+
+  var box = $('groups'); box.innerHTML = '';
+  d.groups.forEach(function(g){
+    if(g.title) box.appendChild(el('h2', null, g.title));
+    var grid = el('div','grid');
+    g.members.forEach(function(m){
+      var c = el('div','m' + (m.on ? ' on' : (m.soop ? ' on soop' : (m.fun ? ' on fun' : ''))));
+      var pic;
+      if(m.channel){
+        pic = setLink(el('a','pic'), m.channel);
+        pic.setAttribute('aria-label', m.name + ' 채널로 이동');
+      } else pic = el('div','pic');
+      var inner = el('span','in');
+      if(m.avatar){ var img = el('img'); img.src = m.avatar; img.alt = ''; img.referrerPolicy = 'no-referrer'; img.loading = 'lazy'; img.onerror = function(){ this.remove(); }; inner.appendChild(img); }
+      pic.appendChild(inner);
+      c.appendChild(pic);
+      c.appendChild(el('div','name', m.name));
+      if(m.on || m.soop || m.fun){
+        var chips = el('div','chips');
+        if(m.on){
+          var on = setLink(el('a','chip live','ON'), 'https://www.youtube.com/watch?v=' + m.video); on.title = '유튜브 라이브 보러 가기';
+          chips.appendChild(on);
+        }
+        if(m.soop){
+          var so = setLink(el('a','chip live soop','ON'), m.soop); so.title = '숲 방송 보러 가기';
+          chips.appendChild(so);
+        }
+        if(m.fun){
+          var fu = setLink(el('a','chip live fun','ON'), m.fun); fu.title = '펀네이션 방송 보러 가기';
+          chips.appendChild(fu);
+        }
+        c.appendChild(chips);
+        if(m.live_title){ // 방제: 누르면 그 방송으로 이동 (유튜브 → 숲 → 펀네이션 순)
+          var bt = el('a', 'btitle', m.live_title);
+          setLink(bt, m.on ? 'https://www.youtube.com/watch?v=' + m.video : (m.soop || m.fun)); bt.title = m.live_title;
+          c.appendChild(bt);
+        }
+      } else if(m.channel || (m.links || []).some(function(l){ return /sooplive|afreecatv|funnation|funn\.at/i.test(l.value); })){
+        c.appendChild(el('span','chip off','OFF'));
+      }
+      var more = el('button','more','더보기'); more.type = 'button';
+      more.hidden = !(m.links && m.links.length);
+      more.addEventListener('click', function(){ openSheet(m); });
+      c.appendChild(more);
+      grid.appendChild(c);
+    });
+    box.appendChild(grid);
+  });
+  renderSchedule(d.schedule || [], d.memo || []);
+  try{ renderPosts(d); }catch(e){ $('feed').textContent = '소식을 표시하지 못했어요'; } // 소식에 문제가 생겨도 멤버 카드는 그대로
+}
+
+// "11/3(월) 17:00 내용" 또는 "11월 3일 ..." 형태면 날짜를 따로 보여주고 오늘·지난 일정을 표시
+function parseItem(line){
+  var m = line.match(/^(?:(\d{4})\s*[\/.년-]\s*)?(\d{1,2})\s*[\/.월]\s*(\d{1,2})\s*일?\s*(\([^)]*\))?\s*(.*)$/);
+  if(!m) return {text: line};
+  var Y = m[1] ? +m[1] : 0; m = [m[0], m[2], m[3], m[4], m[5]]; // 년도 적힌 일정 (2027년 줄 아래)
+  var rest = m[4], tm = '';
+  var t = rest.match(/^(\d{1,2}:\d{2}|오전\s*\d{1,2}시|오후\s*\d{1,2}시)\s*(.*)$/);
+  if(t){ tm = t[1]; rest = t[2]; }
+  var now = new Date(), mon = +m[1], day = +m[2], y = now.getFullYear();
+  if(Y) y = Y; else if(mon - (now.getMonth()+1) > 6) y--; else if((now.getMonth()+1) - mon > 6) y++;
+  var dt = new Date(y, mon-1, day), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  // 기간 일정: "~17(화)" 또는 "~ 11/17" 처럼 끝나는 날이 있으면 그날까지 매일 '오늘'
+  var end = dt, r = rest.match(/^~\s*(?:(\d{1,2})\s*[\/.월]\s*)?(\d{1,2})\s*일?/);
+  if(r){
+    var em = r[1] ? +r[1] : mon, ed = +r[2], ey = y + (em < mon ? 1 : 0);
+    var e = new Date(ey, em-1, ed);
+    if(e >= dt && e - dt < 60 * 86400000) end = e;
+  }
+  return {date: mon + '/' + day + (m[3] || ''), y: y, time: tm, text: rest, end: end,
+          when: (dt <= today && today <= end) ? 'today' : (end < today ? 'past' : '')};
+}
+// 일정·메모 속 주소는 짧은 이름표가 달린 링크로 (긴 주소가 그대로 보이지 않게)
+function linkLabel(u){
+  var h = (u.match(/^https?:\/\/([^\/?#]+)/i) || [])[1] || '';
+  h = h.replace(/^www\./, '');
+  if(/sooplive|afreecatv/.test(h)) return /\/post\//.test(u) ? '숲 게시글 보기' : '숲에서 보기';
+  if(/youtube\.com|youtu\.be/.test(h)) return '유튜브에서 보기';
+  if(/funnation|funn\.at/.test(h)) return '펀네이션에서 보기';
+  if(/open\.kakao/.test(h)) return '오픈카톡 열기';
+  return h || '링크 열기';
+}
+function withLinks(node, text){
+  (text || '').split(/(https?:\/\/[^\s]+)/).forEach(function(part, i){
+    if(i % 2){ var a = el('a', 'lnk', '🔗 ' + linkLabel(part) + ' ↗'); a.href = part; a.target = '_blank'; a.rel = 'noopener'; a.title = part; node.appendChild(a); }
+    else if(part) node.appendChild(document.createTextNode(part));
+  });
+  return node;
+}
+var SHOW_OLD = false;
+document.addEventListener('click', function(e){
+  if(e.target && e.target.id === 'oldBtn'){
+    SHOW_OLD = !SHOW_OLD;
+    var n = $('schedOld').querySelectorAll('.sday').length;
+    e.target.textContent = SHOW_OLD ? '지난 일정 닫기 ▴' : '지난 일정 ' + n + ' ▾';
+    $('oldWrap').hidden = !SHOW_OLD;
+    e.target.classList.toggle('on', SHOW_OLD);
+  }
+});
+function renderSchedule(sched, memo){
+  var ul = $('schedList'); ul.innerHTML = '';
+  var upcoming = 0;
+  // 하루에 칸 하나: 날짜는 칸 맨 위에 한 번, 일정은 한 줄에 하나 (시간 있으면 왼쪽에 시간, 없으면 ·)
+  var day = null, dayKey = null;
+  function newDay(it){
+    day = el('li', 'sday' + (it.when ? ' ' + it.when : ''));
+    day._when = it.when || '';
+    day._y = it.y || 0;
+    var yest = new Date(); yest.setHours(0,0,0,0); yest.setDate(yest.getDate() - 1);
+    day._old = !!(it.end && it.end < yest); // 그저께 이전 = 지난 일정 칸으로
+    if(it.date){
+      var h = el('div', 'sdh'); h.appendChild(el('b', null, it.date));
+      if(it.when === 'today') h.appendChild(el('span', 'sbadge', '오늘'));
+      day.appendChild(h);
+    }
+    ul.appendChild(day);
+  }
+  sched.forEach(function(line){
+    var it = parseItem(line);
+    if(it.date){
+      var key = it.y + '/' + it.date.replace(/\(.*$/, '');
+      if(!day || key !== dayKey){ newDay(it); dayKey = key; }
+    } else if(!day){ newDay(it); dayKey = null; }
+    var text = it.date ? it.text : line, tm = it.time || '';
+    if(!text.trim()) return; // "11/9" 처럼 날짜만 적은 줄
+    if(!tm){ // 아래 줄 맨 앞의 시간도 시간 칸으로 ("21:00 이우연 야방")
+      var t2 = text.match(/^\s*(\d{1,2}:\d{2}|오전\s*\d{1,2}시|오후\s*\d{1,2}시)\s+(.*)$/);
+      if(t2){ tm = t2[1]; text = t2[2]; }
+    }
+    var g = text.match(/^\s*갠방\s*[:：]\s*(.+)$/);
+    if(g){
+      var row = el('div', 'ssolo'); row.appendChild(el('span', 'slb', '갠방'));
+      var nm = el('div', 'snames');
+      g[1].split(/[\s,，、]+/).forEach(function(n){ if(n) nm.appendChild(el('span', null, n)); });
+      row.appendChild(nm); day.appendChild(row);
+      return;
+    }
+    var r = el('div', 'srow');
+    var ap = tm.match(/^(오전|오후)\s*(\d{1,2})시$/); // "오후 9시" → 21:00 (칸 맞춤)
+    if(ap){ var hh = +ap[2] % 12 + (ap[1] === '오후' ? 12 : 0); tm = (hh < 10 ? '0' : '') + hh + ':00'; }
+    r.appendChild(el('span', tm ? 'st' : 'st no', tm || '·'));
+    r.appendChild(withLinks(el('span', 'tx'), text));
+    day.appendChild(r);
+    if(day._when === 'today') upcoming++; // 버튼 숫자는 오늘 일정 줄 수
+  });
+  // 갠방 줄은 그날 칸 맨 아래로
+  [].forEach.call(ul.querySelectorAll('.ssolo'), function(r){ r.parentNode.appendChild(r); });
+  // 그저께 이전 일정은 '지난 일정' 칸으로 (버튼 바로 아래 상자, 날짜순)
+  var ol = $('schedOld'); ol.innerHTML = '';
+  var olds = [].filter.call(ul.children, function(li){ return li._old; });
+  olds.forEach(function(li){ ol.appendChild(li); });
+  // 년도가 바뀌는 곳에 한 번만 파란 줄 "2027년"
+  var thisY = new Date().getFullYear();
+  [ol, ul].forEach(function(list){
+    var prev = thisY;
+    [].slice.call(list.children).forEach(function(li){
+      if(li._y && li._y !== prev){
+        var yd = el('li', 'ydiv', li._y + '년'); list.insertBefore(yd, li);
+        prev = li._y;
+      }
+    });
+  });
+  $('oldBtn').hidden = !olds.length;
+  $('oldBtn').textContent = (SHOW_OLD ? '지난 일정 닫기 ▴' : '지난 일정 ' + olds.length + ' ▾');
+  $('oldBtn').classList.toggle('on', SHOW_OLD);
+  $('oldWrap').hidden = !(SHOW_OLD && olds.length);
+  if(!sched.length || !ul.children.length) ul.appendChild(el('li','empty', olds.length ? '앞으로 남은 일정이 없어요' : '등록된 일정이 없어요'));
+  $('schedCount').textContent = upcoming ? upcoming : '';
+  $('schedBtn').title = upcoming ? '오늘 일정 ' + upcoming + '개' : '오늘 일정 없음';
+  var ml = $('memoList'); ml.innerHTML = '';
+  // 빈 줄은 주제 사이 간격, 빈 줄 바로 다음 줄(과 맨 첫 줄)은 주제 제목
+  var afterGap = true;
+  memo.forEach(function(line){
+    if(!line.trim()){ ml.appendChild(el('li', 'gap')); afterGap = true; return; }
+    ml.appendChild(withLinks(el('li', afterGap ? 'mt' : null), line));
+    afterGap = false;
+  });
+  if(!memo.some(function(l){ return l.trim(); })) ml.appendChild(el('li','empty','메모가 없어요'));
+}
+// ── 소식 ──
+var pf = {src: 'all', who: ''};
+var ICON = {
+  yt: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M21.6 7.2a2.6 2.6 0 0 0-1.8-1.8C18.2 5 12 5 12 5s-6.2 0-7.8.4A2.6 2.6 0 0 0 2.4 7.2 27 27 0 0 0 2 12a27 27 0 0 0 .4 4.8 2.6 2.6 0 0 0 1.8 1.8C5.8 19 12 19 12 19s6.2 0 7.8-.4a2.6 2.6 0 0 0 1.8-1.8A27 27 0 0 0 22 12a27 27 0 0 0-.4-4.8zM10 15V9l5.2 3z"/></svg>',
+  soop: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="12" cy="12" r="3.4" fill="currentColor"/></svg>',
+  like: '<svg viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>',
+  cmt: '<svg viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M4 5h16v11H9l-5 4z"/></svg>'
+};
+function svgEl(tag, cls, svg, text){ var e = el(tag, cls); e.innerHTML = svg; if(text) e.appendChild(document.createTextNode(text)); return e; }
+function agoText(p){
+  var s = (Date.now() - new Date(p.ts)) / 1000;
+  if(s < 60) return '방금';
+  if(s < 3600) return Math.floor(s/60) + '분 전';
+  if(s < 86400) return Math.floor(s/3600) + '시간 전';
+  return Math.floor(s/86400) + '일 전';
+}
+function dayLabel(ts){
+  var d = new Date(ts), now = new Date();
+  var diff = Math.round((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 86400000);
+  if(diff <= 0) return '오늘';
+  if(diff === 1) return '어제';
+  return (d.getMonth()+1) + '/' + d.getDate() + ' (' + '일월화수목금토'[d.getDay()] + ')';
+}
+function linkify(box, text){
+  (text || '').split(/(https?:\/\/[^\s]+)/).forEach(function(part, i){
+    if(i % 2){ var a = el('a', null, part); a.href = part; a.target = '_blank'; a.rel = 'noopener'; box.appendChild(a); }
+    else if(part) box.appendChild(document.createTextNode(part));
+  });
+}
+function avatarInto(box, m, name){
+  if(m && m.avatar){ var img = el('img'); img.src = m.avatar; img.alt = ''; img.referrerPolicy = 'no-referrer'; img.loading = 'lazy'; box.appendChild(img); }
+  else box.textContent = (name || '?').slice(0, 1);
+}
+function renderPosts(d){
+  var all = (d.posts || []).slice().sort(function(a, b){ return new Date(b.ts) - new Date(a.ts); }); // 최신 글이 위로
+  var byName = {};
+  d.groups.forEach(function(g){ g.members.forEach(function(m){ byName[m.name] = m; }); });
+  var isFresh = function(p){ return Date.now() - new Date(p.ts) < 86400000; };
+  $('postsCount').textContent = all.filter(isFresh).length || '';
+  if(d.postsUpdated){
+    var t = new Date(d.postsUpdated);
+    $('postsNote').textContent = '소식은 약 10분마다 새로 확인합니다 (' + t.getHours() + ':' + ('0'+t.getMinutes()).slice(-2) + ' 확인)';
+  }
+
+  // 출처 탭
+  var tabs = $('srcTabs'); tabs.innerHTML = '';
+  [['all','전체'],['yt','유튜브'],['soop','숲']].forEach(function(t){
+    var n = all.filter(function(p){ return t[0] === 'all' || p.src === t[0]; }).length;
+    var b = el('button', 'tab' + (pf.src === t[0] ? ' on' : '')); b.type = 'button';
+    if(t[0] !== 'all'){ var dot = el('i'); dot.style.background = t[0] === 'yt' ? 'var(--live)' : 'var(--soop)'; b.appendChild(dot); }
+    b.appendChild(document.createTextNode(t[1] + ' '));
+    b.appendChild(el('small', null, n));
+    b.addEventListener('click', function(){ pf.src = t[0]; renderPosts(d); });
+    tabs.appendChild(b);
+  });
+
+  // 멤버 줄 (글이 있는 멤버만, 최근 글 올린 순서)
+  var bySrc = all.filter(function(p){ return pf.src === 'all' || p.src === pf.src; });
+  var names = [];
+  bySrc.forEach(function(p){ if(names.indexOf(p.member) < 0) names.push(p.member); });
+  if(pf.who && names.indexOf(pf.who) < 0) pf.who = '';
+  var who = $('who'); who.innerHTML = ''; who.hidden = names.length < 2;
+  [''].concat(names).forEach(function(name){
+    var b = el('button', pf.who === name ? 'on' : ''); b.type = 'button';
+    var av = el('span', 'av'), inner = el('b');
+    if(name){
+      avatarInto(inner, byName[name], name);
+      var nf = bySrc.filter(function(p){ return p.member === name && isFresh(p); }).length;
+      av.appendChild(inner);
+      if(nf) av.appendChild(el('em', null, nf));
+    } else { inner.textContent = '전체'; av.appendChild(inner); }
+    b.appendChild(av);
+    b.appendChild(el('span', 'nm', name || '전체'));
+    b.addEventListener('click', function(){ pf.who = name; renderPosts(d); });
+    who.appendChild(b);
+  });
+
+  // 글 목록
+  var list = bySrc.filter(function(p){ return !pf.who || p.member === pf.who; });
+  var feed = $('feed'); feed.innerHTML = '';
+  if(!list.length){ feed.appendChild(el('p', 'empty', '최근 3일 동안 올라온 글이 없어요')); return; }
+  var lastDay = '';
+  list.forEach(function(p){
+    var day = dayLabel(p.ts);
+    if(day !== lastDay){ feed.appendChild(el('div', 'day' + (day === '오늘' ? ' today' : ''), day)); lastDay = day; }
+    var fresh = Date.now() - new Date(p.ts) < 6 * 3600000;
+    var card = el('article', 'post ' + p.src + (fresh ? ' fresh' : ''));
+    var ph = el('div', 'ph'), av = el('span', 'av');
+    avatarInto(av, byName[p.member], p.member);
+    var nm = el('div', 'nm'); nm.appendChild(el('b', null, p.member));
+    var when = el('span');
+    if(fresh) when.appendChild(el('span', 'n', 'NEW'));
+    when.appendChild(document.createTextNode(agoText(p)));
+    nm.appendChild(when);
+    ph.appendChild(av); ph.appendChild(nm);
+    ph.appendChild(svgEl('span', 'src ' + p.src, ICON[p.src], p.src === 'yt' ? '커뮤니티' : '숲 방송국'));
+    card.appendChild(ph);
+    if(p.title) card.appendChild(el('p', 'ttl', p.title));
+    if(p.text){ var tx = el('div', 'ptx'); linkify(tx, p.text); card.appendChild(tx); }
+
+    var imgs = p.imgs || [];
+    if(p.video){
+      var mv = el('div', 'media'), va = el('a');
+      va.href = 'https://www.youtube.com/watch?v=' + p.video.id; va.target = '_blank'; va.rel = 'noopener';
+      if(p.video.thumb){ var vi = el('img'); vi.src = p.video.thumb; vi.alt = ''; vi.referrerPolicy = 'no-referrer'; vi.loading = 'lazy'; va.appendChild(vi); }
+      if(p.video.title) va.appendChild(el('span', 'vt', '▶ ' + p.video.title));
+      mv.appendChild(va); card.appendChild(mv);
+    } else if(imgs.length){
+      var n = Math.min(imgs.length, 2), md = el('div', 'media' + (n === 2 ? ' n2' : ''));
+      imgs.slice(0, n).forEach(function(src, i){
+        var a = el('a'); a.href = p.url; a.target = '_blank'; a.rel = 'noopener';
+        var im = el('img'); im.src = src; im.alt = ''; im.referrerPolicy = 'no-referrer'; im.loading = 'lazy'; a.appendChild(im);
+        if(i === n - 1 && imgs.length > n) a.appendChild(el('span', 'plus', '+' + (imgs.length - n)));
+        md.appendChild(a);
+      });
+      card.appendChild(md);
+    }
+    if(p.poll && p.poll.length){
+      var poll = el('div', 'poll');
+      p.poll.forEach(function(c){
+        var row = el('div');
+        var pct = parseInt(c[1], 10);
+        if(!isNaN(pct)){ var bar = el('i'); bar.style.width = pct + '%'; row.appendChild(bar); }
+        row.appendChild(el('span', null, c[0]));
+        if(c[1]) row.appendChild(el('b', null, c[1]));
+        poll.appendChild(row);
+      });
+      card.appendChild(poll);
+    }
+    var pfoot = el('div', 'pf');
+    if(p.like) pfoot.appendChild(svgEl('span', 'st', ICON.like, p.like));
+    if(p.cmt) pfoot.appendChild(svgEl('span', 'st', ICON.cmt, p.cmt));
+    var go = el('a', 'go', (p.src === 'yt' ? '유튜브에서' : '숲에서') + ' 원문 보기 ↗');
+    go.href = p.url; go.target = '_blank'; go.rel = 'noopener';
+    pfoot.appendChild(go);
+    card.appendChild(pfoot);
+    feed.appendChild(card);
+  });
+}
+
+function route(){
+  var ph = parseHash();
+  if(lastData && ph.pg !== CUR_PG) render(lastData); // 크루 전환
+  var sch = ph.view === 'schedule', pst = ph.view === 'posts';
+  $('schedule').hidden = !sch; $('posts').hidden = !pst; $('home').hidden = sch || pst;
+  $('schedBtn').classList.toggle('cur', sch); $('postsBtn').classList.toggle('cur', pst);
+  if(sch || pst) window.scrollTo(0, 0);
+}
+window.addEventListener('hashchange', route);
+route();
+
+function openSheet(m){
+  $('sheetName').textContent = m.name;
+  $('sheetPic').src = m.avatar || '';
+  var rows = $('rows'); rows.innerHTML = '';
+  m.links.forEach(function(l){
+    var r = el('a','row');
+    r.href = /^https?:\/\//i.test(l.value) ? l.value : 'https://' + l.value;
+    r.target = '_blank'; r.rel = 'noopener';
+    if(l.label) r.appendChild(el('span','lb', l.label));
+    r.appendChild(el('span','v', l.value));
+    rows.appendChild(r);
+  });
+  $('dim').classList.add('show');
+  $('close').focus();
+}
+function closeSheet(){ $('dim').classList.remove('show'); }
+$('close').addEventListener('click', closeSheet);
+$('dim').addEventListener('click', function(e){ if(e.target === this) closeSheet(); });
+document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeSheet(); });
+
+// 데이터는 이 페이지 안에 들어 있어요. 1분마다 새 결과를 확인합니다.
+// GitHub Pages 반영이 멈춰도 라이브 표시가 계속 갱신되도록, 저장소의 live-data 칸에 저장된 최신 결과도 같이 읽어서
+// 둘 중 더 최근 것을 보여 줘요.
+var lastData = null;
+function readData(doc){ return JSON.parse(doc.getElementById('data').textContent); }
+function stamp(d){ var t = d && Date.parse(d.updated); return isNaN(t) ? 0 : t; }
+function fromPage(){
+  return fetch(location.pathname + '?t=' + Date.now(), {cache:'no-store'})
+    .then(function(r){ if(!r.ok) throw 0; return r.text(); })
+    .then(function(html){ return readData(new DOMParser().parseFromString(html, 'text/html')); });
+}
+// 저장소 live-data의 최신 결과 읽기.
+// 1순위 GitHub API (저장 기간 약 1분, 바뀌지 않았으면 304로 가볍게 확인) → 안 되면 파일 서버(최대 5분 늦을 수 있음)
+var API_ETAG = '', API_DATA = null, API_OFF_UNTIL = 0;
+function fromRepoApi(repo){
+  if(Date.now() < API_OFF_UNTIL) return Promise.reject(0);
+  var h = {'Accept': 'application/vnd.github.raw+json'};
+  if(API_ETAG && API_DATA) h['If-None-Match'] = API_ETAG;
+  return fetch('https://api.github.com/repos/' + repo + '/contents/data.json?ref=live-data', {headers: h, cache: 'no-store'})
+    .then(function(r){
+      if(r.status === 304 && API_DATA) return API_DATA;
+      if(r.status === 403 || r.status === 429){ API_OFF_UNTIL = Date.now() + 15 * 60000; throw 0; } // 요청 한도 → 15분 동안 파일 서버 사용
+      if(!r.ok) throw 0;
+      var et = r.headers.get('ETag');
+      return r.json().then(function(d){ if(!d || !d.groups) throw 0; API_ETAG = et || ''; API_DATA = d; return d; });
+    });
+}
+function fromRepoRaw(repo){
+  return fetch('https://raw.githubusercontent.com/' + repo + '/live-data/data.json?t=' + Date.now(), {cache:'no-store'})
+    .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+    .then(function(d){ if(!d || !d.groups) throw 0; return d; });
+}
+function fromRepo(){
+  var repo = lastData && lastData.repo;
+  if(!repo || !/^[\w.-]+\/[\w.-]+$/.test(repo)) return Promise.reject(0);
+  return fromRepoApi(repo).catch(function(){ return fromRepoRaw(repo); });
+}
+function settle(p){ return p.then(function(d){ return d; }, function(){ return null; }); }
+// 사이트(GitHub Pages)에 뜬 화면 파일이 옛 버전이면, 저장소 live-data에 저장된 최신 화면으로 바꿔 보여 줌
+var MY_CODE = '', TIMER = null;
+function swapToRepoPage(repo){
+  try{ var last = +sessionStorage.getItem('swapAt') || 0; if(Date.now() - last < 10 * 60000) return; sessionStorage.setItem('swapAt', Date.now()); }catch(e){ return; }
+  fetch('https://raw.githubusercontent.com/' + repo + '/live-data/index.html?t=' + Date.now(), {cache:'no-store'})
+    .then(function(r){ if(!r.ok) throw 0; return r.text(); })
+    .then(function(html){
+      if(html.indexOf('id="data"') < 0) return;
+      clearInterval(TIMER);
+      try{ sessionStorage.setItem('noCount', '1'); }catch(e){} // 화면만 새로 바꾸는 거라 방문으로 세지 않음
+      document.open(); document.write(html); document.close();
+    }).catch(function(){});
+}
+function load(manual){
+  Promise.all([settle(fromPage()), settle(fromRepo())]).then(function(res){
+    var r = res[1];
+    if(r && r.code && MY_CODE && r.code !== MY_CODE && !ON_BACKUP && repoOf(r)){ swapToRepoPage(repoOf(r)); }
+    CHECKED = true;
+    var best = lastData;
+    res.forEach(function(d){ if(d && stamp(d) >= stamp(best)) best = d; });
+    if(best && (res[0] || res[1])){ render(best); if(manual) flash('최신 결과를 불러왔어요'); }
+    else { if(lastData) render(lastData); if(manual) flash('불러오지 못했어요. 잠시 후 다시 눌러 주세요'); }
+  });
+}
+var ft;
+function flash(msg){
+  var f = $('flash'); f.textContent = msg; f.classList.add('show');
+  clearTimeout(ft); ft = setTimeout(function(){ f.classList.remove('show'); }, 1800);
+}
+try{ var first = readData(document); MY_CODE = first.code || ''; render(first); load(false); } // 열자마자 저장소의 더 최신 결과가 있는지 한 번 확인
+catch(e){ $('meta').textContent = '아직 준비 중이에요. 잠시 후 다시 열어 주세요.'; }
+TIMER = setInterval(function(){ load(false); }, 60 * 1000); // 1분마다 새 결과 확인
+// 휴대폰은 화면이 꺼지거나 다른 앱을 쓰는 동안 위 1분 타이머를 멈춰요.
+// 사이트가 다시 화면에 보이면(화면 켜기·탭 복귀·인터넷 재연결) 바로 최신 결과를 불러오고, 그 전까지 노란 칸은 숨겨요.
+var LAST_WAKE = 0;
+function wake(){
+  if(document.visibilityState === 'hidden' || Date.now() - LAST_WAKE < 3000) return;
+  LAST_WAKE = Date.now();
+  CHECKED = false; $('stale').hidden = true;
+  load(false);
+}
+document.addEventListener('visibilitychange', wake);
+window.addEventListener('focus', wake);
+window.addEventListener('online', wake);
+window.addEventListener('pageshow', function(e){ if(e.persisted){ LAST_WAKE = 0; wake(); } });
+$('reloadBtn').addEventListener('click', function(){ location.reload(); });
+// 방문 통계 (GoatCounter, 통계는 본인만 볼 수 있음). 실패해도 화면에는 아무 영향 없음
+(function(){
+  try{
+    if(location.protocol === 'file:') return;
+    if(sessionStorage.getItem('noCount')){ sessionStorage.removeItem('noCount'); return; }
+  }catch(e){}
+  var path = location.hostname === 'ch010-def.github.io' ? '/MB_live/' : '비상주소';
+  var sent = {};
+  function cnt(o){ try{ if(window.goatcounter && window.goatcounter.count) window.goatcounter.count(o); }catch(e){} }
+  function mbu(){ // 마범대 화면을 본 횟수 (한 번 들어올 때 한 번만)
+    if(!sent.mbu && /^#mbu/.test(location.hash)){ sent.mbu = 1; cnt({path: '마범대 보기', title: '마범대 보기', event: true}); }
+  }
+  var s = document.createElement('script');
+  s.async = true; s.src = 'https://gc.zgo.at/count.js';
+  s.setAttribute('data-goatcounter', 'https://ch010-def-mblive.goatcounter.com/count');
+  s.setAttribute('data-goatcounter-settings', '{"no_onload": true}');
+  s.onload = function(){ cnt({path: path, title: '엠비크루 라이브'}); mbu(); };
+  window.addEventListener('hashchange', mbu);
+  document.body.appendChild(s);
+})();
+</script>
+</body>
+</html>
