@@ -725,18 +725,32 @@ function renderCal(full){
       [nm0].concat(mb.alias || []).forEach(function(a){ who[a] = show; });
     });
     var cnt = {}, order = [], nd = new Date(CAL.y, CAL.m + 1, 0).getDate();
+    var dayEv = function(dd){ return (data.byDay[CAL.y + '-' + (CAL.m + 1) + '-' + dd] || []).filter(function(e){ return e.g !== '1'; }); };
+    // 찾을 이름: 멤버 이름·별명 + 이 달 '갠방 :' 줄에 적힌 이름 (지금 목록에 없는 사람도 찾게)
+    var names = {};
+    for(var a0 in who) if(a0 !== full.title) names[a0] = 1;
+    for(var d0 = 1; d0 <= nd; d0++) dayEv(d0).forEach(function(e){
+      if(!e.solo) return;
+      e.text.replace(/^\s*갠방\s*[:：]\s*/, '').replace(/[()（）]/g, ' ').split(/[\s,，、\/]+/).forEach(function(nm){
+        nm = nm.replace(/[은는이가]?\s*합방$/, ''); // "(찡시는합방)" → 찡시
+        if(nm && nm.length <= 10) names[nm] = 1;
+      });
+    });
+    var nlist = Object.keys(names).sort(function(a, b){ return b.length - a.length; }); // 긴 이름 먼저 ("권체리"를 "체리"보다 먼저)
+    // 그날 엠비크루 일정(공통 포함) 어느 줄에든 이름이 나오면 방송 1번
     for(var dd = 1; dd <= nd; dd++){
       var dayNames = {};
-      (data.byDay[CAL.y + '-' + (CAL.m + 1) + '-' + dd] || []).forEach(function(e){
-        if(!e.solo || e.g === '1') return;
-        e.text.replace(/^\s*갠방\s*[:：]\s*/, '').replace(/[()（）]/g, ' ').split(/[\s,，、\/]+/).forEach(function(nm){
-          nm = nm.replace(/[은는이가]?\s*합방$/, ''); // "(찡시는합방)" → 찡시
-          if(nm && nm.length <= 10) dayNames[who[nm] || nm] = 1;
+      dayEv(dd).forEach(function(e){
+        var t = e.text;
+        nlist.forEach(function(nm){
+          if(t.indexOf(nm) < 0) return;
+          dayNames[who[nm] || nm] = 1;
+          t = t.split(nm).join(' ');
         });
       });
       for(var nm in dayNames){ if(!cnt[nm]){ cnt[nm] = 0; order.push(nm); } cnt[nm]++; }
     }
-    var hh = el('h5', null, (CAL.m + 1) + '월 방송 체크'); hh.appendChild(el('small', null, '갠방 + 합방, 하루 1번씩'));
+    var hh = el('h5', null, (CAL.m + 1) + '월 방송 체크'); hh.appendChild(el('small', null, '일정에 이름이 나온 날, 하루 1번씩'));
     sb.appendChild(hh);
     if(!order.length) sb.appendChild(el('p', 'none', '이 달에 적힌 방송이 없어요.'));
     else {
