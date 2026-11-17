@@ -92,6 +92,53 @@ main{max-width:720px;margin:0 auto;padding:0 14px 56px}
 .sched li.ydiv{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:800;color:var(--accent);border-top:0;padding:14px 0 2px}
 .sched li.ydiv::before,.sched li.ydiv::after{content:"";flex:1;height:1px;background:rgba(76,141,255,.45)}
 .sched li.ydiv + li{border-top:0}
+.switch a.calsw{color:#e9c27a;border-color:rgba(233,194,122,.55)}
+.switch a.calsw.cur{color:#14110a;background:#e9c27a;border-color:#e9c27a;box-shadow:0 4px 14px rgba(233,194,122,.3)}
+body.v-cal .hero,body.v-cal #guideMain,body.v-cal #guideSub{display:none}
+#cal{margin-top:22px}
+.calcard{--g0:#ff8a3d;--g1:#4c8dff;--ga:#2fc49a;padding:18px}
+.caltop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.caltop h3{margin:0;font-size:20px}
+.calnav{display:flex;gap:6px}
+.calnav button{font:inherit;font-size:14px;font-weight:800;color:var(--ink);background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:9px;min-width:34px;height:34px;padding:0 10px;cursor:pointer}
+.calnav button:hover{border-color:#e9c27a}
+.calbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.calleg{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+.calleg b{display:inline-flex;align-items:center;gap:5px;font-weight:700}
+.calf{display:flex;gap:6px}
+.calf button{font:inherit;font-size:12.5px;font-weight:800;padding:5px 11px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:transparent;cursor:pointer}
+.calf button.on{color:#fff;border-color:#fff;background:rgba(255,255,255,.08)}
+.gt{display:inline-block;font-size:10.5px;font-weight:900;border-radius:5px;padding:0 4px;line-height:16px;color:#fff;vertical-align:1px;margin-right:4px}
+.gt.g0{background:var(--g0)}.gt.g1{background:var(--g1)}.gt.ga{background:var(--ga)}
+.caldow,.calgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.caldow{font-size:12px;color:var(--muted);text-align:center;margin-bottom:4px;font-weight:700}
+.caldow span:first-child{color:#ff6b7a}.caldow span:last-child{color:#7aa8ff}
+.cc{min-height:112px;border:1px solid var(--line);border-radius:9px;padding:5px;background:rgba(255,255,255,.015);cursor:pointer;text-align:left;font:inherit;color:inherit;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch;min-width:0}
+.cc .n{font-size:12px;font-weight:800;color:#cfd6ea;margin-bottom:3px}
+.cc.sun .n{color:#ff6b7a}.cc.sat .n{color:#7aa8ff}
+.cc.out{opacity:.25}.cc.past{opacity:.5}
+.cc.today{border-color:#fff;background:rgba(255,255,255,.07)}
+.cc.sel{box-shadow:inset 0 0 0 2px #e9c27a}
+.ce{font-size:11px;line-height:1.3;padding:2px 4px;border-radius:5px;margin-bottom:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;border-left:3px solid}
+.ce.g0{background:rgba(255,138,61,.16);border-color:var(--g0)}
+.ce.g1{background:rgba(76,141,255,.16);border-color:var(--g1)}
+.ce.ga{background:rgba(47,196,154,.16);border-color:var(--ga)}
+.cmore{font-size:10.5px;color:var(--muted)}
+.cdots{display:none;gap:3px;justify-content:center;flex-wrap:wrap;margin-top:4px}
+.cdots i{width:6px;height:6px;border-radius:50%}
+.cdots i.g0{background:var(--g0)}.cdots i.g1{background:var(--g1)}.cdots i.ga{background:var(--ga)}
+.calday{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.calday h4{margin:0 0 6px;font-size:15px}
+.calday .hint{color:var(--muted);font-size:13.5px;margin:0}
+.calday .srow .tx .gt{margin-right:6px}
+.calday .solo .tx{color:var(--muted);font-size:14px}
+@media (max-width:640px){
+  .calcard{padding:14px 12px}
+  .cc{min-height:52px;padding:5px 2px;text-align:center}
+  .cc .ce,.cc .cmore{display:none}
+  .cc .cdots{display:flex}
+  .calbar{flex-direction:column;align-items:flex-start}
+}
 .oldbtn.on{color:#fff;border-color:var(--accent);background:rgba(76,141,255,.2)}
 .oldwrap{margin:0 0 4px}
 .oldwrap > .sched{background:rgba(255,255,255,.035);border:1px solid var(--line);border-top:0;border-radius:0 0 12px 12px;padding:0 12px 2px}
@@ -336,6 +383,18 @@ body.pg-sub .count .chip.live{background:var(--soop)}
       <ul class="memo-list" id="memoList"></ul>
     </section>
   </div>
+  <div id="cal" hidden>
+    <section class="card calcard">
+      <div class="caltop">
+        <h3 id="calTitle"></h3>
+        <div class="calnav"><button type="button" id="calPrev" aria-label="지난달">‹</button><button type="button" id="calToday">오늘</button><button type="button" id="calNext" aria-label="다음 달">›</button></div>
+      </div>
+      <div class="calbar"><div class="calleg" id="calLeg"></div><div class="calf" id="calF"></div></div>
+      <div class="caldow"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
+      <div class="calgrid" id="calGrid"></div>
+      <div class="calday" id="calDay"></div>
+    </section>
+  </div>
   <div id="posts" hidden>
     <a class="back" href="#">← <i class="lv"></i>라이브 · 멤버 목록으로</a>
     <div class="ptop">
@@ -396,6 +455,7 @@ function showBackup(d, ago){
 function parseHash(){
   var h = location.hash.replace(/^#/, ''), parts = h.split('/');
   var views = {schedule: 1, posts: 1};
+  if(parts[0] === 'cal') return {pg: '', view: 'cal'}; // 전체 일정 (두 그룹 달력)
   if(views[parts[0]]) return {pg: '', view: parts[0]};
   return {pg: parts[0] || '', view: views[parts[1]] ? parts[1] : 'home'};
 }
@@ -419,7 +479,17 @@ function renderSwitch(full, pg){
   [{key: '', label: full.title}].concat(subs.map(function(s){ return {key: s.key, label: s.label || s.title}; })).forEach(function(p){
     var a = el('a', p.key === pg ? 'cur' : '', p.label);
     a.href = p.key ? '#' + p.key : '#';
+    a.setAttribute('data-k', p.key);
     nav.appendChild(a);
+  });
+  var c = el('a', 'calsw', '📅 전체 일정'); c.href = '#cal'; c.id = 'calLink';
+  nav.appendChild(c);
+  markSwitch();
+}
+function markSwitch(){ // 지금 보는 곳 버튼에 불 켜기
+  var cal = parseHash().view === 'cal';
+  [].forEach.call($('switch').children, function(a){
+    a.classList.toggle('cur', cal ? a.id === 'calLink' : (a.id !== 'calLink' && a.getAttribute('data-k') === CUR_PG));
   });
 }
 // 휴대폰(안드로이드)에서는 유튜브 링크를 유튜브 앱으로 바로 열기 (앱이 없으면 원래 주소를 브라우저로)
@@ -519,6 +589,7 @@ function render(full){
     box.appendChild(grid);
   });
   renderSchedule(d.schedule || [], d.memo || []);
+  try{ if(parseHash().view === 'cal') renderCal(full); }catch(e){}
   try{ renderPosts(d); }catch(e){ $('feed').textContent = '소식을 표시하지 못했어요'; } // 소식에 문제가 생겨도 멤버 카드는 그대로
 }
 
@@ -540,7 +611,7 @@ function parseItem(line){
     var e = new Date(ey, em-1, ed);
     if(e >= dt && e - dt < 60 * 86400000) end = e;
   }
-  return {date: mon + '/' + day + (m[3] || ''), y: y, time: tm, text: rest, end: end,
+  return {date: mon + '/' + day + (m[3] || ''), y: y, time: tm, text: rest, end: end, start: dt,
           when: (dt <= today && today <= end) ? 'today' : (end < today ? 'past' : '')};
 }
 // 일정·메모 속 주소는 짧은 이름표가 달린 링크로 (긴 주소가 그대로 보이지 않게)
@@ -570,6 +641,100 @@ document.addEventListener('click', function(e){
     e.target.classList.toggle('on', SHOW_OLD);
   }
 });
+// ───── 전체 일정 (두 그룹 일정을 한 달력에) ─────
+var CAL = {y: 0, m: 0, sel: '', f: 'all'};
+function dkey(d){ return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate(); }
+function calEvents(full){
+  var grps = [{label: full.title, sched: full.schedule || []}].concat((full.sub || []).map(function(s){ return {label: s.title || s.label, sched: s.schedule || []}; }));
+  var byDay = {}, seen = {};
+  grps.slice(0, 2).forEach(function(g, gi){
+    var cur = null;
+    g.sched.forEach(function(line, li){
+      var it = parseItem(line), text, tm = '';
+      if(it.date){ cur = it; text = it.text; tm = it.time || ''; }
+      else { if(!cur) return; text = line; }
+      text = text.replace(/^~\s*(?:\d{1,2}\s*[\/.월]\s*)?\d{1,2}\s*일?\s*(?:\([^)]*\))?\s*/, '');
+      if(!text.trim()) return;
+      if(!tm){ var t2 = text.match(/^\s*(\d{1,2}:\d{2})\s+(.*)$/); if(t2){ tm = t2[1]; text = t2[2]; } }
+      var solo = /^\s*갠방\s*[:：]/.test(text);
+      var id = dkey(cur.start) + '|' + tm + '|' + text;
+      if(seen[id]){ seen[id].g = 'a'; return; } // [공] 일정: 두 그룹에 다 있으면 한 번만, 두 색으로
+      var ev = {g: String(gi), time: tm, text: text, solo: solo, o: gi * 10000 + li};
+      seen[id] = ev;
+      for(var d = new Date(cur.start); d <= cur.end; d.setDate(d.getDate() + 1)){
+        (byDay[dkey(d)] = byDay[dkey(d)] || []).push(ev);
+      }
+    });
+  });
+  for(var k in byDay) byDay[k].sort(function(a, b){
+    return (a.solo - b.solo) || ((a.time ? 1 : 0) - (b.time ? 1 : 0)) || (a.time && b.time ? tmin(a.time) - tmin(b.time) : 0) || (a.o - b.o);
+  });
+  return {grps: grps, byDay: byDay};
+}
+function tmin(t){ var p = t.split(':'); return +p[0] * 60 + +p[1]; }
+function calShow(ev){ return CAL.f === 'all' || ev.g === 'a' || ev.g === CAL.f; }
+function calTag(g, grps){
+  var t = el('span', 'gt g' + g, g === 'a' ? '공' : ((grps[+g] || {}).label || '').charAt(0));
+  return t;
+}
+function renderCal(full){
+  var now = new Date();
+  if(!CAL.y){ CAL.y = now.getFullYear(); CAL.m = now.getMonth(); CAL.sel = dkey(now); }
+  var data = calEvents(full), grps = data.grps;
+  $('calTitle').textContent = CAL.y + '년 ' + (CAL.m + 1) + '월';
+  var leg = $('calLeg'); leg.innerHTML = '';
+  grps.slice(0, 2).forEach(function(g, i){ var b = el('b'); b.appendChild(calTag(String(i), grps)); b.appendChild(document.createTextNode(g.label)); leg.appendChild(b); });
+  var lb = el('b'); lb.appendChild(calTag('a', grps)); lb.appendChild(document.createTextNode('같이 하는 일정')); leg.appendChild(lb);
+  var fb = $('calF'); fb.innerHTML = '';
+  [['all', '전체']].concat(grps.slice(0, 2).map(function(g, i){ return [String(i), g.label]; })).forEach(function(p){
+    var b = el('button', CAL.f === p[0] ? 'on' : '', p[1]); b.type = 'button';
+    b.onclick = function(){ CAL.f = p[0]; renderCal(lastData); };
+    fb.appendChild(b);
+  });
+  var grid = $('calGrid'); grid.innerHTML = '';
+  var first = new Date(CAL.y, CAL.m, 1), start = new Date(CAL.y, CAL.m, 1 - first.getDay());
+  var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  var last = new Date(CAL.y, CAL.m + 1, 0), cells = Math.ceil((first.getDay() + last.getDate()) / 7) * 7;
+  for(var i = 0; i < cells; i++){
+    var d = new Date(start); d.setDate(start.getDate() + i);
+    var k = dkey(d), evs = (data.byDay[k] || []).filter(calShow);
+    var cls = 'cc' + (d.getMonth() !== CAL.m ? ' out' : '') + (d < today ? ' past' : '') + (+d === +today ? ' today' : '') +
+              (k === CAL.sel ? ' sel' : '') + (d.getDay() === 0 ? ' sun' : d.getDay() === 6 ? ' sat' : '');
+    var c = el('button', cls); c.type = 'button';
+    c.appendChild(el('div', 'n', String(d.getDate())));
+    var shown = evs.filter(function(e){ return !e.solo; }), dots = el('div', 'cdots');
+    shown.slice(0, 4).forEach(function(e){ c.appendChild(el('div', 'ce g' + e.g, (e.time ? e.time + ' ' : '') + e.text)); });
+    if(shown.length > 4) c.appendChild(el('div', 'cmore', '+' + (shown.length - 4) + '개'));
+    shown.slice(0, 5).forEach(function(e){ dots.appendChild(el('i', 'g' + e.g)); });
+    c.appendChild(dots);
+    (function(k){ c.onclick = function(){ CAL.sel = k; renderCal(lastData); }; })(k);
+    grid.appendChild(c);
+  }
+  // 고른 날의 일정 목록
+  var box = $('calDay'); box.innerHTML = '';
+  var p = CAL.sel.split('-'), sd = new Date(+p[0], +p[1] - 1, +p[2]);
+  var evs = (data.byDay[CAL.sel] || []).filter(calShow);
+  var h = el('h4', null, (sd.getMonth() + 1) + '/' + sd.getDate() + '(' + '일월화수목금토'.charAt(sd.getDay()) + ')' + (+sd === +today ? ' 오늘' : ''));
+  box.appendChild(h);
+  if(!evs.length){ box.appendChild(el('p', 'hint', '이날은 일정이 없어요. 다른 날짜를 눌러 보세요.')); return; }
+  var ul = el('div', 'sched');
+  evs.forEach(function(e){
+    var r = el('div', 'srow' + (e.solo ? ' solo' : ''));
+    r.appendChild(el('span', e.time ? 'st' : 'st no', e.time || '·'));
+    var tx = el('span', 'tx'); tx.appendChild(calTag(e.g, grps)); withLinks(tx, e.text);
+    r.appendChild(tx); ul.appendChild(r);
+  });
+  box.appendChild(ul);
+}
+function calMove(n){ // 달을 넘기면 그 달의 오늘(없으면 1일)을 골라 둠
+  CAL.m += n; if(CAL.m < 0){ CAL.m = 11; CAL.y--; } if(CAL.m > 11){ CAL.m = 0; CAL.y++; }
+  var now = new Date();
+  CAL.sel = (now.getFullYear() === CAL.y && now.getMonth() === CAL.m) ? dkey(now) : CAL.y + '-' + (CAL.m + 1) + '-1';
+  if(lastData) renderCal(lastData);
+}
+$('calPrev').onclick = function(){ calMove(-1); };
+$('calNext').onclick = function(){ calMove(1); };
+$('calToday').onclick = function(){ CAL.y = 0; if(lastData) renderCal(lastData); };
 function renderSchedule(sched, memo){
   var ul = $('schedList'); ul.innerHTML = '';
   var upcoming = 0;
@@ -793,10 +958,13 @@ function renderPosts(d){
 function route(){
   var ph = parseHash();
   if(lastData && ph.pg !== CUR_PG) render(lastData); // 크루 전환
-  var sch = ph.view === 'schedule', pst = ph.view === 'posts';
-  $('schedule').hidden = !sch; $('posts').hidden = !pst; $('home').hidden = sch || pst;
+  var sch = ph.view === 'schedule', pst = ph.view === 'posts', cal = ph.view === 'cal';
+  $('schedule').hidden = !sch; $('posts').hidden = !pst; $('cal').hidden = !cal; $('home').hidden = sch || pst || cal;
+  document.body.classList.toggle('v-cal', cal);
+  if(cal && lastData) renderCal(lastData);
+  if($('switch').children.length) markSwitch();
   $('schedBtn').classList.toggle('cur', sch); $('postsBtn').classList.toggle('cur', pst);
-  if(sch || pst) window.scrollTo(0, 0);
+  if(sch || pst || cal) window.scrollTo(0, 0);
 }
 window.addEventListener('hashchange', route);
 route();
@@ -916,6 +1084,7 @@ $('reloadBtn').addEventListener('click', function(){ location.reload(); });
   function cnt(o){ try{ if(window.goatcounter && window.goatcounter.count) window.goatcounter.count(o); }catch(e){} }
   function mbu(){ // 마범대 화면을 본 횟수 (한 번 들어올 때 한 번만)
     if(!sent.mbu && /^#mbu/.test(location.hash)){ sent.mbu = 1; cnt({path: '마범대 보기', title: '마범대 보기', event: true}); }
+    if(!sent.cal && /^#cal/.test(location.hash)){ sent.cal = 1; cnt({path: '전체 일정 보기', title: '전체 일정 보기', event: true}); }
   }
   var s = document.createElement('script');
   s.async = true; s.src = 'https://gc.zgo.at/count.js';

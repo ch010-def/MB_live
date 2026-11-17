@@ -145,12 +145,17 @@ def parse_list(text):
 def split_pages(text):
     """'페이지 이름' 줄로 목록을 나눔. 첫 부분 = 기본 페이지(엠비크루), 그 뒤 = 계열사 페이지(MBU 등)"""
     secs = [["", []]]
+    cur = secs[0]
     for raw in text.splitlines():
         m = re.match(r"^\s*페이지\s+(\S.*?)\s*$", raw)
         if m:
-            secs.append([m.group(1), []])
+            if m.group(1).strip().lower() in ("엠비크루", "엠", "mb", "mbcrew", "기본", "메인"):
+                cur = secs[0]  # '페이지 엠비크루' = 기본 페이지로 다시 (마범대를 위에 적고 엠비크루를 아래에 적을 때)
+            else:
+                secs.append([m.group(1), []])
+                cur = secs[-1]
             continue
-        secs[-1][1].append(raw)
+        cur[1].append(raw)
     pages, used = [], set()
     for i, (label, lines) in enumerate(secs):
         if i and not any(l.strip() and not l.strip().startswith("#") for l in lines):
