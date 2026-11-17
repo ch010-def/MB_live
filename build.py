@@ -124,8 +124,11 @@ def parse_list(text):
         elif " " in lines[0]:  # "이름 유튜브링크" 한 줄로 쓴 경우
             first = lines[0].split()
             name, lines[0] = " ".join(first[:-1]), first[-1]
-        member = {"name": name, "path": None, "subs": [], "links": []}
+        member = {"name": name, "path": None, "subs": [], "links": [], "alias": []}
         for line in lines:
+            if re.match(r"^\s*별명\s", line):  # "별명 찡시" = 일정에 짧게 쓰는 이름 (화면에는 안 나와요)
+                member["alias"] += [a for a in re.split(r"[\s,]+", line.strip())[1:] if a]
+                continue
             parts = line.split()
             value = parts[-1]
             label = " ".join(parts[:-1])
@@ -822,6 +825,8 @@ def check(member, prev):
     old = prev.get(member["name"] or member["path"] or "", {})
     out = {"name": member["name"], "channel": "", "avatar": "", "on": False, "video": "",
            "soop": "", "fun": "", "links": member["links"], "autoName": ""}
+    if member.get("alias"):
+        out["alias"] = member["alias"]
     # 숲 링크가 있으면 숲 방송도 확인
     soop_id = fun_id = ""
     for l in member["links"]:

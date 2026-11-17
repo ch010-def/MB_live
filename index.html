@@ -97,7 +97,8 @@ main{max-width:720px;margin:0 auto;padding:0 14px 56px}
 body.v-cal .hero,body.v-cal #guideMain,body.v-cal #guideSub{display:none}
 #cal{margin-top:22px}
 .calcard{--g0:#ff8a3d;--g1:#4c8dff;--ga:#2fc49a;padding:18px}
-.caltop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.caltop{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.caltop .calf{margin-left:auto}
 .caltop h3{margin:0;font-size:20px}
 .calnav{display:flex;gap:6px}
 .calnav button{font:inherit;font-size:14px;font-weight:800;color:var(--ink);background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:9px;min-width:34px;height:34px;padding:0 10px;cursor:pointer}
@@ -106,6 +107,19 @@ body.v-cal .hero,body.v-cal #guideMain,body.v-cal #guideSub{display:none}
 .calleg{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
 .calleg b{display:inline-flex;align-items:center;gap:5px;font-weight:700}
 .calf{display:flex;gap:6px}
+.calleg{align-items:center}
+.calf .calhint.m{display:none}
+.calsolo{padding:16px 18px}
+.calsolo[hidden]{display:none}
+.calsolo h5{margin:0 0 10px;font-size:15px;font-weight:800;color:#ffb27f}
+.calsolo h5 small{font-weight:500;color:var(--muted);margin-left:6px}
+.calsolo .sl{display:flex;flex-wrap:wrap;gap:6px}
+.calsolo .sl span{font-size:13px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+.calsolo .sl span b{color:#ffb27f;margin-left:5px}
+.calsolo .sl span.gone{opacity:.4}
+.calsolo .gonetip{margin:10px 0 0;font-size:12px;color:var(--muted)}
+.calsolo .none{font-size:13px;color:var(--muted);margin:0}
+.calhint{display:inline-block;padding:3px 10px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid var(--line);color:#cfd6ea;font-size:12.5px;font-weight:500}
 .calf button{font:inherit;font-size:12.5px;font-weight:800;padding:5px 11px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:transparent;cursor:pointer}
 .calf button.on{color:#fff;border-color:#fff;background:rgba(255,255,255,.08)}
 .gt{display:inline-block;font-size:10.5px;font-weight:900;border-radius:5px;padding:0 4px;line-height:16px;color:#fff;vertical-align:1px;margin-right:4px}
@@ -119,7 +133,7 @@ body.v-cal .hero,body.v-cal #guideMain,body.v-cal #guideSub{display:none}
 .cc.out{opacity:.25}.cc.past{opacity:.5}
 .cc.today{border-color:#fff;background:rgba(255,255,255,.07)}
 .cc.sel{box-shadow:inset 0 0 0 2px #e9c27a}
-.ce{font-size:11px;line-height:1.3;padding:2px 4px;border-radius:5px;margin-bottom:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;border-left:3px solid}
+.ce{font-size:12px;line-height:1.3;padding:2px 4px;border-radius:5px;margin-bottom:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;border-left:3px solid}
 .ce.g0{background:rgba(255,138,61,.16);border-color:var(--g0)}
 .ce.g1{background:rgba(76,141,255,.16);border-color:var(--g1)}
 .ce.ga{background:rgba(47,196,154,.16);border-color:var(--ga)}
@@ -128,7 +142,8 @@ body.v-cal .hero,body.v-cal #guideMain,body.v-cal #guideSub{display:none}
 .cdots i{width:6px;height:6px;border-radius:50%}
 .cdots i.g0{background:var(--g0)}.cdots i.g1{background:var(--g1)}.cdots i.ga{background:var(--ga)}
 .calday{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
-.calday h4{margin:0 0 6px;font-size:15px}
+.calday{scroll-margin-top:16px}
+.calday h4{margin:0 0 6px;font-size:17px}
 .calday .hint{color:var(--muted);font-size:13.5px;margin:0}
 .calday .srow .tx .gt{margin-right:6px}
 .calday .solo .tx{color:var(--muted);font-size:14px}
@@ -137,7 +152,10 @@ body.v-cal .hero,body.v-cal #guideMain,body.v-cal #guideSub{display:none}
   .cc{min-height:52px;padding:5px 2px;text-align:center}
   .cc .ce,.cc .cmore{display:none}
   .cc .cdots{display:flex}
-  .calbar{flex-direction:column;align-items:flex-start}
+  .caltop h3{flex:1}
+  .caltop .calf{order:3;width:100%;margin-left:0;align-items:center}
+  .calleg .calhint{display:none}
+  .calf .calhint.m{display:inline-block;margin-left:auto;padding:3px 8px;font-size:11.5px}
 }
 .oldbtn.on{color:#fff;border-color:var(--accent);background:rgba(76,141,255,.2)}
 .oldwrap{margin:0 0 4px}
@@ -387,13 +405,15 @@ body.pg-sub .count .chip.live{background:var(--soop)}
     <section class="card calcard">
       <div class="caltop">
         <h3 id="calTitle"></h3>
+        <div class="calf" id="calF"></div>
         <div class="calnav"><button type="button" id="calPrev" aria-label="지난달">‹</button><button type="button" id="calToday">오늘</button><button type="button" id="calNext" aria-label="다음 달">›</button></div>
       </div>
-      <div class="calbar"><div class="calleg" id="calLeg"></div><div class="calf" id="calF"></div></div>
+      <div class="calbar"><div class="calleg" id="calLeg"></div></div>
       <div class="caldow"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
       <div class="calgrid" id="calGrid"></div>
       <div class="calday" id="calDay"></div>
     </section>
+    <section class="card calsolo" id="calSolo" hidden></section>
   </div>
   <div id="posts" hidden>
     <a class="back" href="#">← <i class="lv"></i>라이브 · 멤버 목록으로</a>
@@ -685,12 +705,53 @@ function renderCal(full){
   var leg = $('calLeg'); leg.innerHTML = '';
   grps.slice(0, 2).forEach(function(g, i){ var b = el('b'); b.appendChild(calTag(String(i), grps)); b.appendChild(document.createTextNode(g.label)); leg.appendChild(b); });
   var lb = el('b'); lb.appendChild(calTag('a', grps)); lb.appendChild(document.createTextNode('같이 하는 일정')); leg.appendChild(lb);
+  leg.appendChild(el('span', 'calhint', '날짜를 선택하면 아래에 상세 일정이 표시돼요'));
   var fb = $('calF'); fb.innerHTML = '';
   [['all', '전체']].concat(grps.slice(0, 2).map(function(g, i){ return [String(i), g.label]; })).forEach(function(p){
     var b = el('button', CAL.f === p[0] ? 'on' : '', p[1]); b.type = 'button';
     b.onclick = function(){ CAL.f = p[0]; renderCal(lastData); };
     fb.appendChild(b);
   });
+  fb.appendChild(el('span', 'calhint m', '날짜를 누르면 아래에 표시'));
+  // 엠비크루를 고르면: 이 달에 누가 방송을 몇 번 했는지 ('갠방 :' 줄 기준, 괄호 안 합방도 그날 방송으로 셈)
+  var sb = $('calSolo'); sb.innerHTML = ''; sb.hidden = CAL.f !== '0';
+  if(CAL.f === '0'){
+    // 멤버 이름표: 목록 이름("(신입)비비" → 비비)과 '별명' 줄 → 화면에 쓸 이름 (별명이 있으면 별명)
+    var who = {};
+    [].concat.apply([], (full.groups || []).map(function(g){ return g.members || []; })).forEach(function(mb){
+      var nm0 = (mb.name || '').replace(/[(（][^)）]*[)）]/g, '').replace(/\s+/g, '');
+      if(!nm0) return;
+      var show = (mb.alias && mb.alias[0]) || nm0;
+      [nm0].concat(mb.alias || []).forEach(function(a){ who[a] = show; });
+    });
+    var cnt = {}, order = [], nd = new Date(CAL.y, CAL.m + 1, 0).getDate();
+    for(var dd = 1; dd <= nd; dd++){
+      var dayNames = {};
+      (data.byDay[CAL.y + '-' + (CAL.m + 1) + '-' + dd] || []).forEach(function(e){
+        if(!e.solo || e.g === '1') return;
+        e.text.replace(/^\s*갠방\s*[:：]\s*/, '').replace(/[()（）]/g, ' ').split(/[\s,，、\/]+/).forEach(function(nm){
+          nm = nm.replace(/[은는이가]?\s*합방$/, ''); // "(찡시는합방)" → 찡시
+          if(nm && nm.length <= 10) dayNames[who[nm] || nm] = 1;
+        });
+      });
+      for(var nm in dayNames){ if(!cnt[nm]){ cnt[nm] = 0; order.push(nm); } cnt[nm]++; }
+    }
+    var hh = el('h5', null, (CAL.m + 1) + '월 방송 체크'); hh.appendChild(el('small', null, '갠방 + 합방, 하루 1번씩'));
+    sb.appendChild(hh);
+    if(!order.length) sb.appendChild(el('p', 'none', '이 달에 적힌 방송이 없어요.'));
+    else {
+      var sl = el('div', 'sl');
+      var known = {}; for(var a in who) known[who[a]] = 1;
+      // 지금 멤버 목록에 없는 이름(퇴사 등)은 흐리게, 뒤쪽으로
+      order.sort(function(a, b){ return ((known[b] ? 1 : 0) - (known[a] ? 1 : 0)) || (cnt[b] - cnt[a]); }).forEach(function(nm){
+        var c = el('span', known[nm] ? null : 'gone', nm); c.appendChild(el('b', null, cnt[nm] + '번'));
+        if(!known[nm]) c.title = '지금 멤버 목록에 없는 이름';
+        sl.appendChild(c);
+      });
+      sb.appendChild(sl);
+      if(order.some(function(nm){ return !known[nm]; })) sb.appendChild(el('p', 'gonetip', '흐린 이름: 지금 멤버 목록에 없는 이름이에요'));
+    }
+  }
   var grid = $('calGrid'); grid.innerHTML = '';
   var first = new Date(CAL.y, CAL.m, 1), start = new Date(CAL.y, CAL.m, 1 - first.getDay());
   var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -707,7 +768,11 @@ function renderCal(full){
     if(shown.length > 4) c.appendChild(el('div', 'cmore', '+' + (shown.length - 4) + '개'));
     shown.slice(0, 5).forEach(function(e){ dots.appendChild(el('i', 'g' + e.g)); });
     c.appendChild(dots);
-    (function(k){ c.onclick = function(){ CAL.sel = k; renderCal(lastData); }; })(k);
+    (function(k){ c.onclick = function(){
+      CAL.sel = k; renderCal(lastData);
+      var b = $('calDay'), r = b.getBoundingClientRect();
+      if(r.top > window.innerHeight - 120){ try{ b.scrollIntoView({behavior: 'smooth', block: 'start'}); }catch(e){ b.scrollIntoView(); } }
+    }; })(k);
     grid.appendChild(c);
   }
   // 고른 날의 일정 목록
