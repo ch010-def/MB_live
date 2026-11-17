@@ -986,7 +986,7 @@ function renderPosts(d){
   list.forEach(function(p){
     var day = dayLabel(p.ts);
     if(day !== lastDay){ feed.appendChild(el('div', 'day' + (day === '오늘' ? ' today' : ''), day)); lastDay = day; }
-    var fresh = Date.now() - new Date(p.ts) < 6 * 3600000;
+    var fresh = isFresh(p); // 24시간 안 글: 테두리 색 + NEW (위쪽 숫자와 같은 기준)
     var card = el('article', 'post ' + p.src + (fresh ? ' fresh' : ''));
     var ph = el('div', 'ph'), av = el('span', 'av');
     avatarInto(av, byName[p.member], p.member);
