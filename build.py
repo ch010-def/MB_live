@@ -366,6 +366,7 @@ def video_author(vid):
 
 
 WATCH_TITLES = {}  # 라이브 확인 때 읽은 영상 페이지의 제목 (방제)
+WATCH_ENDED = {}  # 영상 페이지가 끝난/예정 방송이라고 한 영상 (라이브 탭 LIVE 표시가 늦게 지워질 때 거르기)
 
 
 def watch_title(page):
@@ -408,6 +409,15 @@ def video_owner(vid):
         return None
     try:
         WATCH_TITLES[vid] = watch_title(page)  # 방제도 같이 기억 (따로 요청하지 않게)
+    except Exception:
+        pass
+    try:  # 영상 페이지가 '지금 방송 중 아님'이라고 분명히 말하는지 (끝난 방송·예정 방송)
+        m = re.search(r'"liveBroadcastDetails":\{([^{}]*)\}', page)
+        if m:
+            seg = m.group(1)
+            WATCH_ENDED[vid] = ('"isLiveNow":false' in seg) or ('"endTimestamp"' in seg)
+        elif '"isUpcoming":true' in page:
+            WATCH_ENDED[vid] = True
     except Exception:
         pass
     m = (re.search(r'<meta itemprop="channelId" content="(UC[\w-]{22})"', page)
@@ -464,6 +474,9 @@ def live_video(path):
             continue
         if same is None and not (has_tab and how == "라이브 탭"):
             continue  # 끝내 모르면 본인 라이브 탭에서 찾은 경우만 인정
+        if WATCH_ENDED.get(c):  # 라이브 탭에 LIVE가 남아 있어도 영상 페이지가 '끝남/예정'이라고 하면 방송 중 아님
+            notes.append("영상페이지:끝남")
+            continue
         vid = c
         break
     notes.insert(0, "선택된탭:" + (tab.rsplit("/", 1)[-1] or "모름") + " 라이브탭:" + ("있음" if has_tab else "없음") + " 찾은경로:" + (how if cands else "-") + " 채널ID:" + ("있음" if own else "없음"))
