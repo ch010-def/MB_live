@@ -921,16 +921,21 @@ def check(member, prev):
     out["autoName"] = info.get("autoName") or old.get("autoName", "")
     out["avatar"] = info.get("avatar") or old.get("avatar", "")
     out["name"] = member["name"] or out["autoName"] or member["path"].lstrip("@")
-    failed = False
+    failed = []
     for path in [member["path"]] + member["subs"]:  # 대표 채널과 서브 채널 모두 확인
         v = live_video(path)
         if v:
-            out["on"], out["video"] = True, v
+            out["on"], out["video"], out["vpath"] = True, v, path
             break
         if v is None:
-            failed = True
-    if not out["on"] and failed and old.get("on"):
-        out["on"], out["video"] = True, old.get("video", "")  # 확인 실패 시 이전 상태 유지
+            failed.append(path)
+    # 확인 실패 시 이전 상태 유지 — 단, 이전에 방송을 찾았던 그 채널을 못 읽었을 때만, 그리고 최대 3번(약 15분)까지만.
+    # (서브 채널 하나가 계속 안 읽혀서 끝난 방송이 계속 ON으로 남던 문제 방지)
+    if not out["on"] and failed and old.get("on") and old.get("video"):
+        was = old.get("vpath")
+        if (was in failed if was else len(failed) == 1 + len(member["subs"])) and old.get("held", 0) < 3:
+            out["on"], out["video"] = True, old.get("video", "")
+            out["vpath"], out["held"] = was, old.get("held", 0) + 1
     try:
         out["live_title"] = titles()
     except Exception:
