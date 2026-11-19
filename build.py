@@ -314,9 +314,13 @@ def streams_title(page, vid):
 def live_candidates(page):
     """채널의 '라이브' 탭에서 LIVE 배지가 붙은 영상 ID들 (예정·다시보기에는 이 배지가 없음)"""
     found = []
-    # 새 화면 형식: 배지가 먼저 나오고, 그 뒤에 "contentId"(영상 ID)가 나옴
-    for mk in re.finditer("THUMBNAIL_OVERLAY_BADGE_STYLE_LIVE", page):
-        m = re.compile(r'"contentId":"([\w-]{11})"').search(page, mk.end())
+    # 새 화면 형식: 영상 칸(lockupViewModel) 하나 안에 LIVE 배지와 영상 ID("contentId")가 같이 있음.
+    # 칸 밖에 있는 LIVE 표시(예: 채널 프사의 라이브 링, 다른 채널 방송에 같이 나올 때)는
+    # 아래 칸의 끝난 방송을 잘못 잡을 수 있어서, 같은 칸 안에 있을 때만 인정해요.
+    for ch in page.split('"lockupViewModel":{')[1:]:
+        if "THUMBNAIL_OVERLAY_BADGE_STYLE_LIVE" not in ch:
+            continue
+        m = re.search(r'"contentId":"([\w-]{11})"', ch)
         if m and m.group(1) not in found:
             found.append(m.group(1))
     # 예전 화면 형식: "videoId"가 먼저 나오고, 그 뒤에 LIVE 표시가 나옴
@@ -324,6 +328,16 @@ def live_candidates(page):
         ids = re.findall(r'"videoId":"([\w-]{11})"', page[max(0, mk.start() - 20000):mk.start()])
         if ids and ids[-1] not in found:
             found.append(ids[-1])
+    return found[:3]
+
+
+def loose_candidates(page):
+    """예전 방식: LIVE 배지 다음에 나오는 첫 영상 ID (칸 구분 없이). 영상 페이지가 '지금 방송 중'이라고 할 때만 인정해요."""
+    found = []
+    for mk in re.finditer("THUMBNAIL_OVERLAY_BADGE_STYLE_LIVE", page):
+        m = re.compile(r'"contentId":"([\w-]{11})"').search(page, mk.end())
+        if m and m.group(1) not in found:
+            found.append(m.group(1))
     return found[:3]
 
 
@@ -366,7 +380,8 @@ def video_author(vid):
 
 
 WATCH_TITLES = {}  # 라이브 확인 때 읽은 영상 페이지의 제목 (방제)
-WATCH_ENDED = {}  # 영상 페이지가 끝난/예정 방송이라고 한 영상 (라이브 탭 LIVE 표시가 늦게 지워질 때 거르기)
+WATCH_ENDED = {}
+WATCH_LIVE = {}  # 영상 페이지가 '지금 방송 중'이라고 분명히 말한 영상  # 영상 페이지가 끝난/예정 방송이라고 한 영상 (라이브 탭 LIVE 표시가 늦게 지워질 때 거르기)
 
 
 def watch_title(page):
@@ -416,6 +431,7 @@ def video_owner(vid):
         if m:
             seg = m.group(1)
             WATCH_ENDED[vid] = ('"isLiveNow":false' in seg) or ('"endTimestamp"' in seg)
+            WATCH_LIVE[vid] = ('"isLiveNow":true' in seg) and ('"endTimestamp"' not in seg)
         elif '"isUpcoming":true' in page:
             WATCH_ENDED[vid] = True
     except Exception:
@@ -449,6 +465,10 @@ def live_video(path):
     if not has_tab:
         STATS["notab"] += 1
     how = "라이브 탭"
+    proof = False  # True면 영상 페이지가 '지금 방송 중'이라고 해야만 인정
+    if not cands and has_tab:  # 칸 구분이 안 되는 화면이면 예전 방식으로 찾되, 영상 페이지로 꼭 확인
+        cands = [c for c in loose_candidates(page) if not in_post(page, c)]
+        proof = bool(cands)
     if not cands:  # 보조: /live 주소가 '지금 방송 중'인 화면으로 바로 연결되는지
         lp = get(base + "/live") or ""
         m = re.search(r'<link rel="canonical" href="https://www\.youtube\.com/watch\?v=([\w-]{11})"', lp)
@@ -474,6 +494,9 @@ def live_video(path):
             continue
         if same is None and not (has_tab and how == "라이브 탭"):
             continue  # 끝내 모르면 본인 라이브 탭에서 찾은 경우만 인정
+        if proof and not WATCH_LIVE.get(c):
+            notes.append("영상페이지:방송중확인안됨")
+            continue
         if WATCH_ENDED.get(c):  # 라이브 탭에 LIVE가 남아 있어도 영상 페이지가 '끝남/예정'이라고 하면 방송 중 아님
             notes.append("영상페이지:끝남")
             continue
