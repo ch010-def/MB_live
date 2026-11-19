@@ -719,7 +719,8 @@ function renderCal(full){
     // 멤버 이름표: 목록 이름("(신입)비비" → 비비)과 '별명' 줄 → 화면에 쓸 이름 (별명이 있으면 별명)
     var who = {};
     [].concat.apply([], (full.groups || []).map(function(g){ return g.members || []; })).forEach(function(mb){
-      var nm0 = (mb.name || '').replace(/[(（][^)）]*[)）]/g, '').replace(/\s+/g, '');
+      // "[대리] 체리", "(신입) 가을" → 체리, 가을 (직급·표시는 빼고 이름만)
+      var nm0 = (mb.name || '').replace(/[(（][^)）]*[)）]/g, '').replace(/[\[［][^\]］]*[\]］]/g, '').replace(/\s+/g, '');
       if(!nm0) return;
       var show = (mb.alias && mb.alias[0]) || nm0;
       [nm0].concat(mb.alias || []).forEach(function(a){ who[a] = show; });
