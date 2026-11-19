@@ -472,8 +472,17 @@ def live_video(path):
     if not cands:  # 보조: /live 주소가 '지금 방송 중'인 화면으로 바로 연결되는지
         lp = get(base + "/live") or ""
         m = re.search(r'<link rel="canonical" href="https://www\.youtube\.com/watch\?v=([\w-]{11})"', lp)
-        if m and '"isLiveNow":true' in lp and '"isUpcoming":true' not in lp:
+        # 이 영상 자체의 방송 정보(liveBroadcastDetails)로 판단해요.
+        # 페이지 어딘가(추천 영상 등)에 있는 다른 방송의 "isLiveNow":true 때문에 끝난 방송을 잡지 않도록.
+        lb = re.search(r'"liveBroadcastDetails":\{([^{}]*)\}', lp)
+        if lb:
+            live_now = '"isLiveNow":true' in lb.group(1) and '"endTimestamp"' not in lb.group(1)
+        else:
+            live_now = '"isLiveNow":true' in lp and '"isUpcoming":true' not in lp
+        if m and live_now:
             cands, how = [m.group(1)], "/live"
+        elif m and lb:
+            WATCH_ENDED[m.group(1)] = True
     vid, other, notes = "", 0, []
     own_name = meta(page, "og:title")
     for c in cands:
@@ -488,6 +497,7 @@ def live_video(path):
             else:
                 by = "-"
         notes.append("소유확인(%s):%s" % (by, {True: "같음", False: "다름", None: "모름"}[same]))
+        notes.append("영상페이지:" + ("끝남" if WATCH_ENDED.get(c) else "방송중" if WATCH_LIVE.get(c) else "정보없음"))
         if same is False:
             other += 1
             STATS["other"] += 1
