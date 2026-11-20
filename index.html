@@ -1124,16 +1124,38 @@ function fromPage(){
     .then(function(html){ return readData(new DOMParser().parseFromString(html, 'text/html')); });
 }
 // 저장소 live-data의 최신 결과 읽기.
-// 1순위 GitHub API (저장 기간 약 1분, 바뀌지 않았으면 304로 가볍게 확인) → 안 되면 파일 서버(최대 5분 늦을 수 있음)
+// GitHub API는 바로 최신이지만, 로그인 없이 쓰면 "같은 인터넷(IP)에서 1시간에 60번"까지만 돼요.
+// 집 와이파이에 PC·폰·여러 탭이 같이 1분마다 부르면 금방 바닥나서(403) 화면이 한동안 안 바뀌었어요.
+// 그래서: API는 이 브라우저 전체(탭 여러 개 포함)에서 3분에 한 번만 → 그 사이엔 파일 서버(raw, 최대 5분 늦음)로 확인.
+// 한도가 바닥나면 GitHub가 알려 주는 풀리는 시각까지 API를 쉬고, 받은 최신 결과는 다른 탭과 나눠 써요.
+var API_GAP = 3 * 60000;
 var API_ETAG = '', API_DATA = null, API_OFF_UNTIL = 0;
+function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function lsSet(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
+function share(d){ // 받은 결과를 다른 탭도 쓰게 저장 (더 최신일 때만)
+  if(d && d.groups && stamp(d) > stamp(fromShared())) lsSet('mbShared', JSON.stringify(d));
+  return d;
+}
+function fromShared(){ try{ var d = JSON.parse(lsGet('mbShared') || 'null'); return d && d.groups && d.repo === (lastData && lastData.repo) ? d : null; }catch(e){ return null; } }
+function apiAllowed(){
+  var now = Date.now();
+  var off = Math.max(API_OFF_UNTIL, +lsGet('mbApiOff') || 0);
+  if(now < off) return false;
+  if(now - (+lsGet('mbApiAt') || 0) < API_GAP) return false;
+  lsSet('mbApiAt', now); return true;
+}
 function fromRepoApi(repo){
-  if(Date.now() < API_OFF_UNTIL) return Promise.reject(0);
+  if(!apiAllowed()) return Promise.reject(0);
   var h = {'Accept': 'application/vnd.github.raw+json'};
   if(API_ETAG && API_DATA) h['If-None-Match'] = API_ETAG;
   return fetch('https://api.github.com/repos/' + repo + '/contents/data.json?ref=live-data', {headers: h, cache: 'no-store'})
     .then(function(r){
       if(r.status === 304 && API_DATA) return API_DATA;
-      if(r.status === 403 || r.status === 429){ API_OFF_UNTIL = Date.now() + 15 * 60000; throw 0; } // 요청 한도 → 15분 동안 파일 서버 사용
+      if(r.status === 403 || r.status === 429){ // 요청 한도 → 풀리는 시각까지 파일 서버만 사용
+        var reset = +r.headers.get('x-ratelimit-reset') * 1000;
+        API_OFF_UNTIL = reset > Date.now() ? reset + 5000 : Date.now() + 15 * 60000;
+        lsSet('mbApiOff', API_OFF_UNTIL); throw 0;
+      }
       if(!r.ok) throw 0;
       var et = r.headers.get('ETag');
       return r.json().then(function(d){ if(!d || !d.groups) throw 0; API_ETAG = et || ''; API_DATA = d; return d; });
@@ -1147,7 +1169,7 @@ function fromRepoRaw(repo){
 function fromRepo(){
   var repo = lastData && lastData.repo;
   if(!repo || !/^[\w.-]+\/[\w.-]+$/.test(repo)) return Promise.reject(0);
-  return fromRepoApi(repo).catch(function(){ return fromRepoRaw(repo); });
+  return fromRepoApi(repo).catch(function(){ return fromRepoRaw(repo); }).then(share);
 }
 function settle(p){ return p.then(function(d){ return d; }, function(){ return null; }); }
 // 사이트(GitHub Pages)에 뜬 화면 파일이 옛 버전이면, 저장소 live-data에 저장된 최신 화면으로 바꿔 보여 줌
@@ -1164,13 +1186,13 @@ function swapToRepoPage(repo){
     }).catch(function(){});
 }
 function load(manual){
-  Promise.all([settle(fromPage()), settle(fromRepo())]).then(function(res){
+  Promise.all([settle(fromPage()), settle(fromRepo()), Promise.resolve(fromShared())]).then(function(res){
     var r = res[1];
     if(r && r.code && MY_CODE && r.code !== MY_CODE && !ON_BACKUP && repoOf(r)){ swapToRepoPage(repoOf(r)); }
     CHECKED = true;
     var best = lastData;
     res.forEach(function(d){ if(d && stamp(d) >= stamp(best)) best = d; });
-    if(best && (res[0] || res[1])){ render(best); if(manual) flash('최신 결과를 불러왔어요'); }
+    if(best && (res[0] || res[1] || res[2])){ render(best); if(manual) flash('최신 결과를 불러왔어요'); }
     else { if(lastData) render(lastData); if(manual) flash('불러오지 못했어요. 잠시 후 다시 눌러 주세요'); }
   });
 }
@@ -1181,7 +1203,7 @@ function flash(msg){
 }
 try{ var first = readData(document); MY_CODE = first.code || ''; render(first); load(false); } // 열자마자 저장소의 더 최신 결과가 있는지 한 번 확인
 catch(e){ $('meta').textContent = '아직 준비 중이에요. 잠시 후 다시 열어 주세요.'; }
-TIMER = setInterval(function(){ load(false); }, 60 * 1000); // 1분마다 새 결과 확인
+TIMER = setInterval(function(){ if(document.visibilityState !== 'hidden') load(false); }, 60 * 1000); // 화면에 보일 때만 1분마다 새 결과 확인 (안 보이는 탭은 쉬다가, 다시 보이면 바로 확인)
 // 휴대폰은 화면이 꺼지거나 다른 앱을 쓰는 동안 위 1분 타이머를 멈춰요.
 // 사이트가 다시 화면에 보이면(화면 켜기·탭 복귀·인터넷 재연결) 바로 최신 결과를 불러오고, 그 전까지 노란 칸은 숨겨요.
 var LAST_WAKE = 0;
