@@ -139,6 +139,7 @@ body.v-cal .hero,body.v-cal #guideMain,body.v-cal #guideSub{display:none}
 .ce.ga{background:rgba(47,196,154,.16);border-color:var(--ga)}
 .cmore{font-size:10.5px;color:var(--muted)}
 .cc .ce.xtra{display:none}
+.ce .clnk{display:inline-block;margin:1px 0;padding:0 6px;border-radius:6px;background:rgba(76,141,255,.16);border:1px solid rgba(76,141,255,.4);color:#9cc2ff;font-size:.9em;font-weight:700;white-space:nowrap;line-height:1.5}
 .cdots{display:none;gap:3px;justify-content:center;flex-wrap:wrap;margin-top:4px}
 .cdots i{width:6px;height:6px;border-radius:50%}
 .cdots i.g0{background:var(--g0)}.cdots i.g1{background:var(--g1)}.cdots i.ga{background:var(--ga)}
@@ -677,6 +678,14 @@ function withLinks(node, text){
   });
   return node;
 }
+// 달력 칸 속 주소는 긴 주소 대신 작은 이름표로 (칸 자체가 버튼이라 누르면 아래 상세 일정에 진짜 링크 버튼이 나옴)
+function cellText(node, text){
+  (text || '').split(/(https?:\/\/[^\s]+)/).forEach(function(part, i){
+    if(i % 2) node.appendChild(el('span', 'clnk', '🔗 ' + linkLabel(part).replace(/ 보기$/, '')));
+    else if(part) node.appendChild(document.createTextNode(part));
+  });
+  return node;
+}
 var SHOW_OLD = false;
 document.addEventListener('click', function(e){
   if(e.target && e.target.id === 'oldBtn'){
@@ -813,7 +822,7 @@ function renderCal(full){
     c.appendChild(el('div', 'n', String(d.getDate())));
     var shown = evs.filter(function(e){ return !e.solo; }), dots = el('div', 'cdots');
     // 일정은 전부 넣고, 5번째부터는 xtra 표시 (보통 화면은 4개까지만 보이고 큰 화면은 전부 보임)
-    shown.forEach(function(e, j){ c.appendChild(el('div', 'ce g' + e.g + (j >= 4 ? ' xtra' : ''), (e.time ? e.time + ' ' : '') + e.text)); });
+    shown.forEach(function(e, j){ c.appendChild(cellText(el('div', 'ce g' + e.g + (j >= 4 ? ' xtra' : ''), e.time ? e.time + ' ' : ''), e.text)); });
     if(shown.length > 4) c.appendChild(el('div', 'cmore', '+' + (shown.length - 4) + '개'));
     shown.slice(0, 5).forEach(function(e){ dots.appendChild(el('i', 'g' + e.g)); });
     c.appendChild(dots);
