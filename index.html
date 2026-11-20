@@ -120,7 +120,7 @@ body.v-cal .hero,body.v-cal #guideMain,body.v-cal #guideSub{display:none}
 .calsolo .gonetip{margin:10px 0 0;font-size:12px;color:var(--muted)}
 .calsolo .none{font-size:13px;color:var(--muted);margin:0}
 .calhint{display:inline-block;padding:3px 10px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid var(--line);color:#cfd6ea;font-size:12.5px;font-weight:500}
-.calf button{font:inherit;font-size:12.5px;font-weight:800;padding:5px 11px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:transparent;cursor:pointer}
+.calf button{flex:none;white-space:nowrap;font:inherit;font-size:12.5px;font-weight:800;padding:5px 11px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:transparent;cursor:pointer}
 .calf button.on{color:#fff;border-color:#fff;background:rgba(255,255,255,.08)}
 .gt{display:inline-block;font-size:10.5px;font-weight:900;border-radius:5px;padding:0 4px;line-height:16px;color:#fff;vertical-align:1px;margin-right:4px}
 .gt.g0{background:var(--g0)}.gt.g1{background:var(--g1)}.gt.ga{background:var(--ga)}
@@ -138,6 +138,7 @@ body.v-cal .hero,body.v-cal #guideMain,body.v-cal #guideSub{display:none}
 .ce.g1{background:rgba(76,141,255,.16);border-color:var(--g1)}
 .ce.ga{background:rgba(47,196,154,.16);border-color:var(--ga)}
 .cmore{font-size:10.5px;color:var(--muted)}
+.cc .ce.xtra{display:none}
 .cdots{display:none;gap:3px;justify-content:center;flex-wrap:wrap;margin-top:4px}
 .cdots i{width:6px;height:6px;border-radius:50%}
 .cdots i.g0{background:var(--g0)}.cdots i.g1{background:var(--g1)}.cdots i.ga{background:var(--ga)}
@@ -155,7 +156,7 @@ body.v-cal .hero,body.v-cal #guideMain,body.v-cal #guideSub{display:none}
   .caltop h3{flex:1}
   .caltop .calf{order:3;width:100%;margin-left:0;align-items:center}
   .calleg .calhint{display:none}
-  .calf .calhint.m{display:inline-block;margin-left:auto;padding:3px 8px;font-size:11.5px}
+  .calf .calhint.m{display:inline-block;margin-left:auto;padding:3px 8px;font-size:11.5px;min-width:0;text-align:center;word-break:keep-all}
 }
 .oldbtn.on{color:#fff;border-color:var(--accent);background:rgba(76,141,255,.2)}
 .oldwrap{margin:0 0 4px}
@@ -216,7 +217,7 @@ a.chip.live:hover{filter:brightness(1.12)}
 /* 상단 크루 전환 버튼 */
 .switch{display:flex;justify-content:center;gap:8px;margin:14px 0 0}
 .switch[hidden]{display:none}
-.switch a{min-width:104px;text-align:center;padding:10px 18px;border-radius:12px;font-weight:800;font-size:15px;text-decoration:none;color:var(--muted);background:var(--panel);border:1px solid var(--line)}
+.switch a{min-width:104px;text-align:center;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;padding:10px 18px;border-radius:12px;font-weight:800;font-size:15px;text-decoration:none;color:var(--muted);background:var(--panel);border:1px solid var(--line)}
 .switch a:hover{color:var(--ink)}
 .switch a.cur{color:#fff;background:var(--accent);border-color:var(--accent);box-shadow:0 4px 14px rgba(76,141,255,.35)}
 .switch + .hero{margin-top:14px}
@@ -234,7 +235,9 @@ body.pg-sub .count .chip.live{background:var(--soop)}
 /* 카드 속 방제 (ON 아래) */
 .m .btitle{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin:6px 0 0;max-width:100%;font-size:11.5px;line-height:1.4;color:#b9bdcc;text-decoration:none;text-align:center;overflow-wrap:anywhere}
 .m .btitle:hover{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
-@media (max-width:420px){.switch a{min-width:96px;padding:9px 14px}body.pg-sub .logo .tl{font-size:19px}}
+@media (max-width:420px){.switch a{min-width:0;flex:1 1 0;max-width:120px;padding:9px 6px}}
+@media (max-width:360px){.switch{gap:6px}.switch a{font-size:14px;padding:9px 4px}.calf button{padding:5px 9px}}
+@media (max-width:420px){body.pg-sub .logo .tl{font-size:19px}}
 /* 비상 주소 안내 */
 .stale{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 16px;padding:14px 16px;border-radius:14px;
   background:rgba(233,194,122,.12);border:1px solid rgba(233,194,122,.55);color:var(--ink);font-size:14px;line-height:1.5}
@@ -341,6 +344,29 @@ body.pg-sub .count .chip.live{background:var(--soop)}
   .name{font-size:12.5px}
   .chip{font-size:11px;padding:3px 8px}
   .more{font-size:11px;padding:5px 9px}
+}
+/* 큰 화면: 화면을 넓혀서 멤버를 한 줄에 5개·6개씩 (칸 크기는 지금과 거의 같음). 작은 화면은 그대로 4개 */
+@media (min-width:860px){
+  main{max-width:900px}
+  .grid{grid-template-columns:repeat(5,1fr)}
+  /* 큰 화면 달력: 글씨 크게, 일정 내용을 자르지 않고 전부 보여 줌 */
+  /* 달력 바깥 상자(테두리·안쪽 여백)를 없애서 달력 칸 양 끝이 멤버 줄 양 끝과 딱 맞게 */
+  .calcard{background:none;border:0;border-radius:0;padding:0}
+  .cc{min-height:130px;padding:6px}
+  .cc .n{font-size:13.5px}
+  .cc .ce,.cc .ce.xtra{display:block;-webkit-line-clamp:unset;font-size:13px;line-height:1.4;padding:3px 5px;margin-bottom:4px}
+  .cc .cmore{display:none}
+  .caldow{font-size:13.5px}
+  .calleg,.calhint,.calf button{font-size:13.5px}
+  .caltop h3{font-size:22px}
+  .calday h4{font-size:19px}
+  .calday .srow{font-size:15.5px}
+  .calday .srow .st{font-size:14.5px}
+}
+@media (min-width:1240px){
+  main{max-width:1080px}
+  .grid{grid-template-columns:repeat(6,1fr)}
+  .cc .ce,.cc .ce.xtra{font-size:14px}
 }
 @media (prefers-reduced-motion:reduce){.m.on .pic,.m.on .pic .in,.chip.live::before{animation:none}}
 </style>
@@ -786,7 +812,8 @@ function renderCal(full){
     var c = el('button', cls); c.type = 'button';
     c.appendChild(el('div', 'n', String(d.getDate())));
     var shown = evs.filter(function(e){ return !e.solo; }), dots = el('div', 'cdots');
-    shown.slice(0, 4).forEach(function(e){ c.appendChild(el('div', 'ce g' + e.g, (e.time ? e.time + ' ' : '') + e.text)); });
+    // 일정은 전부 넣고, 5번째부터는 xtra 표시 (보통 화면은 4개까지만 보이고 큰 화면은 전부 보임)
+    shown.forEach(function(e, j){ c.appendChild(el('div', 'ce g' + e.g + (j >= 4 ? ' xtra' : ''), (e.time ? e.time + ' ' : '') + e.text)); });
     if(shown.length > 4) c.appendChild(el('div', 'cmore', '+' + (shown.length - 4) + '개'));
     shown.slice(0, 5).forEach(function(e){ dots.appendChild(el('i', 'g' + e.g)); });
     c.appendChild(dots);
