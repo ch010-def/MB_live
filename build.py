@@ -817,7 +817,9 @@ def take_pics(text):
     lines, keep, sec, on = text.splitlines(), [], [], False
     for raw in lines:
         st = raw.strip()
-        if not on and st == "멤버 사진":
+        # 시작 표시: '멤버 사진' 줄, 또는 '# ════ 멤버 사진 (…) ════' 같은 제목 줄 (띄어쓰기·'#'·'═'·':'는 달라도 돼요)
+        head = re.sub(r"^[#\s═=─\-]+|[\s═=─\-]+$", "", st)
+        if not on and re.match(r"^멤버\s*사진(\s*[:：(].*)?$", head):
             on = True
             continue
         if on and re.match(r"^\s*페이지\s+\S", raw):
