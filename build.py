@@ -795,8 +795,10 @@ def soop_posts(bid):
 
 # ── 멤버 사진 ──────────────────────────────
 # 목록의 "멤버 사진" 줄 아래: 멤버 이름(직함 빼고) + 숲 공개 게시글 주소. 그 게시글의 사진 최대 6장을
-# 엠비크루 멤버 카드의 사진 아이콘으로 보여 줘요. 게시글은 30분마다 다시 확인해요 (주소를 바꾸면 바로).
-PIC_EVERY = 30 * 60
+# 엠비크루 멤버 카드의 사진 아이콘으로 보여 줘요. 게시글은 12시간마다(하루 두 번) 다시 확인해요 (주소를 바꾸면 바로).
+# 사진을 못 읽었으면 1시간 뒤에 다시 시도해요.
+PIC_EVERY = 12 * 3600
+PIC_RETRY = 60 * 60
 PIC_POST_RE = re.compile(r"(?:sooplive\.(?:co\.kr|com)/station/|afreecatv\.com/station/|bj\.afreecatv\.com/)([A-Za-z0-9_]+)/post/(\d+)", re.I)
 PIC_STATS = {"all": 0, "read": 0, "ok": 0, "imgs": 0}
 
@@ -904,7 +906,7 @@ def member_pics(pic_list, prev):
             age = (now - datetime.fromisoformat(old.get("at", ""))).total_seconds()
         except Exception:
             age = 1e9
-        fresh_needed = old.get("url") != url or age >= (PIC_EVERY if old.get("imgs") else 9 * 60) or os.environ.get("POSTS_FORCE")
+        fresh_needed = old.get("url") != url or age >= (PIC_EVERY if old.get("imgs") else PIC_RETRY) or os.environ.get("POSTS_FORCE")
         if not fresh_needed:
             out[key] = old
             PIC_STATS["ok"] += bool(old.get("imgs"))
@@ -912,7 +914,7 @@ def member_pics(pic_list, prev):
             continue
         m = PIC_POST_RE.search(url)
         imgs = soop_post_imgs(m.group(1), m.group(2)) if m else None
-        if imgs is None:  # 못 읽음 → 같은 주소였으면 이전 사진 유지 (다시 시도는 약 10분 뒤)
+        if imgs is None:  # 못 읽음 → 같은 주소였으면 이전 사진 유지 (사진이 없으면 1시간 뒤 다시 시도)
             keep = old.get("imgs") if old.get("url") == url else []
             out[key] = {"name": nm, "url": url, "imgs": keep or [], "at": now.isoformat(timespec="seconds")}
         else:
