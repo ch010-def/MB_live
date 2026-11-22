@@ -793,6 +793,139 @@ def soop_posts(bid):
     return out
 
 
+# ── 멤버 사진 ──────────────────────────────
+# 목록의 "멤버 사진" 줄 아래: 멤버 이름(직함 빼고) + 숲 공개 게시글 주소. 그 게시글의 사진 최대 6장을
+# 엠비크루 멤버 카드의 사진 아이콘으로 보여 줘요. 게시글은 30분마다 다시 확인해요 (주소를 바꾸면 바로).
+PIC_EVERY = 30 * 60
+PIC_POST_RE = re.compile(r"(?:sooplive\.(?:co\.kr|com)/station/|afreecatv\.com/station/|bj\.afreecatv\.com/)([A-Za-z0-9_]+)/post/(\d+)", re.I)
+PIC_STATS = {"all": 0, "read": 0, "ok": 0, "imgs": 0}
+
+
+def name_key(s):
+    """카드 이름 앞의 [대표]·(신입) 같은 직함과 띄어쓰기를 빼고 비교용 이름으로 (화면 쪽 nameKey와 같은 규칙)"""
+    s = (s or "").strip()
+    prev = None
+    while prev != s:
+        prev = s
+        s = re.sub(r"^(\[[^\]]*\]|\([^)]*\)|【[^】]*】)\s*", "", s)
+    return re.sub(r"\s+", "", s)
+
+
+def take_pics(text):
+    """목록에서 '멤버 사진' 칸을 떼어 냄 (멤버 카드로 잘못 읽히지 않게).
+    '멤버 사진' 줄부터 다음 '페이지 ○○' 줄(또는 끝)까지. 반환: (나머지 목록, [(이름, 게시글 주소), ...])"""
+    lines, keep, sec, on = text.splitlines(), [], [], False
+    for raw in lines:
+        st = raw.strip()
+        if not on and st == "멤버 사진":
+            on = True
+            continue
+        if on and re.match(r"^\s*페이지\s+\S", raw):
+            on = False
+        (sec if on else keep).append(raw)
+    out, name = [], ""
+    for raw in sec:
+        st = raw.strip()
+        if not st:
+            name = ""
+            continue
+        if st.startswith("#"):
+            continue
+        m = PIC_POST_RE.search(st)
+        if m:
+            label = st[:st.find(m.group(0))].replace("https://", "").replace("http://", "").replace("www.", "").strip()
+            nm = name or label  # "이름 주소" 한 줄로 써도 돼요
+            if nm:
+                out.append((nm, "https://www.sooplive.com/station/%s/post/%s" % (m.group(1), m.group(2))))
+        elif not name:
+            name = st
+    return "\n".join(keep), out
+
+
+def _find_post(o, no, depth=0):
+    """API 응답 속에서 그 게시글(사진·본문이 든 칸) 찾기"""
+    if depth > 4:
+        return None
+    if isinstance(o, dict):
+        if str(o.get("title_no", "")) == str(no) or ("photos" in o and depth <= 2):
+            return o
+        for v in o.values():
+            r = _find_post(v, no, depth + 1)
+            if r:
+                return r
+    elif isinstance(o, list):
+        for v in o:
+            r = _find_post(v, no, depth + 1)
+            if r:
+                return r
+    return None
+
+
+def soop_post_imgs(bid, no):
+    """숲 공개 게시글 하나의 사진 주소 목록. 못 읽으면 None"""
+    j = soop_json(SOOP_API + "%s/title/%s" % (bid, no))
+    it = _find_post(j, no)
+    if it:
+        imgs = soop_imgs(it)
+        if imgs:
+            return imgs
+    # 게시글 하나 읽기가 안 되면, 공개 게시판 목록에서 그 글을 찾아봐요 (게시판마다 최근 180개까지)
+    st = soop_json(SOOP_API + bid + "/station")
+    if not isinstance(st, dict) or not isinstance(st.get("station"), dict):
+        return [] if it else None
+    boards = [m.get("bbs_no") for m in st["station"].get("menus") or []
+              if isinstance(m, dict) and m.get("auth_no") == 101 and m.get("bbs_no")][:15]
+    for bbs in boards:
+        for page in range(1, 4):
+            lst = soop_json(SOOP_API + "%s/board/%s?page=%d&per_page=60&field=title&orderby=reg_date" % (bid, bbs, page))
+            data = lst.get("data") if isinstance(lst, dict) else None
+            if not isinstance(data, list) or not data:
+                break
+            for x in data:
+                if isinstance(x, dict) and str(x.get("title_no", "")) == str(no):
+                    return soop_imgs(x)
+    return [] if it else None
+
+
+def member_pics(pic_list, prev):
+    """멤버 사진 결과 {비교용 이름: {name, url, imgs, at}}. 확인 실패하면 이전 결과를 그대로 씀"""
+    prev = prev if isinstance(prev, dict) else {}
+    now = datetime.now(timezone.utc)
+    out = {}
+    for nm, url in pic_list:
+        key = name_key(nm)
+        if not key or key in out:
+            continue
+        PIC_STATS["all"] += 1
+        old = prev.get(key) if isinstance(prev.get(key), dict) else {}
+        try:
+            age = (now - datetime.fromisoformat(old.get("at", ""))).total_seconds()
+        except Exception:
+            age = 1e9
+        fresh_needed = old.get("url") != url or age >= (PIC_EVERY if old.get("imgs") else 9 * 60) or os.environ.get("POSTS_FORCE")
+        if not fresh_needed:
+            out[key] = old
+            PIC_STATS["ok"] += bool(old.get("imgs"))
+            PIC_STATS["imgs"] += len(old.get("imgs") or [])
+            continue
+        m = PIC_POST_RE.search(url)
+        imgs = soop_post_imgs(m.group(1), m.group(2)) if m else None
+        if imgs is None:  # 못 읽음 → 같은 주소였으면 이전 사진 유지 (다시 시도는 약 10분 뒤)
+            keep = old.get("imgs") if old.get("url") == url else []
+            out[key] = {"name": nm, "url": url, "imgs": keep or [], "at": now.isoformat(timespec="seconds")}
+        else:
+            PIC_STATS["read"] += 1
+            seen, uniq = set(), []
+            for u in imgs:
+                if u not in seen:
+                    seen.add(u)
+                    uniq.append(u)
+            out[key] = {"name": nm, "url": url, "imgs": uniq[:6], "at": now.isoformat(timespec="seconds")}
+        PIC_STATS["ok"] += bool(out[key].get("imgs"))
+        PIC_STATS["imgs"] += len(out[key].get("imgs") or [])
+    return out
+
+
 def member_posts(member, name, prev_posts, pg=""):
     """한 멤버의 모든 채널(유튜브 대표·서브, 숲) 글. 확인 실패한 채널은 이전 글을 그대로 씀"""
     sources = [("yt:" + p, lambda p=p: yt_posts(p)) for p in ([member["path"]] if member["path"] else []) + member["subs"]]
@@ -1021,6 +1154,7 @@ def main():
             text = f.read()
     if not text.strip():
         print("MEMBER_LIST 설정이 비어 있어요. Settings → Secrets and variables → Actions → Secrets에 넣어 주세요.")
+    text, pic_list = take_pics(text)  # '멤버 사진' 칸은 멤버 목록과 따로 처리
     pages = split_pages(text)
     title, groups, extras = pages[0]["title"], pages[0]["groups"], pages[0]["extras"]
     prev_data = load_prev()
@@ -1061,6 +1195,12 @@ def main():
         print("소식 처리 중 오류(라이브 확인에는 영향 없음):", type(e).__name__)
         posts = [p for p in prev_data.get("posts", []) if isinstance(p, dict)] if isinstance(prev_data.get("posts"), list) else []
         posts_updated = prev_data.get("postsUpdated", "")
+    # 멤버 사진 (엠비크루 멤버만). 무슨 오류가 나도 라이브 결과에는 영향 없게 감쌈
+    try:
+        pics = member_pics(pic_list, prev_data.get("pics"))
+    except Exception as e:
+        print("멤버 사진 처리 중 오류(라이브 확인에는 영향 없음):", type(e).__name__)
+        pics = prev_data.get("pics") if isinstance(prev_data.get("pics"), dict) else {}
     i = 0
     out_pages = []
     for pg in pages:
@@ -1079,6 +1219,7 @@ def main():
         "memo": extras["memo"],
         "posts": posts,
         "postsUpdated": posts_updated,
+        "pics": pics,  # 멤버 사진: {직함 뺀 이름: {name, url, imgs(최대 6장), at}}
         "repo": os.environ.get("GITHUB_REPOSITORY", ""),  # 페이지가 저장소의 최신 결과(live-data)를 찾을 때 씀
         # 계열사 페이지 (Gist 목록의 '페이지 MBU' 아래). 멤버·일정·메모는 페이지마다 따로, 소식은 posts의 pg로 구분
         "sub": [{"key": pg["key"], "label": pg["label"], "title": pg["title"] or pg["label"], "groups": out_pages[k],
@@ -1107,6 +1248,8 @@ def main():
     print("숲 확인 %(ok)d/%(all)d, 숲 방송 중 %(on)d" % SOOP_STATS)
     if FUN_STATS["all"]:
         print("펀네이션 확인 %(ok)d/%(all)d, 펀네이션 방송 중 %(on)d" % FUN_STATS)
+    if PIC_STATS["all"]:
+        print("멤버 사진: %(all)d명 중 %(ok)d명 사진 있음 (이번에 새로 읽음 %(read)d명, 사진 %(imgs)d장)" % PIC_STATS)
     if POST_STATS["yt_all"] or POST_STATS["soop_all"]:
         print("소식 새로 가져옴: 유튜브 읽기 %(yt_ok)d/%(yt_all)d 글 %(yt_posts)d개, "
               "숲 읽기 %(soop_ok)d/%(soop_all)d 글 %(soop_posts)d개" % POST_STATS)

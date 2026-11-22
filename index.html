@@ -200,6 +200,24 @@ a.chip.live:hover{filter:brightness(1.12)}
 .more{font:inherit;font-weight:600;font-size:12px;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:6px 12px;cursor:pointer}
 .more:hover{border-color:var(--accent);color:#fff}
 .more[hidden]{display:none}
+/* 멤버 사진: 더보기 옆(작은 화면은 아래)의 사진 아이콘 + 사진 창 + 크게 보기 */
+.btns{display:flex;gap:6px;justify-content:center;align-items:center}
+.btns .more{white-space:nowrap}
+.picbtn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border-radius:9px;color:#ff9ad8;background:rgba(255,92,190,.12);border:1px solid rgba(255,92,190,.4);cursor:pointer}
+.picbtn:hover{background:rgba(255,92,190,.22)}
+.picbtn svg{width:16px;height:16px}
+@media (max-width:600px){.btns{flex-direction:column}.picbtn{width:28px;height:26px}}
+.pgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:6px 0 10px}
+.pcell{grid-column:span 2;aspect-ratio:1;padding:0;border:0;border-radius:10px;overflow:hidden;background:var(--panel-2);cursor:zoom-in}
+.pcell img{width:100%;height:100%;object-fit:cover;display:block}
+.pgrid.n2 .pcell,.pgrid.n4 .pcell{grid-column:span 3}
+.pgrid.n5 .pcell:nth-child(-n+2){grid-column:span 3}
+.pgrid.n1 .pcell{grid-column:span 6;aspect-ratio:auto}
+.pgrid.n1 .pcell img{height:auto;max-height:60vh;object-fit:contain}
+.pnone{color:var(--muted);font-size:13.5px;text-align:center;padding:18px 0}
+.lb{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;padding:12px;cursor:zoom-out}
+.lb.show{display:flex}
+.lb img{max-width:min(520px,75vw);max-height:min(520px,80vh);object-fit:contain;border-radius:8px;-webkit-user-drag:none;user-select:none}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
 /* 더보기 시트 */
@@ -466,10 +484,11 @@ body.pg-sub .count .chip.live{background:var(--soop)}
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetName">
     <header><img id="sheetPic" alt=""><b id="sheetName"></b><button class="x" id="close" type="button" aria-label="닫기">×</button></header>
     <div id="rows"></div>
-    <p class="hint">링크를 누르면 새 탭에서 열려요</p>
+    <p class="hint" id="sheetHint">링크를 누르면 새 탭에서 열려요</p>
   </div>
 </div>
 
+<div class="lb" id="lb" role="dialog" aria-label="사진 크게 보기"><img id="lbImg" alt=""></div>
 <div class="flash" id="flash" role="status"></div>
 <script id="data" type="application/json">__DATA__</script>
 <script>
@@ -589,6 +608,7 @@ function render(full){
   showBackup(full, ago);
 
   var box = $('groups'); box.innerHTML = '';
+  var pics = (!pg && full.pics) || {}; // 멤버 사진은 엠비크루 페이지에만
   d.groups.forEach(function(g){
     if(g.title) box.appendChild(el('h2', null, g.title));
     var grid = el('div','grid');
@@ -630,7 +650,16 @@ function render(full){
       var more = el('button','more','더보기'); more.type = 'button';
       more.hidden = !(m.links && m.links.length);
       more.addEventListener('click', function(){ openSheet(m); });
-      c.appendChild(more);
+      var btns = el('div','btns');
+      btns.appendChild(more);
+      var pe = pics[nameKey(m.name)], imgs = pe && pe.imgs && pe.imgs.length ? pe.imgs.slice(0, 6) : null;
+      if(imgs){ // 목록의 '멤버 사진'에 적은 엠비크루 멤버만 사진 아이콘
+        var pb = el('button','picbtn'); pb.type = 'button'; pb.title = '사진 보기'; pb.setAttribute('aria-label', m.name + ' 사진 보기');
+        pb.innerHTML = PIC_ICON;
+        pb.addEventListener('click', function(){ openPics(m, imgs); });
+        btns.appendChild(pb);
+      }
+      if(!more.hidden || imgs) c.appendChild(btns);
       grid.appendChild(c);
     });
     box.appendChild(grid);
@@ -1092,9 +1121,53 @@ function route(){
 window.addEventListener('hashchange', route);
 route();
 
-function openSheet(m){
+// 멤버 사진: 목록에는 이름만 적으니, 카드 이름 앞의 [대표]·(신입) 같은 직함을 빼고 비교
+function nameKey(s){
+  s = String(s || '').trim();
+  for(var p = ''; p !== s;){ p = s; s = s.replace(/^(\[[^\]]*\]|\([^)]*\)|【[^】]*】)\s*/, ''); }
+  return s.replace(/\s+/g, '');
+}
+var PIC_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>';
+function openPics(m, imgs){
   $('sheetName').textContent = m.name;
-  $('sheetPic').src = m.avatar || '';
+  $('sheetPic').src = m.avatar || ''; $('sheetPic').style.visibility = m.avatar ? '' : 'hidden';
+  var rows = $('rows'); rows.innerHTML = '';
+  var g = el('div', 'pgrid n' + imgs.length);
+  function fix(){ // 못 불러온 사진은 빼고 배치를 다시 맞춤
+    g.className = 'pgrid n' + g.children.length;
+    if(!g.children.length){ rows.innerHTML = ''; rows.appendChild(el('p', 'pnone', '사진을 불러오지 못했어요')); }
+  }
+  imgs.forEach(function(src){
+    var b = el('button', 'pcell'); b.type = 'button'; b.setAttribute('aria-label', '사진 크게 보기');
+    var im = el('img'); im.src = src; im.alt = ''; im.referrerPolicy = 'no-referrer'; im.loading = 'lazy';
+    im.onerror = function(){ b.remove(); fix(); };
+    b.appendChild(im);
+    b.addEventListener('click', function(){ openLb(src); });
+    g.appendChild(b);
+  });
+  rows.appendChild(g);
+  $('sheetHint').textContent = '사진을 누르면 크게 보여요';
+  $('dim').classList.add('show');
+  $('close').focus();
+}
+// 크게 보기: 멤버 카드 3칸 너비까지만 (그보다 크게는 안 키움). 링크 이동 없음
+function openLb(src){
+  var im = $('lbImg'), m = document.querySelector('#groups .grid .m'), w = 520;
+  if(m){
+    var gap = parseFloat(getComputedStyle(m.parentNode).columnGap) || 10;
+    w = Math.round(m.getBoundingClientRect().width * 3 + gap * 2);
+  }
+  im.style.maxWidth = w + 'px'; im.style.maxHeight = Math.min(w, Math.round(innerHeight * 0.8)) + 'px';
+  im.draggable = false; im.src = src;
+  $('lb').classList.add('show');
+}
+function closeLb(){ $('lb').classList.remove('show'); $('lbImg').removeAttribute('src'); }
+$('lb').addEventListener('click', closeLb);
+
+function openSheet(m){
+  $('sheetHint').textContent = '링크를 누르면 새 탭에서 열려요';
+  $('sheetName').textContent = m.name;
+  $('sheetPic').src = m.avatar || ''; $('sheetPic').style.visibility = m.avatar ? '' : 'hidden';
   var rows = $('rows'); rows.innerHTML = '';
   m.links.forEach(function(l){
     var r = el('a','row');
@@ -1110,7 +1183,7 @@ function openSheet(m){
 function closeSheet(){ $('dim').classList.remove('show'); }
 $('close').addEventListener('click', closeSheet);
 $('dim').addEventListener('click', function(e){ if(e.target === this) closeSheet(); });
-document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeSheet(); });
+document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ if($('lb').classList.contains('show')) closeLb(); else closeSheet(); } });
 
 // 데이터는 이 페이지 안에 들어 있어요. 1분마다 새 결과를 확인합니다.
 // GitHub Pages 반영이 멈춰도 라이브 표시가 계속 갱신되도록, 저장소의 live-data 칸에 저장된 최신 결과도 같이 읽어서
