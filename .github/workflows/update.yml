@@ -15,17 +15,18 @@ permissions:
   id-token: write
   actions: write
 
-concurrency:
-  group: pages
-  cancel-in-progress: false
-
+# 라이브 확인(build)과 사이트 올리기(deploy)를 따로 줄 세워요.
+# 예전엔 둘이 한 줄이라, GitHub Pages 올리기가 멈추면(최대 10분) 다음 라이브 확인도 같이 밀렸어요.
+# 이제 올리기가 오래 걸려도 라이브 확인 이어달리기는 약 5분마다 그대로 돌아요.
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+    concurrency:
+      group: live
+      cancel-in-progress: false
+    outputs:
+      deploy: ${{ steps.build.outputs.deploy }}
     steps:
       # 실행 시작 시각을 기억해요 (아래 wait 단계에서 전체가 약 5분이 되도록 쉬는 시간을 맞춰요)
       - name: start
@@ -86,13 +87,6 @@ jobs:
           path: site
           retention-days: 1
 
-      # GitHub Pages 반영은 느릴 때 몇 분씩 걸려요. 중간에 끊으면 영영 반영이 안 되니 끝까지(최대 10분) 기다려요.
-      # (라이브 결과는 위 save live data 단계에서 이미 저장돼서, 여기서 기다려도 라이브 표시는 늦어지지 않아요)
-      - id: deploy
-        if: ${{ steps.build.outputs.deploy != 'false' }}
-        uses: actions/deploy-pages@v4
-        continue-on-error: true
-
       # GitHub Pages는 같은 커밋 번호로 다시 올리면 새 내용으로 바꾸지 않아요.
       # 그래서 매번 빈 기록(커밋)을 하나 남겨서, 다음 실행이 새 번호로 올리게 해요. (60일 자동정지 방지도 겸함)
       - name: new version
@@ -105,34 +99,10 @@ jobs:
           git commit -q --allow-empty -m "live check $(date -u +%H:%M)"
           git push -q origin HEAD:main
 
-      # 페이지 올리기가 실패하면, 앞에서 멈춰 버린 배포가 길을 막고 있는 경우가 많아요.
-      # 최근 기록 10개의 배포를 취소해 봐요. (이미 끝난 배포는 GitHub이 거절하고, 그건 괜찮아요)
-      - name: unstick
-        if: ${{ steps.deploy.outcome == 'failure' }}
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          n=0
-          for sha in $(gh api "repos/${{ github.repository }}/commits?sha=main&per_page=10" --jq '.[].sha'); do
-            if gh api -X POST "repos/${{ github.repository }}/pages/deployments/$sha/cancel" >/dev/null 2>&1; then
-              echo "멈춘 배포 취소함: $sha"; n=$((n+1))
-            fi
-          done
-          echo "취소한 배포 $n개"
-
-      # (사이트에 올리지 않은 실행은 skipped로 나오고, 성공과 똑같이 쉬어요)
       # 실행 시작부터 약 4분 30초가 될 때까지만 쉬어요. 다음 실행 준비 시간까지 더하면 약 5분마다 확인돼요.
-      # (GitHub Pages가 느려서 올리기가 오래 걸린 날은 그만큼 덜 쉬어요. 올리기에 실패했으면 30초 뒤 바로 다시 시도)
+      # (사이트 올리기는 아래 deploy 작업이 따로 해서, 여기서는 기다리지 않아요)
       - name: wait
-        env:
-          DEPLOY_RESULT: ${{ steps.deploy.outcome }}
         run: |
-          if [ "$DEPLOY_RESULT" != "success" ] && [ "$DEPLOY_RESULT" != "skipped" ]; then
-            echo "페이지 올리기 결과: $DEPLOY_RESULT → 잠시 뒤 다시 시도해요"
-            sleep 30
-            exit 0
-          fi
           elapsed=$(( $(date +%s) - ${START_TS:-$(date +%s)} ))
           rest=$(( 270 - elapsed ))
           [ "$rest" -lt 10 ] && rest=10
@@ -151,3 +121,39 @@ jobs:
             sleep 15
           done
           exit 1
+
+  # 사이트(GitHub Pages)에 화면 파일 올리기. 라이브 확인과 따로 돌아서, 여기가 느려도 라이브 표시는 밀리지 않아요.
+  # 올리는 중에 다음 실행이 또 올리려 하면 줄을 서고, 그 사이 더 새 것이 오면 중간 것은 건너뛰어요.
+  deploy:
+    needs: build
+    if: ${{ needs.build.outputs.deploy == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      # GitHub Pages 반영은 느릴 때 몇 분씩 걸려요. 중간에 끊으면 영영 반영이 안 되니 끝까지(최대 10분) 기다려요.
+      # (라이브 결과는 위 save live data 단계에서 이미 저장돼서, 여기서 기다려도 라이브 표시는 늦어지지 않아요)
+      - id: deploy
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+
+      # 페이지 올리기가 실패하면, 앞에서 멈춰 버린 배포가 길을 막고 있는 경우가 많아요.
+      # 최근 기록 10개의 배포를 취소해 봐요. (이미 끝난 배포는 GitHub이 거절하고, 그건 괜찮아요)
+      - name: unstick
+        if: ${{ steps.deploy.outcome == 'failure' }}
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          n=0
+          for sha in $(gh api "repos/${{ github.repository }}/commits?sha=main&per_page=10" --jq '.[].sha'); do
+            if gh api -X POST "repos/${{ github.repository }}/pages/deployments/$sha/cancel" >/dev/null 2>&1; then
+              echo "멈춘 배포 취소함: $sha"; n=$((n+1))
+            fi
+          done
+          echo "취소한 배포 $n개"
