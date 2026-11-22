@@ -795,10 +795,10 @@ def soop_posts(bid):
 
 # ── 멤버 사진 ──────────────────────────────
 # 목록의 "멤버 사진" 줄 아래: 멤버 이름(직함 빼고) + 숲 공개 게시글 주소. 그 게시글의 사진 최대 6장을
-# 엠비크루 멤버 카드의 사진 아이콘으로 보여 줘요. 게시글은 12시간마다(하루 두 번) 다시 확인해요 (주소를 바꾸면 바로).
-# 사진을 못 읽었으면 1시간 뒤에 다시 시도해요.
-PIC_EVERY = 12 * 3600
-PIC_RETRY = 60 * 60
+# 엠비크루 멤버 카드의 사진 아이콘으로 보여 줘요. 게시글은 소식과 같이 약 10분마다 다시 확인해요 (주소를 바꾸면 바로).
+# 사진을 못 읽었으면 30분 뒤에 다시 시도해요 (숲에 요청이 몰리지 않게).
+PIC_EVERY = 9 * 60
+PIC_RETRY = 30 * 60
 PIC_POST_RE = re.compile(r"(?:sooplive\.(?:co\.kr|com)/station/|afreecatv\.com/station/|bj\.afreecatv\.com/)([A-Za-z0-9_]+)/post/(\d+)", re.I)
 PIC_STATS = {"all": 0, "read": 0, "ok": 0, "imgs": 0}
 
@@ -839,8 +839,9 @@ def take_pics(text):
         if m:
             label = st[:st.find(m.group(0))].replace("https://", "").replace("http://", "").replace("www.", "").strip()
             nm = name or label  # "이름 주소" 한 줄로 써도 돼요
+            raw_url = st[st.find(m.group(0)):].split()[0]  # 적은 그대로 (끝에 #1, #2를 바꿔 붙이면 바로 다시 읽어요)
             if nm:
-                out.append((nm, "https://www.sooplive.com/station/%s/post/%s" % (m.group(1), m.group(2))))
+                out.append((nm, "https://www.sooplive.com/station/%s/post/%s" % (m.group(1), m.group(2)), raw_url))
         elif not name:
             name = st
     return "\n".join(keep), out
@@ -896,7 +897,7 @@ def member_pics(pic_list, prev):
     prev = prev if isinstance(prev, dict) else {}
     now = datetime.now(timezone.utc)
     out = {}
-    for nm, url in pic_list:
+    for nm, url, raw_url in pic_list:
         key = name_key(nm)
         if not key or key in out:
             continue
@@ -906,7 +907,8 @@ def member_pics(pic_list, prev):
             age = (now - datetime.fromisoformat(old.get("at", ""))).total_seconds()
         except Exception:
             age = 1e9
-        fresh_needed = old.get("url") != url or age >= (PIC_EVERY if old.get("imgs") else PIC_RETRY) or os.environ.get("POSTS_FORCE")
+        # 주소를 바꾸거나, 주소 끝에 붙인 #숫자를 바꾸면 기다리지 않고 바로 다시 읽어요
+        fresh_needed = old.get("url") != url or old.get("src", raw_url) != raw_url or age >= (PIC_EVERY if old.get("imgs") else PIC_RETRY) or os.environ.get("POSTS_FORCE")
         if not fresh_needed:
             out[key] = old
             PIC_STATS["ok"] += bool(old.get("imgs"))
@@ -914,9 +916,9 @@ def member_pics(pic_list, prev):
             continue
         m = PIC_POST_RE.search(url)
         imgs = soop_post_imgs(m.group(1), m.group(2)) if m else None
-        if imgs is None:  # 못 읽음 → 같은 주소였으면 이전 사진 유지 (사진이 없으면 1시간 뒤 다시 시도)
+        if imgs is None:  # 못 읽음 → 같은 주소였으면 이전 사진 유지 (사진이 없으면 30분 뒤 다시 시도)
             keep = old.get("imgs") if old.get("url") == url else []
-            out[key] = {"name": nm, "url": url, "imgs": keep or [], "at": now.isoformat(timespec="seconds")}
+            out[key] = {"name": nm, "url": url, "src": raw_url, "imgs": keep or [], "at": now.isoformat(timespec="seconds")}
         else:
             PIC_STATS["read"] += 1
             seen, uniq = set(), []
@@ -924,7 +926,7 @@ def member_pics(pic_list, prev):
                 if u not in seen:
                     seen.add(u)
                     uniq.append(u)
-            out[key] = {"name": nm, "url": url, "imgs": uniq[:6], "at": now.isoformat(timespec="seconds")}
+            out[key] = {"name": nm, "url": url, "src": raw_url, "imgs": uniq[:6], "at": now.isoformat(timespec="seconds")}
         PIC_STATS["ok"] += bool(out[key].get("imgs"))
         PIC_STATS["imgs"] += len(out[key].get("imgs") or [])
     return out
