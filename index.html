@@ -201,18 +201,25 @@ a.chip.live:hover{filter:brightness(1.12)}
 .more:hover{border-color:var(--accent);color:#fff}
 .more[hidden]{display:none}
 /* 멤버 사진: 더보기 옆(작은 화면은 아래)의 사진 아이콘 + 사진 창 + 크게 보기 */
-.btns{display:flex;gap:6px;justify-content:center;align-items:center}
-.btns .more{white-space:nowrap}
+.mbtns{display:flex;gap:6px;justify-content:center;align-items:center}
+.mbtns .more{white-space:nowrap}
 .picbtn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border-radius:9px;color:#ff9ad8;background:rgba(255,92,190,.12);border:1px solid rgba(255,92,190,.4);cursor:pointer}
 .picbtn:hover{background:rgba(255,92,190,.22)}
 .picbtn svg{width:16px;height:16px}
-@media (max-width:600px){.btns{flex-direction:column}.picbtn{width:28px;height:26px}}
-.pgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:6px 0 10px}
+@media (max-width:600px){.mbtns{flex-direction:column}.picbtn{width:28px;height:26px}}
+.pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px auto 10px;max-width:calc((100vh - 210px) * 2 / 3);align-content:start} /* 사진이 적은 페이지도 위에서부터 붙여서 */ /* 화면이 낮아도 3줄이 창 안에 다 들어가게 */
 .pcell{grid-column:span 2;aspect-ratio:1;padding:0;border:0;border-radius:10px;overflow:hidden;background:var(--panel-2);cursor:zoom-in}
 .pcell img{width:100%;height:100%;object-fit:cover;display:block}
-.pgrid.n2 .pcell,.pgrid.n4 .pcell{grid-column:span 3}
-.pgrid.n5 .pcell:nth-child(-n+2){grid-column:span 3}
-.pgrid.n1 .pcell{grid-column:span 6;aspect-ratio:auto}
+.pgrid.n3 .pcell:last-child,.pgrid.n5 .pcell:last-child{grid-column:2 / span 2} /* 혼자 남은 사진은 가운데 */
+.pcell.broken{cursor:default;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px}
+/* 사진이 6장보다 많으면 아래에 ‹ ● ○ ○ › 페이지 표시 (첫 페이지엔 ‹ 없음, 마지막 페이지엔 › 없음) */
+.ppager{display:flex;align-items:center;justify-content:center;gap:6px;margin:-2px 0 8px;user-select:none}
+.ppager .pdot{width:22px;height:22px;padding:0;border:0;background:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.ppager .pdot::before{content:"";width:9px;height:9px;border-radius:50%;border:1.5px solid var(--muted);box-sizing:border-box}
+.ppager .pdot.on::before{background:#ff9ad8;border-color:#ff9ad8}
+.ppager .parr{width:30px;height:30px;padding:0;border-radius:50%;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);font-size:18px;line-height:1;cursor:pointer}
+.ppager .parr[hidden]{display:inline-block;visibility:hidden}
+.pgrid.n1 .pcell{grid-column:span 4;aspect-ratio:auto}
 .pgrid.n1 .pcell img{height:auto;max-height:60vh;object-fit:contain}
 .pnone{color:var(--muted);font-size:13.5px;text-align:center;padding:18px 0}
 .pzoom{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;padding:12px;cursor:zoom-out}
@@ -650,9 +657,9 @@ function render(full){
       var more = el('button','more','더보기'); more.type = 'button';
       more.hidden = !(m.links && m.links.length);
       more.addEventListener('click', function(){ openSheet(m); });
-      var btns = el('div','btns');
+      var btns = el('div','mbtns');
       btns.appendChild(more);
-      var pe = pics[nameKey(m.name)], imgs = pe && pe.imgs && pe.imgs.length ? pe.imgs.slice(0, 6) : null;
+      var pe = pics[nameKey(m.name)], imgs = pe && pe.imgs && pe.imgs.length ? pe.imgs.slice(0, 30) : null;
       if(imgs){ // 목록의 '멤버 사진'에 적은 엠비크루 멤버만 사진 아이콘
         var pb = el('button','picbtn'); pb.type = 'button'; pb.title = '사진 보기'; pb.setAttribute('aria-label', m.name + ' 사진 보기');
         pb.innerHTML = PIC_ICON;
@@ -1128,26 +1135,59 @@ function nameKey(s){
   return s.replace(/\s+/g, '');
 }
 var PIC_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>';
+var PIC_PAGE = 6, PICS_NOW = null; // 한 번에 최대 6장. 더 많으면 페이지로 넘겨 봐요
 function openPics(m, imgs){
   $('sheetName').textContent = m.name;
   $('sheetPic').src = m.avatar || ''; $('sheetPic').style.visibility = m.avatar ? '' : 'hidden';
-  var rows = $('rows'); rows.innerHTML = '';
-  var g = el('div', 'pgrid n' + imgs.length);
-  function fix(){ // 못 불러온 사진은 빼고 배치를 다시 맞춤
-    g.className = 'pgrid n' + g.children.length;
-    if(!g.children.length){ rows.innerHTML = ''; rows.appendChild(el('p', 'pnone', '사진을 불러오지 못했어요')); }
-  }
-  imgs.forEach(function(src){
+  var rows = $('rows'), pages = Math.ceil(imgs.length / PIC_PAGE), cur = 0, minH = 0;
+  function cell(src){
     var b = el('button', 'pcell'); b.type = 'button'; b.setAttribute('aria-label', '사진 크게 보기');
-    var im = el('img'); im.src = src; im.alt = ''; im.referrerPolicy = 'no-referrer'; im.loading = 'lazy';
-    im.onerror = function(){ b.remove(); fix(); };
+    var im = el('img'); im.src = src; im.alt = ''; im.referrerPolicy = 'no-referrer'; im.loading = 'lazy'; im.draggable = false;
+    im.onerror = function(){ b.textContent = '사진을 못 불러왔어요'; b.classList.add('broken'); b.disabled = true; };
     b.appendChild(im);
     b.addEventListener('click', function(){ openLb(src); });
-    g.appendChild(b);
-  });
-  rows.appendChild(g);
-  $('sheetHint').textContent = '사진을 누르면 크게 보여요';
-  $('dim').classList.add('show');
+    return b;
+  }
+  function show(p){
+    cur = Math.max(0, Math.min(pages - 1, p));
+    var list = imgs.slice(cur * PIC_PAGE, cur * PIC_PAGE + PIC_PAGE);
+    rows.innerHTML = '';
+    var g = el('div', 'pgrid n' + list.length);
+    list.forEach(function(src){ g.appendChild(cell(src)); });
+    rows.appendChild(g);
+    if(pages > 1){
+      if(minH) g.style.minHeight = minH + 'px'; // 사진이 적은 마지막 페이지도 창 높이가 출렁이지 않게
+      var bar = el('div', 'ppager');
+      var prev = el('button', 'parr', '‹'); prev.type = 'button'; prev.setAttribute('aria-label', '이전 사진');
+      prev.hidden = cur === 0; prev.addEventListener('click', function(){ show(cur - 1); });
+      bar.appendChild(prev);
+      for(var i = 0; i < pages; i++){
+        var d = el('button', 'pdot' + (i === cur ? ' on' : '')); d.type = 'button';
+        d.setAttribute('aria-label', (i + 1) + '페이지' + (i === cur ? ' (지금)' : ''));
+        d.addEventListener('click', (function(i){ return function(){ show(i); }; })(i));
+        bar.appendChild(d);
+      }
+      var next = el('button', 'parr', '›'); next.type = 'button'; next.setAttribute('aria-label', '다음 사진');
+      next.hidden = cur === pages - 1; next.addEventListener('click', function(){ show(cur + 1); });
+      bar.appendChild(next);
+      rows.appendChild(bar);
+      if(!minH) minH = g.offsetHeight;
+      // 다음 페이지 사진은 미리 받아 둬서 넘길 때 바로 뜨게
+      imgs.slice((cur + 1) * PIC_PAGE, (cur + 2) * PIC_PAGE).forEach(function(src){ var x = new Image(); x.referrerPolicy = 'no-referrer'; x.src = src; });
+    }
+  }
+  // 폰: 사진 위에서 옆으로 밀면 페이지 넘김
+  var sx = null, sy = 0;
+  rows.ontouchstart = function(e){ if(pages > 1 && e.touches.length === 1){ sx = e.touches[0].clientX; sy = e.touches[0].clientY; } };
+  rows.ontouchend = function(e){
+    if(sx === null) return;
+    var t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy; sx = null;
+    if(Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.5) show(cur + (dx < 0 ? 1 : -1));
+  };
+  PICS_NOW = { go: function(d){ if(pages > 1) show(cur + d); } };
+  $('sheetHint').textContent = pages > 1 ? '사진을 누르면 크게 보여요 · 옆으로 밀거나 ‹ › 로 넘겨요' : '사진을 누르면 크게 보여요';
+  $('dim').classList.add('show'); // 창을 먼저 띄워야 첫 페이지 높이를 잴 수 있어요
+  show(0);
   $('close').focus();
 }
 // 크게 보기: 멤버 카드 3칸 너비까지만 (그보다 크게는 안 키움). 링크 이동 없음
@@ -1165,6 +1205,7 @@ function closeLb(){ $('lb').classList.remove('show'); $('lbImg').removeAttribute
 $('lb').addEventListener('click', closeLb);
 
 function openSheet(m){
+  PICS_NOW = null; $('rows').ontouchstart = $('rows').ontouchend = null;
   $('sheetHint').textContent = '링크를 누르면 새 탭에서 열려요';
   $('sheetName').textContent = m.name;
   $('sheetPic').src = m.avatar || ''; $('sheetPic').style.visibility = m.avatar ? '' : 'hidden';
@@ -1183,7 +1224,13 @@ function openSheet(m){
 function closeSheet(){ $('dim').classList.remove('show'); }
 $('close').addEventListener('click', closeSheet);
 $('dim').addEventListener('click', function(e){ if(e.target === this) closeSheet(); });
-document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ if($('lb').classList.contains('show')) closeLb(); else closeSheet(); } });
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){ if($('lb').classList.contains('show')) closeLb(); else closeSheet(); }
+  // PC: 사진 창에서 키보드 ← → 로 페이지 넘김
+  else if((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && PICS_NOW && $('dim').classList.contains('show') && !$('lb').classList.contains('show')){
+    PICS_NOW.go(e.key === 'ArrowLeft' ? -1 : 1); e.preventDefault();
+  }
+});
 
 // 데이터는 이 페이지 안에 들어 있어요. 1분마다 새 결과를 확인합니다.
 // GitHub Pages 반영이 멈춰도 라이브 표시가 계속 갱신되도록, 저장소의 live-data 칸에 저장된 최신 결과도 같이 읽어서

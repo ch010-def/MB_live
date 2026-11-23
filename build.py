@@ -794,13 +794,21 @@ def soop_posts(bid):
 
 
 # ── 멤버 사진 ──────────────────────────────
-# 목록의 "멤버 사진" 줄 아래: 멤버 이름(직함 빼고) + 숲 공개 게시글 주소. 그 게시글의 사진 최대 6장을
+# 목록의 "멤버 사진" 줄 아래: 멤버 이름(직함 빼고) + 숲 공개 게시글 주소. 그 게시글의 사진 최대 30장을
 # 엠비크루 멤버 카드의 사진 아이콘으로 보여 줘요. 게시글은 소식과 같이 약 10분마다 다시 확인해요 (주소를 바꾸면 바로).
 # 사진을 못 읽었으면 30분 뒤에 다시 시도해요 (숲에 요청이 몰리지 않게).
 PIC_EVERY = 9 * 60
 PIC_RETRY = 30 * 60
 PIC_POST_RE = re.compile(r"(?:sooplive\.(?:co\.kr|com)/station/|afreecatv\.com/station/|bj\.afreecatv\.com/)([A-Za-z0-9_]+)/post/(\d+)", re.I)
-PIC_STATS = {"all": 0, "read": 0, "ok": 0, "imgs": 0}
+PIC_STATS = {"all": 0, "read": 0, "ok": 0, "imgs": 0, "late": 0}
+PIC_BUDGET = 60   # 멤버 사진 읽기에 쓰는 시간은 실행마다 최대 약 1분 (라이브 확인 이어달리기가 밀리지 않게)
+_PIC_CACHE = {}   # 같은 방송국의 게시판 목록은 한 번 실행에 한 번만 읽기 (여러 멤버 게시글이 한 방송국에 있을 때)
+
+
+def _soop_cached(url):
+    if url not in _PIC_CACHE:
+        _PIC_CACHE[url] = soop_json(url)
+    return _PIC_CACHE[url]
 
 
 def name_key(s):
@@ -875,14 +883,16 @@ def soop_post_imgs(bid, no):
         if imgs:
             return imgs
     # 게시글 하나 읽기가 안 되면, 공개 게시판 목록에서 그 글을 찾아봐요 (게시판마다 최근 180개까지)
-    st = soop_json(SOOP_API + bid + "/station")
+    st = _soop_cached(SOOP_API + bid + "/station")
     if not isinstance(st, dict) or not isinstance(st.get("station"), dict):
         return [] if it else None
     boards = [m.get("bbs_no") for m in st["station"].get("menus") or []
               if isinstance(m, dict) and m.get("auth_no") == 101 and m.get("bbs_no")][:15]
     for bbs in boards:
         for page in range(1, 4):
-            lst = soop_json(SOOP_API + "%s/board/%s?page=%d&per_page=60&field=title&orderby=reg_date" % (bid, bbs, page))
+            if time.time() >= PIC_DEADLINE[0]:
+                return None  # 시간 다 씀 → 이번엔 못 읽은 걸로 (이전 사진 유지, 다음 실행에 다시)
+            lst = _soop_cached(SOOP_API + "%s/board/%s?page=%d&per_page=60&field=title&orderby=reg_date" % (bid, bbs, page))
             data = lst.get("data") if isinstance(lst, dict) else None
             if not isinstance(data, list) or not data:
                 break
@@ -892,10 +902,14 @@ def soop_post_imgs(bid, no):
     return [] if it else None
 
 
+PIC_DEADLINE = [0]
+
+
 def member_pics(pic_list, prev):
     """멤버 사진 결과 {비교용 이름: {name, url, imgs, at}}. 확인 실패하면 이전 결과를 그대로 씀"""
     prev = prev if isinstance(prev, dict) else {}
     now = datetime.now(timezone.utc)
+    PIC_DEADLINE[0] = time.time() + PIC_BUDGET
     out = {}
     for nm, url, raw_url in pic_list:
         key = name_key(nm)
@@ -914,6 +928,12 @@ def member_pics(pic_list, prev):
             PIC_STATS["ok"] += bool(old.get("imgs"))
             PIC_STATS["imgs"] += len(old.get("imgs") or [])
             continue
+        if time.time() >= PIC_DEADLINE[0]:  # 시간 다 씀 → 이전 결과 그대로, 다음 실행에 이어서 읽어요
+            PIC_STATS["late"] += 1
+            out[key] = old if old else {"name": nm, "url": url, "src": raw_url, "imgs": [], "at": ""}
+            PIC_STATS["ok"] += bool(out[key].get("imgs"))
+            PIC_STATS["imgs"] += len(out[key].get("imgs") or [])
+            continue
         m = PIC_POST_RE.search(url)
         imgs = soop_post_imgs(m.group(1), m.group(2)) if m else None
         if imgs is None:  # 못 읽음 → 같은 주소였으면 이전 사진 유지 (사진이 없으면 30분 뒤 다시 시도)
@@ -926,7 +946,7 @@ def member_pics(pic_list, prev):
                 if u not in seen:
                     seen.add(u)
                     uniq.append(u)
-            out[key] = {"name": nm, "url": url, "src": raw_url, "imgs": uniq[:6], "at": now.isoformat(timespec="seconds")}
+            out[key] = {"name": nm, "url": url, "src": raw_url, "imgs": uniq[:30], "at": now.isoformat(timespec="seconds")}
         PIC_STATS["ok"] += bool(out[key].get("imgs"))
         PIC_STATS["imgs"] += len(out[key].get("imgs") or [])
     return out
@@ -1225,7 +1245,7 @@ def main():
         "memo": extras["memo"],
         "posts": posts,
         "postsUpdated": posts_updated,
-        "pics": pics,  # 멤버 사진: {직함 뺀 이름: {name, url, imgs(최대 6장), at}}
+        "pics": pics,  # 멤버 사진: {직함 뺀 이름: {name, url, imgs(최대 30장), at}}
         "repo": os.environ.get("GITHUB_REPOSITORY", ""),  # 페이지가 저장소의 최신 결과(live-data)를 찾을 때 씀
         # 계열사 페이지 (Gist 목록의 '페이지 MBU' 아래). 멤버·일정·메모는 페이지마다 따로, 소식은 posts의 pg로 구분
         "sub": [{"key": pg["key"], "label": pg["label"], "title": pg["title"] or pg["label"], "groups": out_pages[k],
@@ -1255,7 +1275,7 @@ def main():
     if FUN_STATS["all"]:
         print("펀네이션 확인 %(ok)d/%(all)d, 펀네이션 방송 중 %(on)d" % FUN_STATS)
     if PIC_STATS["all"]:
-        print("멤버 사진: %(all)d명 중 %(ok)d명 사진 있음 (이번에 새로 읽음 %(read)d명, 사진 %(imgs)d장)" % PIC_STATS)
+        print("멤버 사진: %(all)d명 중 %(ok)d명 사진 있음 (이번에 새로 읽음 %(read)d명, 사진 %(imgs)d장, 시간 부족으로 다음에 %(late)d명)" % PIC_STATS)
     if POST_STATS["yt_all"] or POST_STATS["soop_all"]:
         print("소식 새로 가져옴: 유튜브 읽기 %(yt_ok)d/%(yt_all)d 글 %(yt_posts)d개, "
               "숲 읽기 %(soop_ok)d/%(soop_all)d 글 %(soop_posts)d개" % POST_STATS)
