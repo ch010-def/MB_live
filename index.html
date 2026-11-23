@@ -374,6 +374,7 @@ body.pg-sub .count .chip.live{background:var(--soop)}
 /* 큰 화면: 화면을 넓혀서 멤버를 한 줄에 5개·6개씩 (칸 크기는 지금과 거의 같음). 작은 화면은 그대로 4개 */
 @media (min-width:860px){
   main{max-width:900px}
+  .hero{justify-content:center} /* 폭이 넓어진 만큼 타이틀(로고·이름·버튼)은 가운데로 */
   .grid{grid-template-columns:repeat(5,1fr)}
   /* 큰 화면 달력: 글씨 크게, 일정 내용을 자르지 않고 전부 보여 줌 */
   /* 달력 바깥 상자(테두리·안쪽 여백)를 없애서 달력 칸 양 끝이 멤버 줄 양 끝과 딱 맞게 */
