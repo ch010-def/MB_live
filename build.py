@@ -821,20 +821,31 @@ def name_key(s):
     return re.sub(r"\s+", "", s)
 
 
-def take_pics(text):
-    """목록에서 '멤버 사진' 칸을 떼어 냄 (멤버 카드로 잘못 읽히지 않게).
-    '멤버 사진' 줄부터 다음 '페이지 ○○' 줄(또는 끝)까지. 반환: (나머지 목록, [(이름, 게시글 주소), ...])"""
-    lines, keep, sec, on = text.splitlines(), [], [], False
-    for raw in lines:
+SEC_HEADS = {  # 목록 맨 아래의 따로 쓰는 칸: 시작 줄 → 칸 이름 ('# ════ 멤버 사진 (…) ════' 같은 제목 줄도 돼요)
+    "pics": re.compile(r"^멤버\s*사진(\s*[:：(].*)?$"),
+    "vod": re.compile(r"^다시\s*보기(\s*[:：(].*)?$"),
+}
+
+
+def take_sections(text):
+    """목록에서 '멤버 사진'·'다시보기' 칸을 떼어 냄 (멤버 카드로 잘못 읽히지 않게).
+    칸은 시작 줄부터 다음 칸 시작 줄, '페이지 ○○' 줄, 또는 끝까지. 반환: (나머지 목록, {칸 이름: [줄들]})"""
+    keep, secs, cur = [], {"pics": [], "vod": []}, None
+    for raw in text.splitlines():
         st = raw.strip()
-        # 시작 표시: '멤버 사진' 줄, 또는 '# ════ 멤버 사진 (…) ════' 같은 제목 줄 (띄어쓰기·'#'·'═'·':'는 달라도 돼요)
-        head = re.sub(r"^[#\s═=─\-]+|[\s═=─\-]+$", "", st)
-        if not on and re.match(r"^멤버\s*사진(\s*[:：(].*)?$", head):
-            on = True
+        head = re.sub(r"^[#\s═=─\-]+|[\s═=─\-]+$", "", st)  # 띄어쓰기·'#'·'═'·':'는 달라도 돼요
+        hit = next((k for k, rx in SEC_HEADS.items() if rx.match(head)), None)
+        if hit:
+            cur = hit
             continue
-        if on and re.match(r"^\s*페이지\s+\S", raw):
-            on = False
-        (sec if on else keep).append(raw)
+        if cur and re.match(r"^\s*페이지\s+\S", raw):
+            cur = None
+        (secs[cur] if cur else keep).append(raw)
+    return "\n".join(keep), secs
+
+
+def parse_pics(sec):
+    """멤버 사진 칸: 이름 + 숲 게시글 주소 → [(이름, 게시글 주소, 적은 그대로의 주소), ...]"""
     out, name = [], ""
     for raw in sec:
         st = raw.strip()
@@ -852,7 +863,57 @@ def take_pics(text):
                 out.append((nm, "https://www.sooplive.com/station/%s/post/%s" % (m.group(1), m.group(2)), raw_url))
         elif not name:
             name = st
-    return "\n".join(keep), out
+    return out
+
+
+def take_pics(text):  # (이전 이름 그대로 남겨 둠)
+    rest, secs = take_sections(text)
+    return rest, parse_pics(secs["pics"])
+
+
+# ── 크루 다시보기 (펀네이션 영상) ──────────────────────────────
+# 목록 맨 아래 '다시보기' 칸에 펀네이션 영상 제목 줄과 주소 줄을 붙여 넣으면 돼요.
+# 펀네이션에는 접속하지 않아요 (자동 접속을 막는 사이트라서). 제목 속 '시즌6 2화'와 '(11.23 17:00)'로 정리해요.
+VOD_RE = re.compile(r"https?://(?:www\.)?funnation\.co\.kr/video/[\w-]+", re.I)
+
+
+def parse_vod(sec):
+    """다시보기 칸 → [{season, ep, title, full, date(YYYY-MM-DD), time, url}, ...] (적은 순서 그대로)"""
+    out, title = [], ""
+    now = datetime.now(KST)
+    for raw in sec:
+        st = raw.strip()
+        if not st or st.startswith("#"):
+            if not st:
+                title = ""
+            continue
+        m = VOD_RE.search(st)
+        if not m:
+            title = st  # 제목 줄 (바로 아래 줄이 주소)
+            continue
+        full = (st[:m.start()].strip() or title).strip()
+        title = ""
+        if not full:
+            continue
+        sm = re.search(r"시즌\s*(\d+)", full)
+        em = re.search(r"(\d+)\s*화", full)
+        dm = re.search(r"[(（]\s*(\d{1,2})\s*[./]\s*(\d{1,2})\s*(\d{1,2}:\d{2})?\s*[)）]\s*$", full)
+        short = full
+        if dm:
+            short = short[:dm.start()].strip()
+        if em:  # "MBCREW 엠비크루 시즌6 2화 퐁당퐁당데이!" → "퐁당퐁당데이!"
+            short = short[em.end():].strip() or short
+        elif sm:
+            short = short[sm.end():].strip() or short
+        date = ""
+        if dm:
+            mon, day = int(dm.group(1)), int(dm.group(2))
+            y = now.year - 1 if mon - now.month > 6 else (now.year + 1 if now.month - mon > 6 else now.year)
+            date = "%04d-%02d-%02d" % (y, mon, day)
+        out.append({"season": int(sm.group(1)) if sm else 0, "ep": int(em.group(1)) if em else 0,
+                    "title": short, "full": full, "date": date, "time": (dm.group(3) or "") if dm else "",
+                    "url": m.group(0)})
+    return out
 
 
 def _find_post(o, no, depth=0):
@@ -1180,7 +1241,13 @@ def main():
             text = f.read()
     if not text.strip():
         print("MEMBER_LIST 설정이 비어 있어요. Settings → Secrets and variables → Actions → Secrets에 넣어 주세요.")
-    text, pic_list = take_pics(text)  # '멤버 사진' 칸은 멤버 목록과 따로 처리
+    text, secs = take_sections(text)  # '멤버 사진'·'다시보기' 칸은 멤버 목록과 따로 처리
+    pic_list = parse_pics(secs["pics"])
+    try:
+        vod = parse_vod(secs["vod"])
+    except Exception as e:
+        print("다시보기 칸 처리 중 오류(라이브 확인에는 영향 없음):", type(e).__name__)
+        vod = []
     pages = split_pages(text)
     title, groups, extras = pages[0]["title"], pages[0]["groups"], pages[0]["extras"]
     prev_data = load_prev()
@@ -1246,6 +1313,7 @@ def main():
         "posts": posts,
         "postsUpdated": posts_updated,
         "pics": pics,  # 멤버 사진: {직함 뺀 이름: {name, url, imgs(최대 30장), at}}
+        "vod": vod,  # 크루 다시보기: 목록에 적은 순서 그대로 (화면에서 최신 시즌·회차가 앞으로)
         "repo": os.environ.get("GITHUB_REPOSITORY", ""),  # 페이지가 저장소의 최신 결과(live-data)를 찾을 때 씀
         # 계열사 페이지 (Gist 목록의 '페이지 MBU' 아래). 멤버·일정·메모는 페이지마다 따로, 소식은 posts의 pg로 구분
         "sub": [{"key": pg["key"], "label": pg["label"], "title": pg["title"] or pg["label"], "groups": out_pages[k],
@@ -1274,6 +1342,8 @@ def main():
     print("숲 확인 %(ok)d/%(all)d, 숲 방송 중 %(on)d" % SOOP_STATS)
     if FUN_STATS["all"]:
         print("펀네이션 확인 %(ok)d/%(all)d, 펀네이션 방송 중 %(on)d" % FUN_STATS)
+    if vod:
+        print("다시보기: 영상 %d개 (시즌 %s)" % (len(vod), ", ".join(str(x) for x in sorted({v["season"] for v in vod}, reverse=True))))
     if PIC_STATS["all"]:
         print("멤버 사진: %(all)d명 중 %(ok)d명 사진 있음 (이번에 새로 읽음 %(read)d명, 사진 %(imgs)d장, 시간 부족으로 다음에 %(late)d명)" % PIC_STATS)
     if POST_STATS["yt_all"] or POST_STATS["soop_all"]:

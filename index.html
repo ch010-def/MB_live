@@ -61,6 +61,33 @@ main{max-width:720px;margin:0 auto;padding:0 14px 56px}
 .sched-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:10px;background:rgba(255,255,255,.06);
   border:1px solid rgba(255,255,255,.14);color:var(--ink);text-decoration:none;font-weight:700;font-size:14px;backdrop-filter:blur(4px)}
 .sched-btn:hover{border-color:var(--accent);background:rgba(76,141,255,.14)}
+.sched-btn[hidden]{display:none}
+/* 크루 다시보기 화면 */
+.vhome{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;margin:0 0 14px;text-decoration:none;color:var(--ink);background:linear-gradient(120deg,rgba(168,85,247,.16),rgba(76,141,255,.08));border:1px solid rgba(168,85,247,.45)}
+.vhome:hover{border-color:var(--fun)}
+.vhome .tx{flex:1;min-width:0}
+.vhome .tx b{display:block;font-size:16px;font-weight:800}
+.vhome .tx small{display:block;margin-top:3px;font-size:13px;color:#c9b8f0}
+.vhome .go{flex:none;font-size:18px;color:#c4b5fd}
+.vseason{display:flex;gap:6px;margin:0 0 12px;flex-wrap:wrap}
+.vseason button{font:inherit;font-size:13px;font-weight:800;padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer}
+.vseason button.on{color:#fff;background:var(--panel-2);border-color:#4a4e66}
+.vlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.vitem{display:flex;align-items:center;gap:14px;padding:12px 14px;background:var(--panel);border:1px solid var(--line);border-radius:14px;text-decoration:none;color:var(--ink)}
+.vitem:hover{border-color:var(--fun)}
+.vitem .ep{flex:none;min-width:54px;padding:7px 10px;border-radius:10px;text-align:center;white-space:nowrap;background:rgba(168,85,247,.16);border:1px solid rgba(168,85,247,.45);color:#e4d7ff;font-weight:800;font-size:15px;line-height:1.2;font-variant-numeric:tabular-nums}
+.vitem .bd{flex:1;min-width:0}
+.vitem .bd b{display:block;font-size:15px;line-height:1.35;overflow-wrap:anywhere}
+.vitem .bd span{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.vitem .pl{flex:none;color:#c4b5fd;display:flex}
+/* 폰: 일정·소식·크루 버튼을 같은 너비로 한 줄에, 숫자는 버튼 모서리에 */
+@media (max-width:600px){
+  .titlerow{gap:10px}
+  .titlerow .btns{flex:1 1 100%;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px}
+  .titlerow .sched-btn{position:relative;white-space:nowrap;justify-content:center;padding:7px 2px;font-size:13px;gap:4px}
+  .titlerow .sched-btn span:not(:empty){position:absolute;top:-7px;right:-4px;font-size:10px;line-height:15px;padding:0 5px;margin:0;border:2px solid #10121c}
+  .vlist{grid-template-columns:1fr}
+}
 .sched-btn span:not(:empty){margin-left:2px;background:var(--accent);color:#fff;font-size:11px;padding:1px 6px;border-radius:6px}
 .back{display:inline-flex;align-items:center;gap:6px;margin:0 0 16px;padding:9px 16px;border-radius:999px;background:rgba(76,141,255,.16);border:1px solid rgba(76,141,255,.55);color:#fff;text-decoration:none;font-size:14px;font-weight:700}
 .back:hover{background:rgba(76,141,255,.28)}
@@ -420,6 +447,10 @@ body.pg-sub .count .chip.live{background:var(--soop)}
           <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M5 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H10l-5 4v-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 9h8M8 12.5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
           소식<span class="new" id="postsCount"></span>
         </a>
+        <a class="sched-btn" href="#crew" id="crewBtn" title="크루 방송 다시보기" hidden>
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 9.5v5l4.5-2.5z" fill="currentColor"/></svg>
+          크루
+        </a>
         </div>
       </div>
       <div class="count" id="meta">불러오는 중…</div>
@@ -472,6 +503,14 @@ body.pg-sub .count .chip.live{background:var(--soop)}
       <div class="calday" id="calDay"></div>
     </section>
     <section class="card calsolo" id="calSolo" hidden></section>
+  </div>
+  <div id="crew" hidden>
+    <a class="back" href="#">← <i class="lv"></i>라이브 · 멤버 목록으로</a>
+    <a class="vhome" href="https://www.funnation.co.kr/mbcrew" target="_blank" rel="noopener">
+      <span class="tx"><b>엠비크루 펀네이션 바로가기</b><small>펀네이션 회원가입(무료) 후 영상을 볼 수 있어요</small></span><span class="go">↗</span>
+    </a>
+    <div class="vseason" id="vSeason"></div>
+    <div class="vlist" id="vList"></div>
   </div>
   <div id="posts" hidden>
     <a class="back" href="#">← <i class="lv"></i>라이브 · 멤버 목록으로</a>
@@ -533,7 +572,7 @@ function showBackup(d, ago){
 // 주소 뒤 #으로 페이지와 화면을 구분: (없음)/#schedule/#posts = 기본 페이지, #mbu, #mbu/schedule, #mbu/posts = 계열사 페이지
 function parseHash(){
   var h = location.hash.replace(/^#/, ''), parts = h.split('/');
-  var views = {schedule: 1, posts: 1};
+  var views = {schedule: 1, posts: 1, crew: 1};
   if(parts[0] === 'cal') return {pg: '', view: 'cal'}; // 전체 일정 (두 그룹 달력)
   if(views[parts[0]]) return {pg: '', view: parts[0]};
   return {pg: parts[0] || '', view: views[parts[1]] ? parts[1] : 'home'};
@@ -680,6 +719,7 @@ function render(full){
   renderSchedule(d.schedule || [], d.memo || []);
   try{ if(parseHash().view === 'cal') renderCal(full); }catch(e){}
   try{ renderPosts(d); }catch(e){ $('feed').textContent = '소식을 표시하지 못했어요'; } // 소식에 문제가 생겨도 멤버 카드는 그대로
+  try{ renderVod(pg ? [] : (full.vod || [])); }catch(e){}
 }
 
 // "11/3(월) 17:00 내용" 또는 "11월 3일 ..." 형태면 날짜를 따로 보여주고 오늘·지난 일정을 표시
@@ -1139,16 +1179,51 @@ function renderPosts(d){
   });
 }
 
+// ── 크루 다시보기 (목록 맨 아래 '다시보기' 칸) ──
+// 시즌 버튼: 최신 시즌이 왼쪽·처음에 켜짐. 영상은 최신 회차가 위로. 펀네이션에는 접속하지 않고 링크만 걸어요
+var VOD_SEASON = null;
+var VOD_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 9.5v5l4.5-2.5z" fill="currentColor"/></svg>';
+function renderVod(list){
+  $('crewBtn').hidden = !list.length;
+  var sb = $('vSeason'), box = $('vList'); sb.innerHTML = ''; box.innerHTML = '';
+  if(!list.length){ box.appendChild(el('p', 'empty', '아직 올라온 다시보기 영상이 없어요')); return; }
+  var items = list.map(function(v, i){ var o = {}; for(var k in v) o[k] = v[k]; o.i = i; return o; });
+  var seasons = [];
+  items.forEach(function(v){ if(seasons.indexOf(v.season) < 0) seasons.push(v.season); });
+  seasons.sort(function(a, b){ return b - a; });
+  if(seasons.indexOf(VOD_SEASON) < 0) VOD_SEASON = seasons[0];
+  seasons.forEach(function(sn){
+    var n = items.filter(function(v){ return v.season === sn; }).length;
+    var b = el('button', sn === VOD_SEASON ? 'on' : '', (sn ? '시즌 ' + sn : '기타') + ' · ' + n + '편'); b.type = 'button';
+    b.addEventListener('click', function(){ VOD_SEASON = sn; renderVod(list); });
+    sb.appendChild(b);
+  });
+  items.filter(function(v){ return v.season === VOD_SEASON; })
+    .sort(function(a, b){ return (b.ep - a.ep) || (b.date > a.date ? 1 : b.date < a.date ? -1 : 0) || (b.i - a.i); })
+    .forEach(function(v){
+      var a = el('a', 'vitem'); a.href = v.url; a.target = '_blank'; a.rel = 'noopener'; a.title = v.full || v.title;
+      if(v.ep) a.appendChild(el('span', 'ep', v.ep + '화'));
+      var bd = el('span', 'bd'); bd.appendChild(el('b', null, v.title || v.full));
+      if(v.date){
+        var p = v.date.split('-'), d = new Date(+p[0], +p[1] - 1, +p[2]);
+        bd.appendChild(el('span', null, (+p[1]) + '/' + (+p[2]) + '(' + '일월화수목금토'.charAt(d.getDay()) + ')' + (v.time ? ' ' + v.time : '')));
+      }
+      a.appendChild(bd);
+      var pl = el('span', 'pl'); pl.innerHTML = VOD_ICON; a.appendChild(pl);
+      box.appendChild(a);
+    });
+}
 function route(){
   var ph = parseHash();
   if(lastData && ph.pg !== CUR_PG) render(lastData); // 크루 전환
   var sch = ph.view === 'schedule', pst = ph.view === 'posts', cal = ph.view === 'cal';
-  $('schedule').hidden = !sch; $('posts').hidden = !pst; $('cal').hidden = !cal; $('home').hidden = sch || pst || cal;
+  var crw = ph.view === 'crew' && !ph.pg; // 크루 다시보기는 엠비크루 페이지에만
+  $('schedule').hidden = !sch; $('posts').hidden = !pst; $('cal').hidden = !cal; $('crew').hidden = !crw; $('home').hidden = sch || pst || cal || crw;
   document.body.classList.toggle('v-cal', cal);
   if(cal && lastData) renderCal(lastData);
   if($('switch').children.length) markSwitch();
-  $('schedBtn').classList.toggle('cur', sch); $('postsBtn').classList.toggle('cur', pst);
-  if(sch || pst || cal) window.scrollTo(0, 0);
+  $('schedBtn').classList.toggle('cur', sch); $('postsBtn').classList.toggle('cur', pst); $('crewBtn').classList.toggle('cur', crw);
+  if(sch || pst || cal || crw) window.scrollTo(0, 0);
 }
 window.addEventListener('hashchange', route);
 route();
@@ -1375,6 +1450,7 @@ $('reloadBtn').addEventListener('click', function(){ location.reload(); });
   function mbu(){ // 마범대 화면을 본 횟수 (한 번 들어올 때 한 번만)
     if(!sent.mbu && /^#mbu/.test(location.hash)){ sent.mbu = 1; cnt({path: '마범대 보기', title: '마범대 보기', event: true}); }
     if(!sent.cal && /^#cal/.test(location.hash)){ sent.cal = 1; cnt({path: '전체 일정 보기', title: '전체 일정 보기', event: true}); }
+    if(!sent.crew && /^#crew/.test(location.hash)){ sent.crew = 1; cnt({path: '크루 다시보기', title: '크루 다시보기', event: true}); }
   }
   var s = document.createElement('script');
   s.async = true; s.src = 'https://gc.zgo.at/count.js';
