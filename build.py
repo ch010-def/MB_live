@@ -726,21 +726,35 @@ def abs_url(u):
     return "https:" + u if u.startswith("//") else (u if u.startswith("http") else "")
 
 
+def _img_key(u):
+    """같은 사진 비교용: 주소 앞(stimg.sooplive.co.kr / .com 등)을 빼고 NORMAL_BBS/... 부분만"""
+    m = re.search(r"NORMAL_BBS/[^?#\"']+", u or "")
+    return m.group(0) if m else (u or "").split("?")[0].split("//", 1)[-1]
+
+
 def soop_imgs(item):
     out = []
     for ph in item.get("photos") or []:
         u = abs_url(pick(ph, "url", "image", "thumbnail", "file_url")) if isinstance(ph, dict) else abs_url(ph)
         if u:
             out.append(u)
-    if not out:  # 사진 칸이 비어 있으면 본문 속 그림에서 (이모티콘은 제외)
-        body = (item.get("content") or {}).get("content", "") if isinstance(item.get("content"), dict) else ""
-        for tag in re.findall(r"<img\b[^>]*>", body or "", re.I):
-            if re.search(r"emtn|ogq_item|data-emoji", tag):
-                continue
-            m = re.search(r"""\bsrc\s*=\s*["']([^"']+)["']""", tag)
-            if m and abs_url(m.group(1)):
-                out.append(abs_url(m.group(1)))
-    return out
+    # 본문 속 그림 (이모티콘은 제외). 글에 보이는 순서는 이쪽이 정답이에요
+    body = (item.get("content") or {}).get("content", "") if isinstance(item.get("content"), dict) else ""
+    body_imgs = []
+    for tag in re.findall(r"<img\b[^>]*>", body or "", re.I):
+        if re.search(r"emtn|ogq_item|data-emoji", tag):
+            continue
+        m = re.search(r"""\bsrc\s*=\s*["']([^"']+)["']""", tag)
+        if m and abs_url(m.group(1)):
+            body_imgs.append(abs_url(m.group(1)))
+    if not out:  # 사진 칸이 비어 있으면 본문 속 그림 그대로
+        return body_imgs
+    # photos 칸은 '올린 순서'라서, 작성자가 본문에서 사진 위치를 옮기면 숲 화면과 순서가 달라져요.
+    # → 본문에 나오는 순서대로 다시 줄 세움 (본문에 없는 사진은 원래 순서대로 맨 뒤에)
+    pos = {}
+    for i, u in enumerate(body_imgs):
+        pos.setdefault(_img_key(u), i)
+    return sorted(out, key=lambda u: pos.get(_img_key(u), len(pos)))  # sorted는 같은 값끼리 원래 순서 유지
 
 
 def soop_posts(bid):
