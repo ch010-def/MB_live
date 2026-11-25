@@ -114,12 +114,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # GitHub 쪽 일시적인 오류에 대비해 최대 5번까지 다시 시도해요
-          for i in 1 2 3 4 5; do
+          # GitHub 쪽 일시적인 오류(500 등)에 대비해 약 6분 동안 점점 길게 쉬며 다시 시도해요.
+          # (15분 예비 예약은 GitHub 장애 때 늦거나 빠지는 일이 많아서, 여기서 최대한 이어 붙여요)
+          i=0
+          for w in 15 30 45 60 60 60 60 60; do
+            i=$((i+1))
             if gh workflow run update.yml --ref main -R ${{ github.repository }}; then exit 0; fi
-            echo "다음 실행 예약 실패, 15초 뒤 다시 시도 ($i/5)"
-            sleep 15
+            echo "다음 실행 예약 실패, ${w}초 뒤 다시 시도 ($i/8)"
+            sleep "$w"
           done
+          gh workflow run update.yml --ref main -R ${{ github.repository }} && exit 0
           exit 1
 
   # 사이트(GitHub Pages)에 화면 파일 올리기. 라이브 확인과 따로 돌아서, 여기가 느려도 라이브 표시는 밀리지 않아요.
