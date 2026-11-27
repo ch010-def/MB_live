@@ -258,6 +258,9 @@ a.chip.live:hover{filter:brightness(1.12)}
 .ppager .parr{width:30px;height:30px;padding:0;border-radius:50%;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);font-size:18px;line-height:1;cursor:pointer}
 .ppager .parr[hidden]{display:inline-block;visibility:hidden}
 .pgrid.n1 .pcell{grid-column:span 4;aspect-ratio:auto}
+/* 사진이 여러 장일 때 1페이지: 첫 사진 하나를 6장 칸 크기 그대로 크게 (페이지를 넘겨도 창 크기가 같게) */
+.pgrid.big .pcell{grid-column:span 4;aspect-ratio:2/3}
+.pgrid.big .pcell img{height:100%;max-height:none;object-fit:contain}
 .pgrid.n1 .pcell img{height:auto;max-height:60vh;object-fit:contain}
 .pnone{color:var(--muted);font-size:13.5px;text-align:center;padding:18px 0}
 .pzoom{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;padding:12px;cursor:zoom-out}
@@ -1413,7 +1416,9 @@ var PIC_PAGE = 6, PICS_NOW = null; // 한 번에 최대 6장. 더 많으면 페�
 function openPics(m, imgs){
   $('sheetName').textContent = m.name;
   $('sheetPic').src = m.avatar || ''; $('sheetPic').style.visibility = m.avatar ? '' : 'hidden';
-  var rows = $('rows'), pages = Math.ceil(imgs.length / PIC_PAGE), cur = 0, minH = 0;
+  // 1페이지: 첫 사진 하나만 크게 / 2페이지부터: 나머지를 6장씩
+  var rows = $('rows'), pages = imgs.length > 1 ? 1 + Math.ceil((imgs.length - 1) / PIC_PAGE) : 1, cur = 0, minH = 0;
+  function pageList(p){ return p === 0 ? imgs.slice(0, 1) : imgs.slice(1 + (p - 1) * PIC_PAGE, 1 + p * PIC_PAGE); }
   function cell(src){
     var b = el('button', 'pcell'); b.type = 'button'; b.setAttribute('aria-label', '사진 크게 보기');
     var im = el('img'); im.src = src; im.alt = ''; im.referrerPolicy = 'no-referrer'; im.loading = 'lazy'; im.draggable = false;
@@ -1424,9 +1429,9 @@ function openPics(m, imgs){
   }
   function show(p){
     cur = Math.max(0, Math.min(pages - 1, p));
-    var list = imgs.slice(cur * PIC_PAGE, cur * PIC_PAGE + PIC_PAGE);
+    var list = pageList(cur);
     rows.innerHTML = '';
-    var g = el('div', 'pgrid n' + list.length);
+    var g = el('div', 'pgrid n' + list.length + (cur === 0 && pages > 1 ? ' big' : ''));
     list.forEach(function(src){ g.appendChild(cell(src)); });
     rows.appendChild(g);
     if(pages > 1){
@@ -1447,7 +1452,7 @@ function openPics(m, imgs){
       rows.appendChild(bar);
       if(!minH) minH = g.offsetHeight;
       // 다음 페이지 사진은 미리 받아 둬서 넘길 때 바로 뜨게
-      imgs.slice((cur + 1) * PIC_PAGE, (cur + 2) * PIC_PAGE).forEach(function(src){ var x = new Image(); x.referrerPolicy = 'no-referrer'; x.src = src; });
+      pageList(cur + 1).forEach(function(src){ var x = new Image(); x.referrerPolicy = 'no-referrer'; x.src = src; });
     }
   }
   // 폰: 사진 위에서 옆으로 밀면 페이지 넘김
