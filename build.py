@@ -1182,6 +1182,9 @@ def read_gist(url):
     if not m:
         print("MEMBER_LIST가 Gist 주소 모양이 아니에요.")
         return ""
+    files = read_gist_files(url, "목록")  # 파일을 나눠 써도 돼요: 이름순으로 이어 붙여 읽음 (0_엠비크루 → 1_마범대 …)
+    if files:
+        return "\n\n".join(body for _, body in files)
     raw = "https://gist.githubusercontent.com/%s/%s/raw?t=%d" % (m.group(1), m.group(2), datetime.now().timestamp())
     try:
         with urllib.request.urlopen(raw, timeout=20) as r:
@@ -1189,6 +1192,112 @@ def read_gist(url):
     except Exception:
         print("Gist 목록을 읽지 못했어요. 주소가 맞는지 확인해 주세요.")
         return ""
+
+
+# ── 일정 모음 Gist ──
+# 목록에 "일정 모음: https://gist.github.com/…" 줄을 적으면 그 Gist의 파일을 전부 읽어 일정·메모로 씀.
+# 파일마다 맨 위 '#' 설명 줄은 무시. '메모' 줄 아래는 메모, 나머지(또는 '일정' 줄 아래)는 일정.
+# 파일 이름에 '2026-11'처럼 연·월이 있으면 그 파일 일정은 그 해로 봄 (오래된 보관 파일도 날짜가 안 틀어지게).
+# 못 읽으면 지난번에 읽어 둔 내용(data.json의 schedSrc)을 그대로 씀 → 일정이 갑자기 비지 않음.
+LINK_GIST_RE = re.compile(r"^\s*#?\s*(일정|다시\s*보기)\s*모음\s*[:：]\s*(https?://\S+)\s*$")
+
+
+def take_link_gists(text):
+    """목록에서 '일정 모음: 주소'·'다시보기 모음: 주소' 줄을 떼어 냄 (목록 어느 파일·어느 줄에 있어도 돼요).
+    반환: (나머지 목록, {"sched": 주소, "vod": 주소})"""
+    keep, urls = [], {}
+    for raw in text.splitlines():
+        m = LINK_GIST_RE.match(raw)
+        if m:
+            urls.setdefault("sched" if m.group(1) == "일정" else "vod", m.group(2))
+            continue
+        keep.append(raw)
+    return "\n".join(keep), urls
+
+
+def read_gist_files(url, what="일정 모음"):
+    """Gist의 파일 전부 → [[파일 이름, 내용], ...] (이름순). 못 읽으면 None
+    1) Gist 저장소를 git으로 받기 (요청 한도 없음) → 2) GitHub API (토큰 → 토큰 없이)"""
+    m = re.search(r"gist\.github(?:usercontent)?\.com/(?:[^/\s]+/)?([0-9a-f]{20,})", url)
+    if not m:
+        print("%s 주소가 Gist 주소 모양이 아니에요." % what)
+        return None
+    gid = m.group(1)
+    import subprocess, tempfile
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            subprocess.run(["git", "clone", "-q", "--depth", "1", "https://gist.github.com/%s.git" % gid, tmp + "/g"],
+                           check=True, timeout=40, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                           env=dict(os.environ, GIT_TERMINAL_PROMPT="0"))
+            out = []
+            for name in sorted(os.listdir(tmp + "/g")):
+                fp = os.path.join(tmp, "g", name)
+                if name.startswith(".") or not os.path.isfile(fp):
+                    continue
+                with open(fp, encoding="utf-8-sig", errors="replace") as f:
+                    out.append([name, f.read()])
+            return out
+    except Exception:
+        pass
+    tok = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
+    for use_tok in ([True, False] if tok else [False]):
+        headers = {"Accept": "application/vnd.github+json", "User-Agent": "MB_live"}
+        if use_tok:
+            headers["Authorization"] = "Bearer " + tok
+        try:
+            req = urllib.request.Request("https://api.github.com/gists/" + gid, headers=headers)
+            with urllib.request.urlopen(req, timeout=20) as r:
+                files = json.loads(r.read().decode("utf-8")).get("files") or {}
+            out = []
+            for name in sorted(files):
+                f = files[name] or {}
+                body = f.get("content") or ""
+                if f.get("truncated") and f.get("raw_url"):  # 아주 긴 파일은 원본 주소에서 따로
+                    with urllib.request.urlopen(f["raw_url"], timeout=20) as r:
+                        body = r.read().decode("utf-8-sig")
+                out.append([name, body.lstrip("\ufeff")])
+            return out
+        except Exception:
+            continue
+    print("%s Gist를 읽지 못했어요" % what)
+    return None
+
+
+def sched_gist_text(files):
+    """일정 모음 파일들 → 목록 맨 앞에 붙일 '일정'·'메모' 칸 글"""
+    sched, memo = [], []
+    date_re = re.compile(r"^(\s*(?:\[[^\]]{1,15}\]\s*)?)(\d{1,2}\s*[/.월]\s*\d{1,2})")
+    for name, body in files:
+        ym = re.search(r"(20\d{2})\s*[-._년]\s*(\d{1,2})", name)
+        year = ym.group(1) if ym else ""  # 파일 이름의 해. 파일 안 '2027년' 줄이 있으면 그 아래부터 그 해 (그 파일 안에서만)
+        mode = "sched"
+        for raw in (body or "").splitlines():
+            st = raw.strip()
+            if st == "일정":
+                mode = "sched"
+                continue
+            if st == "메모":
+                mode = "memo"
+                memo.append("")
+                continue
+            if mode == "memo":
+                memo.append(raw.rstrip())
+                continue
+            if not st or st.startswith("#"):
+                continue
+            yl = re.match(r"^(20\d{2})\s*년?$", st)
+            if yl:
+                year = yl.group(1)
+                continue
+            if year:  # 날짜 앞에 그 해를 붙임 ("[엠] 11/05(목) …" → "[엠] 2026.11/05(목) …")
+                st = date_re.sub(lambda mm: mm.group(1) + year + "." + mm.group(2), st, count=1)
+            sched.append(st)
+    parts = []
+    if sched:
+        parts.append("일정\n" + "\n".join(sched))
+    if any(l.strip() for l in memo):
+        parts.append("메모\n" + "\n".join(memo).strip("\n"))
+    return "\n\n".join(parts)
 
 
 PAGES_INFO = {}       # 지금 사이트에 올라가 있는 화면 정보 (못 읽으면 비어 있음)
@@ -1255,16 +1364,41 @@ def main():
             text = f.read()
     if not text.strip():
         print("MEMBER_LIST 설정이 비어 있어요. Settings → Secrets and variables → Actions → Secrets에 넣어 주세요.")
+    text, link_urls = take_link_gists(text)  # 다른 Gist 주소 줄 (일정 모음·다시보기 모음)
     text, secs = take_sections(text)  # '멤버 사진'·'다시보기' 칸은 멤버 목록과 따로 처리
     pic_list = parse_pics(secs["pics"])
+    prev_data = load_prev()
+    # 다시보기 모음 Gist: 파일 전부를 목록의 '다시보기' 칸처럼 읽음 (목록에 남은 다시보기 칸도 같이)
+    vod_fail = False
+    if link_urls.get("vod"):
+        vfiles = read_gist_files(link_urls["vod"], "다시보기 모음")
+        if vfiles is None:
+            vod_fail = True
+        else:
+            for _, body in vfiles:
+                secs["vod"] += [""] + body.splitlines()
+            print("다시보기 모음: 파일 %d개" % len(vfiles))
     try:
         vod = parse_vod(secs["vod"])
     except Exception as e:
         print("다시보기 칸 처리 중 오류(라이브 확인에는 영향 없음):", type(e).__name__)
         vod = []
+    if vod_fail and not vod and isinstance(prev_data.get("vod"), list):
+        vod = prev_data["vod"]  # 못 읽었으면 지난번 다시보기 그대로
+    # 일정 모음 Gist: 목록 맨 앞에 일정·메모 칸으로 붙여서 원래 방식 그대로 처리 (페이지 표시 [엠]/[마]/[공]도 그대로)
+    sched_url = link_urls.get("sched", "")
+    sched_src = []
+    if sched_url:
+        sched_src = read_gist_files(sched_url, "일정 모음")
+        if sched_src is None:
+            old = prev_data.get("schedSrc")
+            sched_src = old if isinstance(old, list) else []
+        extra_text = sched_gist_text(sched_src)
+        if extra_text:
+            text = extra_text + "\n\n" + text
+        print("일정 모음: 파일 %d개" % len(sched_src))  # 내용은 출력하지 않음 (로그가 공개라서)
     pages = split_pages(text)
     title, groups, extras = pages[0]["title"], pages[0]["groups"], pages[0]["extras"]
-    prev_data = load_prev()
     prev_by_pg = {"": {m["name"]: m for g in prev_data.get("groups", []) for m in g.get("members", [])}}
     for sp in prev_data.get("sub", []) if isinstance(prev_data.get("sub"), list) else []:
         prev_by_pg[sp.get("key", "")] = {m["name"]: m for g in sp.get("groups", []) for m in g.get("members", [])}
@@ -1328,7 +1462,8 @@ def main():
         "postsUpdated": posts_updated,
         "pics": pics,  # 멤버 사진: {직함 뺀 이름: {name, url, imgs(최대 30장), at}}
         "vod": vod,  # 크루 다시보기: 목록에 적은 순서 그대로 (화면에서 최신 시즌·회차가 앞으로)
-        "repo": os.environ.get("GITHUB_REPOSITORY", ""),  # 페이지가 저장소의 최신 결과(live-data)를 찾을 때 씀
+        "repo": os.environ.get("GITHUB_REPOSITORY", ""),
+        "schedSrc": sched_src,  # 일정 모음 Gist에서 읽은 내용 (다음 실행에서 못 읽을 때 대신 씀)  # 페이지가 저장소의 최신 결과(live-data)를 찾을 때 씀
         # 계열사 페이지 (Gist 목록의 '페이지 MBU' 아래). 멤버·일정·메모는 페이지마다 따로, 소식은 posts의 pg로 구분
         "sub": [{"key": pg["key"], "label": pg["label"], "title": pg["title"] or pg["label"], "groups": out_pages[k],
                  "schedule": pg["extras"]["schedule"], "memo": pg["extras"]["memo"]} for k, pg in enumerate(pages) if k],
