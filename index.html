@@ -615,22 +615,15 @@ function pageOf(full, pg){
   var src = sub || full;
   var d = {};
   for(var k in full) d[k] = full[k];
-  d.title = src.title; d.groups = src.groups || []; d.schedule = withEnd(src.schedule); d.memo = src.memo || [];
+  d.title = src.title; d.groups = src.groups || []; d.schedule = src.schedule || []; d.memo = src.memo || [];
   d.posts = (full.posts || []).filter(function(p){ return (p.pg || '') === key; });
   d.pg = key;
   return d;
 }
 // ── 업데이트 종료 안내: 11/30 이후 일정 업데이트 안 함 (라이브 확인은 그대로) ──
-// 맨 위 안내 문구 + 일정 목록·달력 11/30 칸에 '끝' 표시 (목록 데이터와 상관없이 항상 표시)
-var END_DAY = new Date(2026, 10, 30), END_LINE = '2026.11/30(월) 🔚 일정 업데이트 끝 · 이후 일정은 공식 홈페이지에서 확인 바랍니다';
-function withEnd(sched){ // 날짜순 목록에서 11/30 다음 날짜 줄 바로 앞에 끼워 넣기 (11/30 일정이 있으면 그날 칸 맨 아래)
-  sched = (sched || []).slice();
-  if(sched.indexOf(END_LINE) >= 0) return sched;
-  var at = sched.length;
-  for(var i = 0; i < sched.length; i++){ var it = parseItem(sched[i]); if(it.date && it.start > END_DAY){ at = i; break; } }
-  sched.splice(at, 0, END_LINE);
-  return sched;
-}
+// 맨 위 안내 문구 (접어 두기 가능)
+// 일정에 '🔚'가 들어간 줄은 눈에 띄게 (예: '[공] 11/30(월) 🔚 일정 업데이트 끝 …'을 일정 메모에 직접 적음)
+function isEndLine(t){ return /🔚/.test(t || ''); }
 function renderEnd(pg){
   var HOME = {'': 'https://officialmbcrew.com/', 'mbu': 'https://mbu.team/'}, hu = HOME[pg] || HOME[''];
   $('endMsg').textContent = '이 페이지는 11월 30일 이후로 더 이상 업데이트하지 않습니다. 앞으로는 공식 홈페이지를 이용해 주시기 바랍니다.';
@@ -865,7 +858,7 @@ document.addEventListener('click', function(e){
 var CAL = {y: 0, m: 0, sel: '', f: 'all'};
 function dkey(d){ return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate(); }
 function calEvents(full){
-  var grps = [{label: full.title, sched: withEnd(full.schedule)}].concat((full.sub || []).map(function(s){ return {label: s.title || s.label, sched: withEnd(s.schedule)}; }));
+  var grps = [{label: full.title, sched: full.schedule || []}].concat((full.sub || []).map(function(s){ return {label: s.title || s.label, sched: s.schedule || []}; }));
   var byDay = {}, seen = {};
   grps.slice(0, 2).forEach(function(g, gi){
     var cur = null;
@@ -879,7 +872,7 @@ function calEvents(full){
       var solo = /^\s*갠방\s*[:：]/.test(text);
       var id = dkey(cur.start) + '|' + tm + '|' + text;
       if(seen[id]){ seen[id].g = 'a'; return; } // [공] 일정: 두 그룹에 다 있으면 한 번만, 두 색으로
-      var ev = {g: String(gi), time: tm, text: text, solo: solo, o: gi * 10000 + li, end: line === END_LINE};
+      var ev = {g: String(gi), time: tm, text: text, solo: solo, o: gi * 10000 + li, end: isEndLine(text)};
       seen[id] = ev;
       for(var d = new Date(cur.start); d <= cur.end; d.setDate(d.getDate() + 1)){
         (byDay[dkey(d)] = byDay[dkey(d)] || []).push(ev);
@@ -1061,13 +1054,13 @@ function renderSchedule(sched, memo){
       row.appendChild(soloChips(g[1])); day.appendChild(row);
       return;
     }
-    var r = el('div', 'srow' + (line === END_LINE ? ' endrow' : ''));
+    var r = el('div', 'srow' + (isEndLine(text) ? ' endrow' : ''));
     var ap = tm.match(/^(오전|오후)\s*(\d{1,2})시$/); // "오후 9시" → 21:00 (칸 맞춤)
     if(ap){ var hh = +ap[2] % 12 + (ap[1] === '오후' ? 12 : 0); tm = (hh < 10 ? '0' : '') + hh + ':00'; }
     r.appendChild(el('span', tm ? 'st' : 'st no', tm || '·'));
     r.appendChild(withLinks(el('span', 'tx'), text));
     day.appendChild(r);
-    if(day._when === 'today' && line !== END_LINE) upcoming++; // 버튼 숫자는 오늘 일정 줄 수
+    if(day._when === 'today' && !isEndLine(text)) upcoming++; // 버튼 숫자는 오늘 일정 줄 수
   });
   // 갠방 줄은 그날 칸 맨 아래로
   [].forEach.call(ul.querySelectorAll('.ssolo'), function(r){ r.parentNode.appendChild(r); });
