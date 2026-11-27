@@ -500,9 +500,10 @@ html.light .stale a{background:#e9c27a}
 html.light .stale .reload{background:#fff;border-color:var(--line)}
 html.light .stale .tip b,html.light .foot .backup-tip b{color:#c42a3d}
 /* 멤버 카드 */
-html.light .m.on{border-color:rgba(204,46,67,.45);background:linear-gradient(180deg,rgba(204,46,67,.07),#fff 60%)}
-html.light .m.on.soop{border-color:rgba(31,98,201,.45);background:linear-gradient(180deg,rgba(31,98,201,.07),#fff 60%)}
-html.light .m.on.fun{border-color:rgba(139,63,217,.45);background:linear-gradient(180deg,rgba(139,63,217,.07),#fff 60%)}
+/* 방송 중 카드: 흰 바탕에서도 한눈에 (두꺼운 테두리 + 카드 전체 연한 색 + 그림자) */
+html.light .m.on{border:2px solid rgba(204,46,67,.7);background:#fff3f4;box-shadow:0 6px 16px rgba(204,46,67,.16)}
+html.light .m.on.soop{border-color:rgba(31,98,201,.65);background:#f0f5fe;box-shadow:0 6px 16px rgba(31,98,201,.16)}
+html.light .m.on.fun{border-color:rgba(139,63,217,.65);background:#f6f0fe;box-shadow:0 6px 16px rgba(139,63,217,.16)}
 html.light .m:not(.on) .pic img{filter:saturate(.85) brightness(.97)}
 html.light .m .btitle{color:var(--muted)}
 html.light .more:hover{color:var(--accent)}
